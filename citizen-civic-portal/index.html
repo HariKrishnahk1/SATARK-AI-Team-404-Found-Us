@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATARK AI — Societal Innovation & Challenge Portal</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="shortcut icon" type="image/png" href="logo.png">
+
+    <!-- Meta Descriptions for SEO -->
+    <meta name="description"
+        content="A technology-enabled platform connecting societal challenges with higher education institutions, disaster management cells, and industry partners for collaborative R&D and solution deployment.">
+    <meta name="author" content="Department of Higher & Technical Education">
+
+    <!-- Leaflet.js Map CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Custom CSS Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Lucide Icons CDN (via script loader) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+    <!-- STARTUP VIDEO SPLASH SCREEN -->
+    <div id="startup-splash" class="startup-splash">
+        <video id="startup-video" class="startup-video" src="SAI.mp4" autoplay muted playsinline preload="auto">
+            <source src="SAI.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Main Toast Container for Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <div id="app-container">
+
+        <!-- App Header (Visible only when logged in) -->
+        <header id="app-header" style="display: none;">
+            <div class="header-content">
+                <div class="logo-container" id="header-logo-trigger">
+                    <img src="logo.png" alt="SATARK AI Logo" class="brand-logo-img">
+                    <span class="logo-text">SATARK AI — Innovation Portal</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-icon-only badge-active" id="header-notif-btn" title="Notifications">
+                        <i data-lucide="bell"></i>
+                    </button>
+                    <button class="btn-icon-only" id="header-profile-btn" title="View Profile">
+                        <i data-lucide="user"></i>
+                    </button>
+                    <button class="btn-secondary" id="logout-btn">
+                        <i data-lucide="log-out"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main>
+
+            <!-- 1. LOGIN SCREEN -->
+            <section id="screen-login" class="screen active">
+                <div class="auth-wrapper">
+                    <div class="card auth-card">
+                        <div class="auth-header">
+                            <img src="logo.png" alt="SATARK AI Logo" class="brand-logo-img-lg" style="margin: 0 auto 0.75rem auto; display: block;">
+                            <h1 style="margin-top: 0.5rem;">Citizen & Innovator Portal</h1>
+                            <p>Submit societal & disaster management challenges for University & Industry R&D.</p>
+                        </div>
+
+                        <!-- Login: Phone input state -->
+                        <div id="auth-phone-state">
+                            <div class="form-group" style="text-align: left;">
+                                <label for="login-phone">Mobile Phone Number</label>
+                                <input type="tel" id="login-phone" class="form-control"
+                                    placeholder="Enter 10-digit number" value="9876543210" required>
+                            </div>
+                            <button class="btn btn-primary" id="login-send-otp-btn" style="width: 100%;">
+                                <span>Send OTP</span>
+                                <i data-lucide="send"></i>
+                            </button>
+                            <button class="btn btn-secondary" id="login-quick-demo-btn" style="width: 100%; margin-top: 0.75rem; background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-weight: 600;">
+                                <i data-lucide="zap"></i>
+                                <span>1-Click Quick Demo Login</span>
+                            </button>
+                        </div>
+
+                        <!-- Login: OTP verification state -->
+                        <div id="auth-otp-state" style="display: none;">
+                            <p class="voice-status-text" style="margin-bottom: 1rem;">We have sent a verification code
+                                to your number.</p>
+
+                            <div class="otp-digit-container">
+                                <input type="text" class="otp-input" maxlength="1" id="otp-1">
+                                <input type="text" class="otp-input" maxlength="1" id="otp-2">
+                                <input type="text" class="otp-input" maxlength="1" id="otp-3">
+                                <input type="text" class="otp-input" maxlength="1" id="otp-4">
+                            </div>
+
+                            <div class="otp-countdown" id="otp-timer-box">
+                                Resend available in <span id="otp-timer">30</span>s
+                            </div>
+
+                            <button class="resend-btn" id="login-resend-btn" style="display: none;">Resend OTP
+                                Code</button>
+
+                            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                                <button class="btn btn-secondary" id="login-otp-back-btn" style="flex: 1;">Back</button>
+                                <button class="btn btn-primary" id="login-verify-otp-btn" style="flex: 1;">Verify
+                                    OTP</button>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">New User / Panchayat Lead? <a href="#"
+                                    id="go-to-register-link"
+                                    style="color: var(--color-primary); font-weight: 600; text-decoration: none;">Create
+                                    Account</a></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. REGISTRATION SCREEN -->
+            <section id="screen-register" class="screen">
+                <div class="auth-wrapper" style="max-width: 520px;">
+                    <div class="card">
+                        <div class="auth-header">
+                            <h1>Register Innovator / Citizen Profile</h1>
+                            <p>Enter your details to submit challenges to HEIs & Industry partners.</p>
+                        </div>
+
+                        <div class="verification-step-indicator">
+                            <div class="v-step active" id="reg-v1">
+                                <div class="v-step-circle">1</div>
+                                <span class="v-step-label">Details</span>
+                            </div>
+                            <div class="v-step" id="reg-v2">
+                                <div class="v-step-circle">2</div>
+                                <span class="v-step-label">Verification</span>
+                            </div>
+                            <div class="v-step" id="reg-v3">
+                                <div class="v-step-circle">3</div>
+                                <span class="v-step-label">Identity</span>
+                            </div>
+                        </div>
+
+                        <!-- Registration Step 1 Form -->
+                        <div id="reg-step-form">
+                            <div class="form-group">
+                                <label for="reg-name">Full Name / Organization</label>
+                                <input type="text" id="reg-name" class="form-control" placeholder="Enter Full Name"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-phone">Phone Number</label>
+                                <input type="tel" id="reg-phone" class="form-control" placeholder="Enter 10-digit Phone"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-email">Email Address (Optional)</label>
+                                <input type="email" id="reg-email" class="form-control" placeholder="name@domain.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-address">Street / Panchayat Address</label>
+                                <input type="text" id="reg-address" class="form-control"
+                                    placeholder="House no, Village / Panchayat" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="reg-city">City / Block</label>
+                                    <input type="text" id="reg-city" class="form-control" placeholder="City"
+                                        value="Ranchi" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-district">District</label>
+                                    <input type="text" id="reg-district" class="form-control" placeholder="District"
+                                        value="Ranchi" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="reg-state">State</label>
+                                    <input type="text" id="reg-state" class="form-control" placeholder="State"
+                                        value="Jharkhand" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-pin">PIN Code</label>
+                                    <input type="text" id="reg-pin" class="form-control" placeholder="6-digit PIN"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                                <button class="btn btn-secondary" id="reg-cancel-btn" style="flex: 1;">Cancel</button>
+                                <button class="btn btn-primary" id="reg-submit-details-btn" style="flex: 1;">Submit
+                                    Details</button>
+                            </div>
+                        </div>
+
+                        <!-- Registration Step 2: Phone OTP validation -->
+                        <div id="reg-step-otp" style="display: none; text-align: center;">
+                            <h3>Phone Verification</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Enter the verification code
+                                sent to your phone.</p>
+
+                            <div class="otp-digit-container">
+                                <input type="text" class="otp-input" id="reg-otp-1" maxlength="1">
+                                <input type="text" class="otp-input" id="reg-otp-2" maxlength="1">
+                                <input type="text" class="otp-input" id="reg-otp-3" maxlength="1">
+                                <input type="text" class="otp-input" id="reg-otp-4" maxlength="1">
+                            </div>
+
+                            <button class="btn btn-primary" id="reg-verify-phone-btn"
+                                style="width: 100%; margin-top: 1rem;">Verify Phone</button>
+                        </div>
+
+                        <!-- Registration Step 3: Identity Verification (Mock Service interface) -->
+                        <div id="reg-step-identity" style="display: none;">
+                            <div style="text-align: center; margin-bottom: 1.5rem;">
+                                <h3>Identity Verification</h3>
+                                <p style="color: var(--text-secondary);">We need to verify your details with the civic
+                                    registrar.</p>
+                            </div>
+
+                            <div class="validation-card" style="margin-top: 0; background-color: var(--color-bg-base);">
+                                <div class="validation-item">
+                                    <span class="validation-label"><i data-lucide="check-circle-2" class="v-pass"></i>
+                                        Name matching check</span>
+                                    <span class="validation-status v-pass">PASSED</span>
+                                </div>
+                                <div class="validation-item">
+                                    <span class="validation-label"><i data-lucide="check-circle-2" class="v-pass"></i>
+                                        Phone registered match</span>
+                                    <span class="validation-status v-pass">PASSED</span>
+                                </div>
+                                <div class="validation-item">
+                                    <span class="validation-label" id="id-verification-status-label"><span
+                                            class="progress-spinner"></span> Verification in progress...</span>
+                                    <span class="validation-status v-loading"
+                                        id="id-verification-status-text">WAITING</span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" id="reg-complete-identity-btn"
+                                style="width: 100%; margin-top: 2rem;" disabled>
+                                <span>Create Verified Account</span>
+                                <i data-lucide="arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. CITIZEN DASHBOARD SCREEN -->
+            <section id="screen-dashboard" class="screen">
+
+                <!-- Action Jumbotron -->
+                <div class="jumbotron">
+                    <div class="jumbo-text">
+                        <h2>Report a Public Problem</h2>
+                        <p>Is there a pothole, broken streetlight, or trash pile in your neighborhood? Let us know!</p>
+                    </div>
+                    <button class="btn btn-primary" id="dash-report-btn"
+                        style="padding: 1rem 2rem; font-size: 1.05rem;">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Report Civic Problem</span>
+                    </button>
+                </div>
+
+                <div class="dashboard-grid">
+
+                    <!-- Left: Grievances Dashboard list -->
+                    <div>
+                        <div class="stats-grid">
+                            <div class="card stat-card">
+                                <span class="stat-label">Total Reports</span>
+                                <div class="stat-num total" id="stat-total-val">0</div>
+                            </div>
+                            <div class="card stat-card">
+                                <span class="stat-label">Pending</span>
+                                <div class="stat-num pending" id="stat-pending-val">0</div>
+                            </div>
+                            <div class="card stat-card">
+                                <span class="stat-label">Active Work</span>
+                                <div class="stat-num active" id="stat-active-val">0</div>
+                            </div>
+                            <div class="card stat-card">
+                                <span class="stat-label">Resolved</span>
+                                <div class="stat-num resolved" id="stat-resolved-val">0</div>
+                            </div>
+                        </div>
+
+                        <div class="section-header">
+                            <h2>My Civic Reports</h2>
+                        </div>
+
+                        <div class="filter-bar">
+                            <div class="filter-chip active" data-filter="ALL">All</div>
+                            <div class="filter-chip" data-filter="SUBMITTED">Submitted</div>
+                            <div class="filter-chip" data-filter="ACTIVE">In Progress</div>
+                            <div class="filter-chip" data-filter="COMPLETED">Completed</div>
+                            <div class="filter-chip" data-filter="RESOLVED">Resolved</div>
+                            <div class="filter-chip" data-filter="REOPENED">Reopened</div>
+                        </div>
+
+                        <div class="complaints-list" id="dashboard-complaints-list">
+                            <!-- Populated dynamically via JS -->
+                            <div class="card"
+                                style="text-align: center; color: var(--text-muted); padding: 3rem 1.5rem;">
+                                <i data-lucide="clipboard-list"
+                                    style="width: 48px; height: 48px; margin: 0 auto 1rem; opacity: 0.5;"></i>
+                                <p>You have not reported any civic issues yet. Click "Report Civic Problem" to start.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Sidebar: Recent notifications / profile preview -->
+                    <div>
+                        <div class="card" style="margin-bottom: 1.5rem;">
+                            <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="bell" style="color: var(--color-primary);"></i>
+                                <span>Recent Notifications</span>
+                            </h3>
+                            <div id="dash-notifications-mini"
+                                style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">No new notifications.</p>
+                            </div>
+                            <button class="btn btn-secondary" id="dash-view-all-notifs"
+                                style="width: 100%; margin-top: 1rem; font-size: 0.8rem; padding: 0.5rem;">
+                                View All Notifications
+                            </button>
+                        </div>
+
+                        <div class="card">
+                            <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="shield-check" style="color: var(--color-success);"></i>
+                                <span>Identity Status</span>
+                            </h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Your account
+                                is fully verified against municipal database records.</p>
+                            <div style="font-size: 0.85rem;">
+                                <div><strong>Citizen ID:</strong> <span id="dash-user-id">CIT-8924</span></div>
+                                <div style="margin-top: 0.25rem;"><strong>District:</strong> <span
+                                        id="dash-user-district">Chennai</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. REPORT A PROBLEM SCREEN (MULTI-STEP WIZARD) -->
+            <section id="screen-report-problem" class="screen">
+                <div class="wizard-container">
+                    <div class="section-header" style="margin-bottom: 1.5rem;">
+                        <h2>Report New Complaint</h2>
+                        <button class="btn btn-secondary" id="wizard-cancel-header-btn">Cancel</button>
+                    </div>
+
+                    <!-- Wizard Progress Tracker -->
+                    <div class="wizard-progress">
+                        <div class="wizard-progress-bar" id="wizard-bar"></div>
+                        <div class="wizard-step active" id="wizard-step-1">
+                            <div class="wizard-step-dot">1</div>
+                            <span class="wizard-step-label">Location</span>
+                        </div>
+                        <div class="wizard-step" id="wizard-step-2">
+                            <div class="wizard-step-dot">2</div>
+                            <span class="wizard-step-label">Photo</span>
+                        </div>
+                        <div class="wizard-step" id="wizard-step-3">
+                            <div class="wizard-step-dot">3</div>
+                            <span class="wizard-step-label">Details</span>
+                        </div>
+                        <div class="wizard-step" id="wizard-step-4">
+                            <div class="wizard-step-dot">4</div>
+                            <span class="wizard-step-label">Checks</span>
+                        </div>
+                        <div class="wizard-step" id="wizard-step-5">
+                            <div class="wizard-step-dot">5</div>
+                            <span class="wizard-step-label">Review</span>
+                        </div>
+                    </div>
+
+                    <!-- WIZARD STEP 1: LOCATION -->
+                    <div class="card wizard-step-content" id="w-content-1">
+                        <h3 style="margin-bottom: 0.5rem;">Confirm Problem Location</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Use the map
+                            to pin the exact location of the issue. You can search or drag the pin marker.</p>
+
+                        <div class="form-group">
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <input type="text" id="loc-search-input" class="form-control"
+                                    placeholder="Search street, area (e.g. Kangeyam, Tiruppur)...">
+                                <button class="btn btn-secondary" id="loc-search-btn">Search</button>
+                            </div>
+
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;" id="quick-loc-chips">
+                                <button type="button" class="btn btn-secondary chip-btn" data-lat="11.0051" data-lng="77.5645" data-name="Kangayam, Tiruppur" style="font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 20px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); font-weight: 600;">
+                                    📍 Kangayam / Kangeyam
+                                </button>
+                                <button type="button" class="btn btn-secondary chip-btn" data-lat="11.1085" data-lng="77.3411" data-name="Tiruppur" style="font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 20px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-weight: 600;">
+                                    📍 Tiruppur
+                                </button>
+                                <button type="button" class="btn btn-secondary chip-btn" data-lat="11.3410" data-lng="77.7172" data-name="Erode" style="font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 20px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 600;">
+                                    📍 Erode
+                                </button>
+                                <button type="button" class="btn btn-secondary chip-btn" data-lat="11.0168" data-lng="76.9558" data-name="Coimbatore" style="font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 20px; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); font-weight: 600;">
+                                    📍 Coimbatore
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Map Wrapper -->
+                        <div class="map-wrapper">
+                            <div id="report-map" class="map-element"></div>
+                        </div>
+
+                        <button class="btn btn-secondary" id="loc-current-btn"
+                            style="width: 100%; margin-bottom: 1.5rem;">
+                            <i data-lucide="map-pin"></i>
+                            <span>Detect My GPS Coordinates</span>
+                        </button>
+
+                        <div class="location-picker-box">
+                            <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                                <span>Selected Location Address:</span>
+                                <div id="loc-accuracy-badge" class="accuracy-badge accuracy-badge-high" style="display: inline-flex;">
+                                    <span>🎯 High Precision Fix</span>
+                                    <span class="accuracy-text">(±2.0m Satellite GPS)</span>
+                                </div>
+                            </div>
+                            <div id="loc-address-display"
+                                style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">Detecting
+                                address...</div>
+                            <div class="location-coord-display">Lat: <span id="loc-lat">-</span>, Lng: <span
+                                    id="loc-lng">-</span> (Sub-meter 6-Decimal Precision)</div>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; margin-top: 2rem; gap: 1rem;">
+                            <button class="btn btn-secondary" id="w1-back">Cancel</button>
+                            <button class="btn btn-primary" id="w1-next" disabled>Confirm Location</button>
+                        </div>
+                    </div>
+
+                    <!-- WIZARD STEP 2: IMAGE UPLOAD & QUALITY CHECKS -->
+                    <div class="card wizard-step-content" id="w-content-2" style="display: none;">
+                        <h3 style="margin-bottom: 0.5rem;">Upload Image Evidence</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Attach a
+                            clear photo of the civic issue. Our system will validate clarity and resolution.</p>
+
+                        <!-- EXIF GPS Location Notice Banner -->
+                        <div id="exif-location-notice" class="exif-banner" style="display: none;"></div>
+
+                        <!-- Upload Zone -->
+                        <div id="image-input-container">
+                            <div class="image-upload-zone" id="image-dropzone">
+                                <div class="upload-icon">📷</div>
+                                <h4>Select Photo or Drag & Drop</h4>
+                                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Supports
+                                    JPEG, PNG. Max size 8MB</p>
+                                <input type="file" id="image-file-input" style="display: none;" accept="image/*">
+                            </div>
+                        </div>
+
+                        <!-- Preview Zone -->
+                        <div id="image-preview-wrapper" style="display: none;">
+                            <div class="image-preview-container">
+                                <img src="" id="image-preview-img" class="image-preview-element"
+                                    alt="Uploaded problem evidence">
+                                <div class="image-overlay-actions">
+                                    <button class="btn btn-danger" id="btn-remove-image"><i data-lucide="trash-2"></i>
+                                        Remove</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quality Verification Progress Panel -->
+                        <div class="validation-card" id="image-quality-panel" style="display: none;">
+                            <div class="validation-header">
+                                <span class="progress-spinner" id="quality-spinner"></span>
+                                <span id="quality-header-title">Analyzing Image Quality...</span>
+                            </div>
+
+                            <div class="validation-item">
+                                <span class="validation-label" id="check-format-label"><span
+                                        class="progress-spinner"></span> Checking image format</span>
+                                <span class="validation-status v-loading" id="check-format-status">PENDING</span>
+                            </div>
+                            <div class="validation-item">
+                                <span class="validation-label" id="check-res-label"><span
+                                        class="progress-spinner"></span> Checking resolution</span>
+                                <span class="validation-status v-loading" id="check-res-status">PENDING</span>
+                            </div>
+                            <div class="validation-item">
+                                <span class="validation-label" id="check-bright-label"><span
+                                        class="progress-spinner"></span> Checking brightness levels</span>
+                                <span class="validation-status v-loading" id="check-bright-status">PENDING</span>
+                            </div>
+                            <div class="validation-item">
+                                <span class="validation-label" id="check-blur-label"><span
+                                        class="progress-spinner"></span> Checking blur clarity</span>
+                                <span class="validation-status v-loading" id="check-blur-status">PENDING</span>
+                            </div>
+                        </div>
+
+                        <!-- Failure Warning Alert -->
+                        <div class="validation-failure-box" id="image-failure-alert" style="display: none;">
+                            <div class="validation-failure-title">
+                                <span>⚠️ Image Quality Check Failed</span>
+                            </div>
+                            <p class="validation-failure-desc" id="image-failure-reason">The uploaded image is too
+                                blurry/dark/unclear for reliable analysis. Please upload or capture a clearer image.</p>
+                            <div style="display: flex; gap: 1rem;">
+                                <button class="btn btn-danger" id="btn-quality-retry">Upload Another Image</button>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                            <button class="btn btn-secondary" id="w2-back">Back</button>
+                            <button class="btn btn-primary" id="w2-next" disabled>Verify and Continue</button>
+                        </div>
+                    </div>
+
+                    <!-- WIZARD STEP 3: PROBLEM DESCRIPTION & VOICE -->
+                    <div class="card wizard-step-content" id="w-content-3" style="display: none;">
+                        <h3 style="margin-bottom: 0.5rem;">Describe the Issue</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Provide a
+                            simple description. You can type in your native language or use the mic button to record
+                            voice.</p>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                💡 Tap Quick Sample Challenge (1-Click Fill):
+                            </label>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;" id="sample-chips-container">
+                                <button type="button" class="btn btn-secondary chip-btn" data-sample="subsidence" style="font-size: 0.75rem; padding: 0.4rem 0.75rem; border-radius: 20px; background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                    ⛏️ Mine Subsidence & Gas Hazard
+                                </button>
+                                <button type="button" class="btn btn-secondary chip-btn" data-sample="lightning" style="font-size: 0.75rem; padding: 0.4rem 0.75rem; border-radius: 20px; background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">
+                                    ⛈️ Lightning Early Warning Sirens
+                                </button>
+                                <button type="button" class="btn btn-secondary chip-btn" data-sample="arsenic" style="font-size: 0.75rem; padding: 0.4rem 0.75rem; border-radius: 20px; background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">
+                                    💧 Groundwater Arsenic Remediation
+                                </button>
+                                <button type="button" class="btn btn-secondary chip-btn" data-sample="coldstorage" style="font-size: 0.75rem; padding: 0.4rem 0.75rem; border-radius: 20px; background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                    🌾 Solar PCM Cold Storage for Farmers
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="desc-textarea">Description</label>
+                            <textarea id="desc-textarea" class="form-control" rows="5"
+                                placeholder="Describe the problem in simple words... or select a Quick Sample above!"
+                                maxlength="500"></textarea>
+                            <div class="input-footer">
+                                <span id="desc-char-count">0 / 500 characters</span>
+                                <span class="language-detected-badge" id="detected-lang-badge" style="display: none;">
+                                    <i data-lucide="languages" style="width: 12px; height: 12px;"></i>
+                                    Language: <span id="detected-lang-text">English</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Voice Recording Integration -->
+                        <div class="voice-input-container">
+                            <button type="button" class="mic-button" id="mic-trigger-btn" title="Record Voice">
+                                <i data-lucide="mic"></i>
+                            </button>
+                            <div class="voice-status-box">
+                                <div class="voice-status-title" id="mic-status-title">Tap to Speak</div>
+                                <div class="voice-status-text" id="mic-status-desc">Talk naturally to dictate your
+                                    description.</div>
+                            </div>
+                        </div>
+
+                        <!-- Text Normalization details panel -->
+                        <div class="translation-display-box" id="translation-preview-panel" style="display: none;">
+                            <div class="translation-title">System Normalization (English Processing Language)</div>
+                            <p class="translation-text" id="translation-preview-text">"Pothole on road near school
+                                entrance"</p>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                            <button class="btn btn-secondary" id="w3-back">Back</button>
+                            <button class="btn btn-primary" id="w3-next" disabled>Analyze Description</button>
+                        </div>
+                    </div>
+
+                    <!-- WIZARD STEP 4: AI VALIDATION & CHECKS -->
+                    <div class="card wizard-step-content" id="w-content-4" style="display: none;">
+                        <h3 style="margin-bottom: 0.5rem;">AI Grievance Classification</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Our AI is
+                            analyzing the submission for duplicates, classification, and consistency matching.</p>
+
+                        <!-- Pre-submission Checks Checklist -->
+                        <div class="validation-card" id="ai-checks-progress-panel">
+                            <div class="validation-header">
+                                <span class="progress-spinner"></span>
+                                <span>Running Pre-Submission Verifications...</span>
+                            </div>
+                            <div class="validation-item">
+                                <span class="validation-label" id="ai-check-relevance-lbl"><span
+                                        class="progress-spinner"></span> Checking image relevance</span>
+                                <span class="validation-status v-loading" id="ai-check-relevance-val">WAITING</span>
+                            </div>
+                            <div class="validation-item">
+                                <span class="validation-label" id="ai-check-consistency-lbl"><span
+                                        class="progress-spinner"></span> Comparing text-image consistency</span>
+                                <span class="validation-status v-loading" id="ai-check-consistency-val">WAITING</span>
+                            </div>
+                            <div class="validation-item">
+                                <span class="validation-label" id="ai-check-duplicate-lbl"><span
+                                        class="progress-spinner"></span> Scanning for duplicate nearby complaints</span>
+                                <span class="validation-status v-loading" id="ai-check-duplicate-val">WAITING</span>
+                            </div>
+                        </div>
+
+                        <!-- Anomaly Failure Panel (Irrelevant image or bad consistency) -->
+                        <div class="validation-failure-box" id="ai-check-failure-alert" style="display: none;">
+                            <div class="validation-failure-title">
+                                <span>⚠️ Verification Warning</span>
+                            </div>
+                            <p class="validation-failure-desc" id="ai-check-failure-desc">Possible mismatch or
+                                irrelevant image detected. Please check your photo uploads and description details.</p>
+                            <div style="display: flex; gap: 1rem;">
+                                <button class="btn btn-danger" id="ai-recheck-back-btn">Go Back & Fix Details</button>
+                            </div>
+                        </div>
+
+                        <!-- AI Predicted Outputs -->
+                        <div id="ai-predicted-results-container" style="display: none; margin-top: 1.5rem;">
+                            <h4 style="margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="cpu" style="color: var(--color-primary);"></i>
+                                <span>AI Predictions & Category Assignment</span>
+                            </h4>
+
+                            <div class="ai-results-grid">
+                                <div class="ai-stat-tile">
+                                    <div class="ai-tile-label">Complaint Category</div>
+                                    <div class="ai-tile-value" id="ai-pred-category">Road / Pothole</div>
+                                </div>
+                                <div class="ai-stat-tile">
+                                    <div class="ai-tile-label">Department Recommended</div>
+                                    <div class="ai-tile-value" id="ai-pred-dept">PWD Department</div>
+                                </div>
+                                <div class="ai-stat-tile">
+                                    <div class="ai-tile-label">Calculated Priority</div>
+                                    <div class="ai-tile-value" id="ai-pred-priority">High</div>
+                                </div>
+                                <div class="ai-stat-tile">
+                                    <div class="ai-tile-label">AI Confidence Score</div>
+                                    <div class="ai-tile-value" id="ai-pred-confidence">94%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                            <button class="btn btn-secondary" id="w4-back">Back</button>
+                            <button class="btn btn-primary" id="w4-next" disabled>Accept Predictions</button>
+                        </div>
+                    </div>
+
+                    <!-- WIZARD STEP 5: REVIEW & EDIT BEFORE SUBMIT -->
+                    <div class="card wizard-step-content" id="w-content-5" style="display: none;">
+                        <h3 style="margin-bottom: 0.5rem;">Review Grievance Report</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Double check
+                            all details. You can edit the AI predictions if needed before submitting.</p>
+
+                        <div class="review-section">
+                            <div class="review-label">Location Address</div>
+                            <div class="review-value" id="rev-address">Usman Road, T. Nagar, Chennai</div>
+                        </div>
+
+                        <div class="review-section">
+                            <div class="review-label">Description (Original)</div>
+                            <div class="review-value" id="rev-desc-original">Pothole on road</div>
+                        </div>
+
+                        <div class="review-section" id="rev-translation-row" style="display: none;">
+                            <div class="review-label">Translated / Normalized Text</div>
+                            <div class="review-value" id="rev-desc-normalized">There is a pothole on the road.</div>
+                        </div>
+
+                        <div class="review-section" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="rev-category-select">Grievance Category</label>
+                                    <select id="rev-category-select" class="form-control">
+                                        <option value="Road / Pothole">Road / Pothole</option>
+                                        <option value="Streetlight / Electrical">Streetlight / Electrical</option>
+                                        <option value="Garbage / Waste">Garbage / Waste</option>
+                                        <option value="Water Leakage / Water Supply">Water Leakage / Water Supply
+                                        </option>
+                                        <option value="Drainage / Sewerage">Drainage / Sewerage</option>
+                                        <option value="Park / Tree">Park / Tree</option>
+                                        <option value="Other Civic Issue">Other Civic Issue</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="rev-priority-select">Grievance Priority</label>
+                                    <select id="rev-priority-select" class="form-control">
+                                        <option value="Critical">Critical</option>
+                                        <option value="High">High</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Low">Low</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="review-section">
+                            <div class="review-label">Assigned Department</div>
+                            <div class="review-value" id="rev-dept">PWD / Roads Department</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">(Assigned
+                                automatically based on category selection)</div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                            <button class="btn btn-secondary" id="w5-back">Edit Details</button>
+                            <button class="btn btn-primary" id="w5-submit">Accept & Submit Report</button>
+                        </div>
+                    </div>
+
+                    <!-- WIZARD STEP 6: CONFIRMATION -->
+                    <div class="card wizard-step-content" id="w-content-6"
+                        style="display: none; text-align: center; padding: 3rem 1.5rem;">
+                        <div class="success-checkmark">
+                            <div class="check-icon">
+                                <span class="icon-line line-tip"></span>
+                                <span class="icon-line line-long"></span>
+                            </div>
+                        </div>
+
+                        <h2>Report Filed Successfully!</h2>
+                        <p style="color: var(--text-secondary); margin-top: 0.5rem; margin-bottom: 2rem;">Your complaint
+                            has been submitted and escalated to the department.</p>
+
+                        <div class="location-picker-box"
+                            style="margin: 1.5rem 0; background-color: var(--color-bg-base);">
+                            <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">
+                                Grievance Ticket ID</div>
+                            <div id="confirm-ticket-id"
+                                style="font-size: 1.6rem; font-weight: 800; color: var(--color-success); letter-spacing: 1px; margin-top: 0.25rem;">
+                                CIV-2026-902481</div>
+                        </div>
+
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 2rem;">A copy of this
+                            ticket has been sent to your phone via SMS. You can monitor progress on your dashboard.</p>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-secondary" id="confirm-dash-btn" style="flex: 1;">Go to
+                                Dashboard</button>
+                            <button class="btn btn-primary" id="confirm-track-btn" style="flex: 1;">Track Complaint
+                                Status</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. COMPLAINT DETAILS & TRACKING SCREEN -->
+            <section id="screen-complaint-details" class="screen">
+                <div class="section-header" style="margin-bottom: 1.5rem;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <h2 id="det-ticket-id" style="font-family: monospace; letter-spacing: 0.5px;">
+                                CIV-2026-902481</h2>
+                            <span class="status-badge status-progress" id="det-status-badge">WORK IN PROGRESS</span>
+                        </div>
+                        <p id="det-category-priority"
+                            style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">Road / Pothole
+                            • High Priority</p>
+                    </div>
+                    <button class="btn btn-secondary" id="det-back-btn">
+                        <i data-lucide="arrow-left"></i>
+                        <span>Back to List</span>
+                    </button>
+                </div>
+
+                <div class="dashboard-grid">
+
+                    <!-- Left Column: Status history tracking & feedbacks -->
+                    <div>
+                        <!-- Ticket Progress Timeline -->
+                        <div class="card" style="margin-bottom: 1.5rem;">
+                            <h3>Resolution Milestones</h3>
+                            <div class="complaint-timeline" id="det-timeline-list">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Before & After Comparison Views (Shows when COMPLETED or RESOLVED) -->
+                        <div class="card" id="det-resolution-evidence-card"
+                            style="display: none; margin-bottom: 1.5rem;">
+                            <h3>Resolution Evidence</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Compare
+                                the original photo reported by the citizen with the evidence uploaded by the repair
+                                crew.</p>
+
+                            <div class="image-comparison-container">
+                                <div class="comparison-image-box">
+                                    <img src="" id="det-evidence-before-img" alt="Reported Issue Photo">
+                                    <div class="comparison-label">Before</div>
+                                </div>
+                                <div class="comparison-image-box">
+                                    <img src="" id="det-evidence-after-img" alt="Resolved Issue Photo">
+                                    <div class="comparison-label" style="background-color: var(--color-success);">After
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="location-picker-box" style="margin-top: 1rem;">
+                                <strong>Crew Resolution Statement:</strong>
+                                <p id="det-resolution-details-text"
+                                    style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">Issue
+                                    solved.</p>
+                            </div>
+                        </div>
+
+                        <!-- Citizen Feedback / Rating system (Available when Completed or Resolved) -->
+                        <div class="card" id="det-feedback-card" style="display: none; margin-bottom: 1.5rem;">
+                            <h3>Was your problem actually solved?</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Submit your rating to close the
+                                ticket.</p>
+
+                            <form id="feedback-form">
+                                <div class="star-rating-container" id="feedback-stars">
+                                    <span data-star="1">★</span>
+                                    <span data-star="2">★</span>
+                                    <span data-star="3">★</span>
+                                    <span data-star="4">★</span>
+                                    <span data-star="5">★</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Add your comments</label>
+                                    <textarea id="feedback-comments" class="form-control" rows="3"
+                                        placeholder="Enter comments or suggestions..."></textarea>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <label>Was the problem solved completely?</label>
+                                    <div style="display: flex; gap: 1.5rem; align-items: center; margin-top: 0.25rem;">
+                                        <label
+                                            style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0;">
+                                            <input type="radio" name="feedback-solved" value="Yes" checked
+                                                style="accent-color: var(--color-primary);"> Yes
+                                        </label>
+                                        <label
+                                            style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0;">
+                                            <input type="radio" name="feedback-solved" value="No"
+                                                style="accent-color: var(--color-primary);"> No
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Escalated reopened complaint warnings -->
+                                <div class="reopen-box" id="reopen-warning-box">
+                                    <h4 style="color: var(--color-danger); margin-bottom: 0.25rem;">⚠️ Report Unresolved
+                                        Flow</h4>
+                                    <p style="font-size: 0.8rem; color: var(--text-secondary);">Selecting "No" will flag
+                                        the ticket for Admin Review and reopen the investigation workflow.</p>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Submit
+                                    Feedback</button>
+                            </form>
+                        </div>
+
+                        <!-- Saved Feedback Audit -->
+                        <div class="card" id="det-saved-feedback-card" style="display: none; margin-bottom: 1.5rem;">
+                            <h3>Your Submitted Feedback</h3>
+                            <div style="margin: 1rem 0;">
+                                <div style="color: var(--color-warning); font-size: 1.25rem;" id="det-saved-stars">★★★★★
+                                </div>
+                                <div style="margin-top: 0.5rem;">
+                                    <strong>Solved:</strong> <span id="det-saved-solved-status">Yes</span>
+                                </div>
+                                <div style="margin-top: 0.25rem;" id="det-saved-comments-box">
+                                    <strong>Comments:</strong> <span id="det-saved-comments"
+                                        style="color: var(--text-secondary);">No comment.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audit History Logs -->
+                        <div class="card">
+                            <h3>Internal Audit Trail</h3>
+                            <div class="audit-list" id="det-audit-list">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Location pin maps & static details -->
+                    <div>
+                        <div class="card" style="margin-bottom: 1.5rem;">
+                            <h3>Problem Photo</h3>
+                            <div
+                                style="margin-top: 1rem; border-radius: var(--border-radius-sm); overflow: hidden; border: 1px solid var(--color-border); background-color: black; height: 220px; display: flex; align-items: center; justify-content: center;">
+                                <img src="" id="det-complaint-img"
+                                    style="max-width: 100%; max-height: 220px; object-fit: contain;">
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-bottom: 1.5rem;">
+                            <h3>Pinned Location</h3>
+                            <div class="map-wrapper" style="height: 200px; margin-top: 1rem; margin-bottom: 1rem;">
+                                <div id="details-map" class="map-element"></div>
+                            </div>
+                            <div style="font-size: 0.85rem;">
+                                <strong>Address:</strong>
+                                <p id="det-address-text" style="color: var(--text-secondary); margin-top: 0.25rem;">
+                                    Detecting address...</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Assigned Agency</h3>
+                            <div style="margin-top: 0.5rem; font-size: 0.9rem;">
+                                <div><strong>Department:</strong> <span id="det-dept-name">PWD</span></div>
+                                <div style="margin-top: 0.25rem;"><strong>Officer ID:</strong> <span
+                                        id="det-officer-id">OFF-8201</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. NOTIFICATION CENTER SCREEN -->
+            <section id="screen-notifications" class="screen">
+                <div class="section-header" style="margin-bottom: 1.5rem;">
+                    <h2>Notification Center</h2>
+                    <button class="btn btn-secondary" id="notif-mark-all-btn">Mark All as Read</button>
+                </div>
+
+                <div class="card" style="padding: 1rem;">
+                    <div id="notifications-list-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <!-- Dynamically filled -->
+                        <p style="text-align: center; color: var(--text-muted); padding: 3rem 0;">No notifications
+                            found.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. PROFILE SCREEN -->
+            <section id="screen-profile" class="screen">
+                <div class="auth-wrapper" style="max-width: 600px; margin-top: 2rem;">
+                    <div class="card">
+                        <div class="auth-header" style="text-align: left; margin-bottom: 1.5rem;">
+                            <h1>My Citizen Profile</h1>
+                            <p>Update your contact info and manage notification endpoints.</p>
+                        </div>
+
+                        <form id="profile-form">
+                            <div class="form-group">
+                                <label for="prof-name">Full Name</label>
+                                <input type="text" id="prof-name" class="form-control" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="prof-phone">Phone Number (Identity Linked)</label>
+                                    <input type="tel" id="prof-phone" class="form-control" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prof-email">Email Address</label>
+                                    <input type="email" id="prof-email" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="prof-address">Street Address</label>
+                                <input type="text" id="prof-address" class="form-control" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="prof-city">City</label>
+                                    <input type="text" id="prof-city" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prof-pin">PIN Code</label>
+                                    <input type="text" id="prof-pin" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div
+                                style="border-top: 1px solid var(--color-border); padding-top: 1.5rem; margin-top: 1.5rem;">
+                                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Notification Channels</h3>
+                                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <label
+                                        style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; cursor: pointer;">
+                                        <span>Receive in-app status updates</span>
+                                        <span class="switch">
+                                            <input type="checkbox" id="prof-notif-app" checked>
+                                            <span class="slider"></span>
+                                        </span>
+                                    </label>
+                                    <label
+                                        style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; cursor: pointer;">
+                                        <span>Receive SMS alerts on mobile</span>
+                                        <span class="switch">
+                                            <input type="checkbox" id="prof-notif-sms" checked>
+                                            <span class="slider"></span>
+                                        </span>
+                                    </label>
+                                    <label
+                                        style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; cursor: pointer;">
+                                        <span>Receive Email summaries</span>
+                                        <span class="switch">
+                                            <input type="checkbox" id="prof-notif-email">
+                                            <span class="slider"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 2rem;">Save
+                                Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Dynamic Mobile Navigation (Hidden on large screens, displayed on mobile/tablet) -->
+        <nav class="mobile-nav" id="mobile-navigation-bar">
+            <div class="mobile-nav-content">
+                <button class="nav-item active" id="mob-nav-dash">
+                    <i data-lucide="home"></i>
+                    <span>Home</span>
+                </button>
+                <button class="nav-item" id="mob-nav-report">
+                    <i data-lucide="plus-square"></i>
+                    <span>Report</span>
+                </button>
+                <button class="nav-item" id="mob-nav-notif">
+                    <i data-lucide="bell"></i>
+                    <span>Alerts</span>
+                </button>
+                <button class="nav-item" id="mob-nav-profile">
+                    <i data-lucide="user"></i>
+                    <span>Profile</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- App Footer -->
+        <footer class="app-footer">
+            <div class="max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;">
+                <p>&copy; 2026 Municipal Administration and Water Supply Division. Developed for citizen empowerment.
+                </p>
+            </div>
+        </footer>
+
+        <!-- DUPLICATE WARNING MODAL WINDOW -->
+        <div class="duplicate-warning-modal" id="duplicate-alert-modal">
+            <div class="duplicate-modal-content">
+                <div class="duplicate-modal-header">
+                    <i data-lucide="alert-triangle"></i>
+                    <span>Possible Duplicate Grievance</span>
+                </div>
+                <div class="duplicate-modal-body">
+                    <p>A similar issue has already been reported near this location. Review the details below to support
+                        the existing ticket and receive alerts, or submit a new ticket.</p>
+
+                    <div class="duplicate-card-details">
+                        <div class="duplicate-detail-row">
+                            <span>Ticket ID:</span>
+                            <span id="dup-modal-ticket-id" style="font-family: monospace;">CIV-2026-1024</span>
+                        </div>
+                        <div class="duplicate-detail-row">
+                            <span>Problem Category:</span>
+                            <span id="dup-modal-category">Road / Pothole</span>
+                        </div>
+                        <div class="duplicate-detail-row">
+                            <span>Status:</span>
+                            <span id="dup-modal-status" class="status-badge status-progress">Work In Progress</span>
+                        </div>
+                        <div class="duplicate-detail-row">
+                            <span>Distance:</span>
+                            <span id="dup-modal-distance">75 meters away</span>
+                        </div>
+                        <div class="duplicate-detail-row">
+                            <span>Match Confidence:</span>
+                            <span id="dup-modal-score" style="color: var(--color-danger); font-weight: 700;">91%</span>
+                        </div>
+                    </div>
+
+                    <div class="duplicate-actions">
+                        <button class="btn btn-secondary" id="dup-btn-continue" style="flex: 1;">File New Complaint
+                            Anyway</button>
+                        <button class="btn btn-success" id="dup-btn-support" style="flex: 1;">Support Existing
+                            Complaint</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             DEMO SYSTEM CONSOLE PANEL (FLOATING CONTROL DECK)
+             ========================================================================== -->
+        <aside id="demo-console" class="collapsed">
+            <div class="demo-console-header" id="demo-console-toggle">
+                <span>🛠️ DEMO CONTROL PANEL</span>
+                <i data-lucide="chevron-up" id="demo-toggle-arrow"></i>
+            </div>
+            <div class="demo-console-body">
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">Use
+                    these controls to simulate backend updates, force AI validation errors, and check the portal's
+                    reactive flows.</p>
+
+                <div class="demo-section-title">Data Actions</div>
+                <div class="demo-control-row">
+                    <button class="btn btn-secondary demo-btn" id="demo-load-samples-btn"
+                        style="width: 100%; font-size: 0.8rem; padding: 0.5rem 0;">
+                        Load Demo Sample Grievances
+                    </button>
+                </div>
+                <div class="demo-control-row">
+                    <button class="btn btn-danger demo-btn" id="demo-clear-all-btn"
+                        style="width: 100%; font-size: 0.8rem; padding: 0.5rem 0;">
+                        Reset LocalStorage Cache
+                    </button>
+                </div>
+
+                <div class="demo-section-title">Image Check Overrides</div>
+                <div class="demo-control-row">
+                    <label>
+                        <span>Force Blurry Image Error</span>
+                        <span class="switch">
+                            <input type="checkbox" id="demo-blur-error">
+                            <span class="slider"></span>
+                        </span>
+                    </label>
+                </div>
+                <div class="demo-control-row">
+                    <label>
+                        <span>Force Low Brightness Error</span>
+                        <span class="switch">
+                            <input type="checkbox" id="demo-brightness-error">
+                            <span class="slider"></span>
+                        </span>
+                    </label>
+                </div>
+                <div class="demo-control-row">
+                    <label>
+                        <span>Force Irrelevant Image Error</span>
+                        <span class="switch">
+                            <input type="checkbox" id="demo-relevance-error">
+                            <span class="slider"></span>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="demo-section-title">AI Processing Overrides</div>
+                <div class="demo-control-row">
+                    <label>
+                        <span>Force Near Duplicate Match</span>
+                        <span class="switch">
+                            <input type="checkbox" id="demo-duplicate-match">
+                            <span class="slider"></span>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="demo-section-title">Ticket Status Simulator</div>
+                <div class="demo-control-row">
+                    <label for="demo-ticket-selector"
+                        style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Active
+                        Complaint Ticket:</label>
+                    <select id="demo-ticket-selector" class="form-control"
+                        style="font-size: 0.75rem; padding: 0.4rem; height: auto;">
+                        <option value="">-- No Active Tickets --</option>
+                    </select>
+                </div>
+                <div class="demo-btn-grid">
+                    <button class="demo-btn" id="demo-advance-status-btn" disabled>Advance Status</button>
+                    <button class="demo-btn" id="demo-sla-escalate-btn" disabled>SLA Escalation</button>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Application Controller Main Entry -->
+    <script type="module" src="app.js"></script>
+
+    <!-- Startup Video Controller -->
+    <script>
+        (function () {
+            var splash = document.getElementById('startup-splash');
+            var video = document.getElementById('startup-video');
+            var isDismissed = false;
+
+            function dismissSplash() {
+                if (isDismissed) return;
+                isDismissed = true;
+                try { video.pause(); } catch (e) {}
+                if (splash) {
+                    splash.classList.add('startup-splash--fade-out');
+                    splash.addEventListener('transitionend', function handler() {
+                        splash.removeEventListener('transitionend', handler);
+                        splash.style.display = 'none';
+                    });
+                }
+            }
+
+            if (!video || !splash) return;
+
+            // 1. Dismiss when video finishes playing
+            video.addEventListener('ended', dismissSplash);
+            video.addEventListener('error', dismissSplash);
+
+            // 2. Click splash screen to skip/dismiss
+            splash.addEventListener('click', dismissSplash);
+
+            // 3. Play video immediately (muted in HTML guarantees it NEVER freezes/gets stuck)
+            function playVideo() {
+                var p = video.play();
+                if (p !== undefined) {
+                    p.catch(function () {
+                        video.muted = true;
+                        video.play();
+                    });
+                }
+            }
+
+            playVideo();
+
+            // 4. Safely attempt unmuting audio without freezing the video
+            function tryUnmute() {
+                try {
+                    video.muted = false;
+                    video.volume = 1.0;
+                    // If browser pauses video when unmuted, immediately resume playback!
+                    if (video.paused) {
+                        var p = video.play();
+                        if (p !== undefined) {
+                            p.catch(function () {
+                                video.muted = true;
+                                video.play();
+                            });
+                        }
+                    }
+                } catch(e) {
+                    video.muted = true;
+                    video.play();
+                }
+            }
+
+            // Attempt unmuting audio
+            setTimeout(tryUnmute, 100);
+
+            // Unmute automatically on first click/touch/keypress anywhere
+            window.addEventListener('click', tryUnmute, { once: true });
+            window.addEventListener('touchstart', tryUnmute, { once: true });
+
+            // 5. Safety fallback based on video length metadata
+            video.addEventListener('loadedmetadata', function () {
+                var durationMs = (video.duration || 10) * 1000 + 1000;
+                setTimeout(dismissSplash, durationMs);
+            });
+
+            // Hard safety timeout (25s)
+            setTimeout(dismissSplash, 25000);
+        })();
+    </script>
+</body>
+
+</html>
