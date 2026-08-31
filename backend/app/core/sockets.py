@@ -1,3 +1,9 @@
+"""
+SATARK AI — Socket.io Real-Time Event Engine
+Author: Hari Krishna DK (Team Lead & System Architect)
+Provides async real-time event broadcasting across all 4 stakeholder portals.
+"""
+
 import socketio
 
 sio = socketio.AsyncServer(
@@ -23,6 +29,7 @@ async def join_room(sid, data):
         print(f"[Socket.io] Client {sid} joined room: {room}")
 
 async def broadcast_event(event_name: str, payload: dict, room: str = None):
+    """Emits real-time event notifications to connected dashboard clients."""
     try:
         await sio.emit(event_name, payload, room=room)
         print(f"[Socket.io Broadcast] Event: {event_name} -> Payload keys: {list(payload.keys())}")
