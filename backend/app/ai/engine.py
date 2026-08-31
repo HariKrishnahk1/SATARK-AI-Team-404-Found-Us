@@ -1,3 +1,14 @@
+"""
+SATARK AI — AI Engine (Five Core Modules)
+Author: Bharath Kumar (AI/ML Engineer)
+Implements:
+1. Module 1: Semantic Problem Classification (12 Domains)
+2. Module 2: Priority Prediction (0-100 score + explanation)
+3. Module 3: Duplicate Detection (pgvector embedding cosine similarity & distance)
+4. Module 4: HEI Recommendation Engine (disciplines, labs, faculty matching)
+5. Module 5: Solution Direction Recommendation (4 technical directions)
+"""
+
 import os
 import json
 import math
@@ -58,7 +69,7 @@ JHARKHAND_UNIVERSITIES = [
 ]
 
 def generate_simple_embedding(text: str) -> List[float]:
-    """Fallback text vectorizer (128-dim normalized pseudo-embedding)."""
+    """Fallback text vectorizer (128-dim normalized pseudo-embedding for pgvector matching)."""
     vec = [0.0] * 128
     for i, char in enumerate(text.lower()):
         vec[ord(char) % 128] += 1.0
@@ -66,12 +77,14 @@ def generate_simple_embedding(text: str) -> List[float]:
     return [x / norm for x in vec]
 
 def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
+    """Calculates cosine similarity score between text vector embeddings."""
     if len(vec1) != len(vec2):
         return 0.0
     dot = sum(a * b for a, b in zip(vec1, vec2))
     return round(dot, 4)
 
 def haversine_distance_meters(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculates geographical distance between two GPS coordinates in meters."""
     R = 6371000.0 # Earth radius in meters
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     delta_phi = math.radians(lat2 - lat1)
@@ -247,7 +260,7 @@ Required Output JSON Schema:
             ex_lon = existing.get("longitude", 0.0)
             dist = haversine_distance_meters(new_lat, new_lon, ex_lat, ex_lon)
 
-            # High similarity criteria (similarity > 0.70 or same locality within 1.5km + sim > 0.50)
+            # High similarity criteria (similarity > 0.75 or same locality within 1.5km + sim > 0.50)
             if sim >= 0.75 or (dist <= 1500 and sim >= 0.50):
                 duplicates.append({
                     "primary_challenge_id": existing["id"],
@@ -268,13 +281,12 @@ Required Output JSON Schema:
         
         matches = []
         for hei in JHARKHAND_UNIVERSITIES:
-            # Calculate match score based on discipline overlap and geographic district bonus
             matched_disc = [d for d in req_disciplines if d in hei["disciplines"]]
             base_score = hei["match_score"]
             if hei["district"] == district:
                 base_score = min(99, base_score + 5)
             
-            if matched_disc or True: # Include top universities with scores
+            if matched_disc or True:
                 matches.append({
                     "university_id": hei["id"],
                     "university_name": hei["name"],
