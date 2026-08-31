@@ -1,0 +1,67 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { Shield, ExternalLink, Heart } from 'lucide-react';
+
+export const Footer = () => {
+  return (
+    <footer className="bg-slate-950 border-t border-slate-900 text-slate-400 text-xs py-8 px-4">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <div className="flex items-center gap-2 text-white font-bold text-base mb-2">
+            <Shield className="w-5 h-5 text-emerald-400" />
+            <span>SATARK AI</span>
+          </div>
+          <p className="text-slate-400 text-xs leading-relaxed mb-3">
+            System for Automated Tracking, AI-assisted Routing & Knowledge-driven Action.
+            A digital ecosystem connecting citizens, higher education institutions, government, and industry partners across Jharkhand.
+          </p>
+          <div className="text-[11px] text-cyan-400 font-mono">
+            Smart India Hackathon 2026 • PS26043
+          </div>
+        </div>
+
+        <div>
+          <h4 className="text-white font-semibold mb-3">Stakeholder Portals</h4>
+          <ul className="space-y-2">
+            <li><Link href="/citizen" className="hover:text-cyan-400 transition-colors">Citizen & Community Portal</Link></li>
+            <li><Link href="/admin" className="hover:text-cyan-400 transition-colors">Government Command Centre</Link></li>
+            <li><Link href="/hei" className="hover:text-cyan-400 transition-colors">University & HEI Portal</Link></li>
+            <li><Link href="/industry" className="hover:text-cyan-400 transition-colors">Industry & CSR Partner Portal</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-white font-semibold mb-3">AI Engine Capabilities</h4>
+          <ul className="space-y-2 text-slate-400">
+            <li>• Module 1: Semantic Classification</li>
+            <li>• Module 2: 0-100 Priority Prediction</li>
+            <li>• Module 3: pgvector Duplicate Detection</li>
+            <li>• Module 4: HEI & Discipline Matching</li>
+            <li>• Module 5: Solution Direction Recommender</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-white font-semibold mb-3">Organization & Team</h4>
+          <div className="space-y-2">
+            <p><strong className="text-slate-300">Department:</strong> Higher & Technical Education</p>
+            <p><strong className="text-slate-300">State:</strong> Government of Jharkhand</p>
+            <p><strong className="text-slate-300">Team:</strong> 404 FOUND US</p>
+            <p className="text-emerald-400 font-mono text-[11px] mt-2">
+              Tagline: "Report • Predict • Connect • Resolve"
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto mt-8 pt-4 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center text-slate-400 text-[11px]">
+        <p>© 2026 SATARK AI Platform. SIH 2026 Prototype. Built for Government of Jharkhand.</p>
+        <p className="mt-2 md:mt-0 flex items-center gap-1">
+          Designed with <Heart className="w-3 h-3 text-red-500 fill-red-500" /> by Team 404 FOUND US
+        </p>
+      </div>
+    </footer>
+  );
+};
