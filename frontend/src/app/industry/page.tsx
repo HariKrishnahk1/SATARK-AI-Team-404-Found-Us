@@ -1,5 +1,13 @@
 'use client';
 
+/**
+ * SATARK AI — Industry & CSR Partner Portal Page
+ * Author: Gowsalya Veerappan (Industry / CSR + Impact Developer)
+ * Features: Open solution proposals marketplace, CSR funding pledge in INR (₹),
+ * technical mentorship, equipment support, project milestone progression timeline,
+ * and social impact measurement module.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { SolutionProposal, IndustrySponsorship } from '../../lib/types';
