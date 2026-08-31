@@ -1,5 +1,13 @@
 'use client';
 
+/**
+ * SATARK AI — University & HEI Portal Page
+ * Author: Deepika (University / HEI Portal Developer)
+ * Features: Assigned challenges view, student innovation team formation,
+ * faculty lead assignment, solution proposal creation with INR budget,
+ * and project milestone progress tracking.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { Challenge, SolutionProposal } from '../../lib/types';
