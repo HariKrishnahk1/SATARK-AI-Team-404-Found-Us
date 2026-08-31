@@ -1,5 +1,12 @@
 'use client';
 
+/**
+ * SATARK AI — Citizen & Community Portal Page
+ * Author: Nature Hari (Citizen Portal Developer)
+ * Features: Societal challenge submission, photo upload, GPS location capture,
+ * AI classification preview, and 15-stage status tracking.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { Challenge } from '../../lib/types';
