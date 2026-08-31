@@ -1,5 +1,13 @@
 'use client';
 
+/**
+ * SATARK AI — Government Command Centre Page
+ * Author: Divya (Government / Admin Portal Developer)
+ * Features: 13 KPI metrics dashboard, interactive Leaflet GIS map of Jharkhand,
+ * live challenges queue table, validation/AI override modal, pgvector duplicate drawer,
+ * and university recommendation routing modal.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { Challenge, DashboardStats, University } from '../../lib/types';
