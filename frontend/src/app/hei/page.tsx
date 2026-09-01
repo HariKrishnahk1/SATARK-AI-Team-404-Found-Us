@@ -9,14 +9,11 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Challenge, SolutionProposal } from '../../lib/types';
-import { Landmark, Users, Send, CheckCircle, FileText, Plus, Sparkles, Award, Lock, MapPin, Shield } from 'lucide-react';
+import { Landmark, Users, Send, CheckCircle, FileText, Plus, Sparkles, Award } from 'lucide-react';
 
 export default function UniversityPortal() {
-  const { user } = useAuth();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [proposals, setProposals] = useState<SolutionProposal[]>([]);
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
@@ -51,29 +48,6 @@ export default function UniversityPortal() {
   useEffect(() => {
     loadData();
   }, []);
-
-  // Strict Authorization Guard: Citizens are barred from viewing University R&D Proposals
-  if (user?.role === 'CITIZEN') {
-    return (
-      <div className="min-h-[80vh] bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center mb-4 shadow-xl shadow-purple-500/10">
-          <Lock className="w-8 h-8" />
-        </div>
-        <h1 className="text-2xl font-bold text-white">Access Denied: University R&D Hub</h1>
-        <p className="text-sm text-slate-400 mt-2 max-w-md">
-          Public citizens do not have authorization to view university solution proposals, student team assignments, or research methodology drafts. Please log in with official university credentials.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/citizen" className="px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/20">
-            <MapPin className="w-4 h-4" /> Return to Civic Portal
-          </Link>
-          <Link href="/login" className="px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold text-xs hover:border-purple-400 transition-colors flex items-center gap-2">
-            <Landmark className="w-4 h-4 text-purple-400" /> Official HEI Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   const handleProposalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

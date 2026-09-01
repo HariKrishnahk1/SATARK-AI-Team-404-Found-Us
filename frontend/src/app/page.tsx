@@ -3,8 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import {
-  Shield, MapPin, Landmark, HeartHandshake, Sparkles, ArrowRight,
-  CheckCircle, Users, Layers, Lock
+  Shield, MapPin, Landmark, HeartHandshake, Cpu, Sparkles, ArrowRight,
+  TrendingUp, CheckCircle, Award, Users, Layers, Zap
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -35,32 +35,32 @@ export default function LandingPage() {
           Tagline: "Report • Predict • Connect • Resolve"
         </div>
 
-        {/* Action Buttons for Two Portals */}
+        {/* Action Buttons */}
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           <Link
             href="/citizen"
             className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-bold text-sm shadow-xl shadow-emerald-500/25 hover:scale-105 transition-all flex items-center gap-2"
           >
             <MapPin className="w-4 h-4" />
-            1. Enter Civic & Community Portal
+            Submit Societal Challenge
           </Link>
           <Link
-            href="/login"
+            href="/admin"
             className="px-6 py-3.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold text-sm hover:border-cyan-400/50 hover:bg-slate-800 transition-all flex items-center gap-2"
           >
             <Shield className="w-4 h-4 text-cyan-400" />
-            2. Institutional Portal Gateway
+            Launch Command Centre
           </Link>
         </div>
 
         {/* Impact Counters */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t border-slate-900">
           <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80">
-            <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">2,53,500+</div>
+            <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">2,45,000+</div>
             <div className="text-xs text-slate-400 mt-1 font-medium">Estimated Beneficiaries</div>
           </div>
           <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80">
-            <div className="text-2xl sm:text-3xl font-black text-cyan-400 font-mono">₹53.0 Lakhs</div>
+            <div className="text-2xl sm:text-3xl font-black text-cyan-400 font-mono">₹48.5 Lakhs</div>
             <div className="text-xs text-slate-400 mt-1 font-medium">CSR Funding Mobilized (INR)</div>
           </div>
           <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80">
@@ -74,94 +74,123 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Two Distinct Portal Portals Section */}
+      {/* Four Stakeholder Portals Section */}
       <section className="py-16 bg-slate-900/40 border-y border-slate-900 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white">Two Distinct Digital Portals</h2>
-            <p className="text-sm text-slate-400 mt-2">Public Citizen Reporting is separated from Authenticated Institutional Operations.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">Four Core Stakeholder Ecosystems</h2>
+            <p className="text-sm text-slate-400 mt-2">All four portals communicate seamlessly through one central backend and database.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* PORTAL 1: CIVIC PORTAL CARD */}
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-slate-900 to-emerald-950/40 border border-emerald-500/30 hover:border-emerald-500/60 transition-all flex flex-col justify-between group shadow-xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Citizen Portal Card */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 transition-all flex flex-col justify-between group">
               <div>
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6 font-bold">
-                  <MapPin className="w-7 h-7" />
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 font-bold">
+                  <MapPin className="w-6 h-6" />
                 </div>
-                <div className="inline-block text-[10px] font-bold tracking-wider text-emerald-400 uppercase bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20 mb-2">
-                  Portal 1 • Public Access
-                </div>
-                <h3 className="text-2xl font-black text-white group-hover:text-emerald-400 transition-colors">
-                  Civic & Community Portal
-                </h3>
-                <p className="text-sm text-slate-300 mt-3 leading-relaxed">
-                  A dedicated portal for public citizens and community members to submit societal challenges across 12 domains, upload photos/videos, enter location details, and track resolution timelines in real-time.
+                <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">A. Citizen & Community</h3>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Report challenges across 12 societal domains with photos, geolocation, and track resolution status in real-time.
                 </p>
-
-                <ul className="mt-6 space-y-2 text-xs text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-emerald-400" />
-                    <span>No institutional login required for reporting</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-emerald-400" />
-                    <span>Instant AI Engine analysis (0-100 priority score)</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-emerald-400" />
-                    <span>Interactive Jharkhand GIS map & status tracking</span>
-                  </li>
-                </ul>
               </div>
-
-              <Link
-                href="/citizen"
-                className="mt-8 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20"
-              >
-                Launch Civic Portal <ArrowRight className="w-4 h-4" />
+              <Link href="/citizen" className="mt-6 text-xs font-bold text-emerald-400 flex items-center gap-1 hover:gap-2 transition-all">
+                Open Citizen Portal <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            {/* PORTAL 2: INSTITUTIONAL GATEWAY CARD */}
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-slate-900 to-cyan-950/40 border border-cyan-500/30 hover:border-cyan-500/60 transition-all flex flex-col justify-between group shadow-xl">
+            {/* Admin Command Centre Card */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 transition-all flex flex-col justify-between group">
               <div>
-                <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-6 font-bold">
-                  <Lock className="w-7 h-7" />
+                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4 font-bold">
+                  <Shield className="w-6 h-6" />
                 </div>
-                <div className="inline-block text-[10px] font-bold tracking-wider text-cyan-400 uppercase bg-cyan-500/10 px-2.5 py-1 rounded border border-cyan-500/20 mb-2">
-                  Portal 2 • Authenticated Access
-                </div>
-                <h3 className="text-2xl font-black text-white group-hover:text-cyan-400 transition-colors">
-                  Institutional Portal Gateway
-                </h3>
-                <p className="text-sm text-slate-300 mt-3 leading-relaxed">
-                  A multi-role authentication gateway for Government Admins, University Coordinators, and Industry CSR Partners to validate reports, route projects, submit R&D proposals, and pledge funding.
+                <h3 className="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors">B. Govt Command Centre</h3>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Validate reports, override AI, review pgvector duplicate checks, route to departments, and assign HEIs.
                 </p>
-
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-center">
-                    <Shield className="w-4 h-4 text-cyan-400 mx-auto mb-1" />
-                    <span className="text-[11px] font-bold text-slate-200 block">Govt Admin</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-center">
-                    <Landmark className="w-4 h-4 text-purple-400 mx-auto mb-1" />
-                    <span className="text-[11px] font-bold text-slate-200 block">Universities</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-center">
-                    <HeartHandshake className="w-4 h-4 text-amber-400 mx-auto mb-1" />
-                    <span className="text-[11px] font-bold text-slate-200 block">Industry CSR</span>
-                  </div>
-                </div>
               </div>
-
-              <Link
-                href="/login"
-                className="mt-8 px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:brightness-110 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-cyan-500/20"
-              >
-                Enter Institutional Gateway <ArrowRight className="w-4 h-4" />
+              <Link href="/admin" className="mt-6 text-xs font-bold text-cyan-400 flex items-center gap-1 hover:gap-2 transition-all">
+                Open Command Centre <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
+
+            {/* University Portal Card */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/50 transition-all flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4 font-bold">
+                  <Landmark className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors">C. University & HEI Hub</h3>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Form multidisciplinary student-faculty teams, submit solution proposals, build prototypes, and run pilot trials.
+                </p>
+              </div>
+              <Link href="/hei" className="mt-6 text-xs font-bold text-purple-400 flex items-center gap-1 hover:gap-2 transition-all">
+                Open HEI Portal <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            {/* Industry / CSR Card */}
+            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/50 transition-all flex flex-col justify-between group">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4 font-bold">
+                  <HeartHandshake className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">D. Industry & CSR Partner</h3>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                  Browse university solution proposals, pledge CSR funding in INR, offer technical mentorship, and sponsor deployment.
+                </p>
+              </div>
+              <Link href="/industry" className="mt-6 text-xs font-bold text-amber-400 flex items-center gap-1 hover:gap-2 transition-all">
+                Open Industry Hub <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5 Core AI Engine Modules */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-1 text-cyan-400 text-xs font-mono font-bold uppercase mb-2">
+            <Cpu className="w-4 h-4" /> AI Engine Architecture
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">Five Intelligent Core AI Modules</h2>
+          <p className="text-sm text-slate-400 mt-2 max-w-2xl mx-auto">
+            Powered by LangChain + OpenAI GPT-4o with deterministic rule-based fallbacks for offline reliability.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+            <div className="text-emerald-400 font-mono font-bold text-xs mb-2">MODULE 1</div>
+            <h3 className="text-base font-bold text-white">Problem Classification</h3>
+            <p className="text-xs text-slate-400 mt-2">Classifies issues across 12 domains (Water, Roads, Health, Agriculture, Sanitation, Disaster, etc.).</p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+            <div className="text-cyan-400 font-mono font-bold text-xs mb-2">MODULE 2</div>
+            <h3 className="text-base font-bold text-white">Priority Prediction (0-100)</h3>
+            <p className="text-xs text-slate-400 mt-2">Evaluates severity, urgency, population impact, and safety risk to produce score & reasoning.</p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+            <div className="text-purple-400 font-mono font-bold text-xs mb-2">MODULE 3</div>
+            <h3 className="text-base font-bold text-white">Duplicate Detection (pgvector)</h3>
+            <p className="text-xs text-slate-400 mt-2">Uses semantic embedding similarity and GIS distance bounds to flag potential duplicate challenges.</p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+            <div className="text-amber-400 font-mono font-bold text-xs mb-2">MODULE 4</div>
+            <h3 className="text-base font-bold text-white">HEI Recommendation Engine</h3>
+            <p className="text-xs text-slate-400 mt-2">Matches validated problems to universities based on academic disciplines, lab facilities, and faculty leads.</p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 md:col-span-2">
+            <div className="text-blue-400 font-mono font-bold text-xs mb-2">MODULE 5</div>
+            <h3 className="text-base font-bold text-white">Solution Direction Generator</h3>
+            <p className="text-xs text-slate-400 mt-2">Generates 3-4 actionable solution approaches (e.g. solar de-fluoridation, computer vision pavement audit, telemedicine kiosk).</p>
           </div>
         </div>
       </section>

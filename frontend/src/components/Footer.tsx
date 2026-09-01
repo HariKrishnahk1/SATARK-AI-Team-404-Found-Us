@@ -2,13 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Shield, MapPin, Landmark, HeartHandshake, Heart } from 'lucide-react';
+import { Shield, ExternalLink, Heart } from 'lucide-react';
 
 export const Footer = () => {
-  const pathname = usePathname();
-  const isCitizenPortal = pathname.startsWith('/citizen');
-
   return (
     <footer className="bg-slate-950 border-t border-slate-900 text-slate-400 text-xs py-8 px-4">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -19,44 +15,31 @@ export const Footer = () => {
           </div>
           <p className="text-slate-400 text-xs leading-relaxed mb-3">
             System for Automated Tracking, AI-assisted Routing & Knowledge-driven Action.
-            A unified digital ecosystem connecting citizens, higher education institutions, government, and industry partners across Jharkhand.
+            A digital ecosystem connecting citizens, higher education institutions, government, and industry partners across Jharkhand.
           </p>
-          <div className="text-[11px] text-cyan-400 font-mono font-bold">
+          <div className="text-[11px] text-cyan-400 font-mono">
             Smart India Hackathon 2026 • PS26043
           </div>
         </div>
 
-        {/* Dynamic Portal Navigation in Footer */}
         <div>
-          <h4 className="text-white font-semibold mb-3">
-            {isCitizenPortal ? 'Civic Portal Links' : 'Institutional Portal Links'}
-          </h4>
+          <h4 className="text-white font-semibold mb-3">Stakeholder Portals</h4>
           <ul className="space-y-2">
-            {isCitizenPortal ? (
-              <>
-                <li><Link href="/citizen" className="hover:text-emerald-400 transition-colors font-medium text-emerald-300">Submit Societal Challenge</Link></li>
-                <li><Link href="/citizen" className="hover:text-emerald-400 transition-colors">Track Submitted Challenges</Link></li>
-                <li><Link href="/login" className="hover:text-cyan-400 transition-colors">Official Institutional Login Gateway</Link></li>
-              </>
-            ) : (
-              <>
-                <li><Link href="/admin" className="hover:text-cyan-400 transition-colors">Government Command Centre</Link></li>
-                <li><Link href="/hei" className="hover:text-cyan-400 transition-colors">University & HEI Innovation Hub</Link></li>
-                <li><Link href="/industry" className="hover:text-cyan-400 transition-colors">Industry & CSR Partner Portal</Link></li>
-                <li><Link href="/citizen" className="hover:text-emerald-400 transition-colors">Public Civic Portal</Link></li>
-              </>
-            )}
+            <li><Link href="/citizen" className="hover:text-cyan-400 transition-colors">Citizen & Community Portal</Link></li>
+            <li><Link href="/admin" className="hover:text-cyan-400 transition-colors">Government Command Centre</Link></li>
+            <li><Link href="/hei" className="hover:text-cyan-400 transition-colors">University & HEI Portal</Link></li>
+            <li><Link href="/industry" className="hover:text-cyan-400 transition-colors">Industry & CSR Partner Portal</Link></li>
           </ul>
         </div>
 
         <div>
-          <h4 className="text-white font-semibold mb-3">AI Engine Modules</h4>
+          <h4 className="text-white font-semibold mb-3">AI Engine Capabilities</h4>
           <ul className="space-y-2 text-slate-400">
-            <li>• Module 1: Problem Classification</li>
+            <li>• Module 1: Semantic Classification</li>
             <li>• Module 2: 0-100 Priority Prediction</li>
             <li>• Module 3: pgvector Duplicate Detection</li>
-            <li>• Module 4: HEI Recommendation Engine</li>
-            <li>• Module 5: Solution Recommender</li>
+            <li>• Module 4: HEI & Discipline Matching</li>
+            <li>• Module 5: Solution Direction Recommender</li>
           </ul>
         </div>
 

@@ -9,18 +9,15 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Challenge, DashboardStats, University } from '../../lib/types';
 import { LeafletMap } from '../../components/LeafletMap';
 import {
   Shield, CheckCircle, AlertTriangle, Building2, Landmark, HeartHandshake,
-  Cpu, Users, Award, MapPin, RefreshCw, Eye, Edit3, Layers, Filter, Lock, ArrowRight
+  Cpu, Users, Award, MapPin, RefreshCw, Eye, Edit3, Layers, Filter
 } from 'lucide-react';
 
 export default function AdminCommandCentre() {
-  const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [universities, setUniversities] = useState<University[]>([]);
@@ -69,29 +66,6 @@ export default function AdminCommandCentre() {
   useEffect(() => {
     loadData();
   }, [districtFilter, priorityFilter, statusFilter]);
-
-  // Strict Authorization Guard: Citizens are barred from viewing Government Command Centre
-  if (user?.role === 'CITIZEN') {
-    return (
-      <div className="min-h-[80vh] bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center mb-4 shadow-xl shadow-rose-500/10">
-          <Lock className="w-8 h-8" />
-        </div>
-        <h1 className="text-2xl font-bold text-white">Access Denied: Government Command Centre</h1>
-        <p className="text-sm text-slate-400 mt-2 max-w-md">
-          Public citizens do not have authorization to view internal government command centres, override AI metrics, or route challenges. Please log in with official government credentials.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/citizen" className="px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/20">
-            <MapPin className="w-4 h-4" /> Return to Civic Portal
-          </Link>
-          <Link href="/login" className="px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold text-xs hover:border-cyan-400 transition-colors flex items-center gap-2">
-            <Shield className="w-4 h-4 text-cyan-400" /> Official Govt Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   const handleValidateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

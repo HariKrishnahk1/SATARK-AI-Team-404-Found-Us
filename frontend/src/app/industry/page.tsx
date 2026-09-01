@@ -9,14 +9,11 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { SolutionProposal, IndustrySponsorship } from '../../lib/types';
-import { HeartHandshake, Building2, CheckCircle, IndianRupee, Award, Shield, Send, Lock, MapPin } from 'lucide-react';
+import { HeartHandshake, Building2, CheckCircle, IndianRupee, Award, Shield, Send } from 'lucide-react';
 
 export default function IndustryPortal() {
-  const { user } = useAuth();
   const [proposals, setProposals] = useState<SolutionProposal[]>([]);
   const [sponsorships, setSponsorships] = useState<IndustrySponsorship[]>([]);
   const [selectedProposal, setSelectedProposal] = useState<SolutionProposal | null>(null);
@@ -50,29 +47,6 @@ export default function IndustryPortal() {
   useEffect(() => {
     loadData();
   }, []);
-
-  // Strict Authorization Guard: Citizens are barred from viewing Industry & CSR Hub
-  if (user?.role === 'CITIZEN') {
-    return (
-      <div className="min-h-[80vh] bg-slate-950 text-white flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-4 shadow-xl shadow-amber-500/10">
-          <Lock className="w-8 h-8" />
-        </div>
-        <h1 className="text-2xl font-bold text-white">Access Denied: Industry & CSR Hub</h1>
-        <p className="text-sm text-slate-400 mt-2 max-w-md">
-          Public citizens do not have authorization to view CSR funding pledges, prototyping agreements, or industry mentorship contracts. Please log in with official CSR credentials.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/citizen" className="px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/20">
-            <MapPin className="w-4 h-4" /> Return to Civic Portal
-          </Link>
-          <Link href="/login" className="px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold text-xs hover:border-amber-400 transition-colors flex items-center gap-2">
-            <HeartHandshake className="w-4 h-4 text-amber-400" /> Official CSR Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   const handlePledgeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

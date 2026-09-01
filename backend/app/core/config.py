@@ -11,8 +11,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 # 24 hours
 
     # Database Settings
-    BASE_DIR: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
-    DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, 'satark_ai.db')}")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./satark_ai.db")
 
     # AI Service Settings
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
