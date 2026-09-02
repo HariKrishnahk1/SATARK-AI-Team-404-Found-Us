@@ -200,12 +200,15 @@ export default function CitizenPortal() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-slate-800">
-        <div>
-          <div className="inline-flex items-center gap-1 text-emerald-400 text-xs font-mono font-bold uppercase mb-1">
-            <MapPin className="w-3.5 h-3.5" /> Citizen & Community Portal
+        <div className="flex items-center gap-4">
+          <img src="/logo.png" alt="SATARK AI Logo" className="w-14 h-14 object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.3)] shrink-0" />
+          <div>
+            <div className="inline-flex items-center gap-1 text-emerald-400 text-xs font-mono font-bold uppercase mb-1">
+              <MapPin className="w-3.5 h-3.5" /> Citizen & Community Portal
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white">Report & Track Societal Challenges</h1>
+            <p className="text-xs text-slate-400 mt-1">Submit real-world issues across India for AI evaluation and university/industry resolution.</p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white">Report & Track Societal Challenges</h1>
-          <p className="text-xs text-slate-400 mt-1">Submit real-world issues across India for AI evaluation and university/industry resolution.</p>
         </div>
         <button
           onClick={loadChallenges}

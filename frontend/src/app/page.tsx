@@ -14,7 +14,10 @@ export default function LandingPage() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-tr from-emerald-600/20 via-cyan-600/20 to-blue-600/10 blur-[120px] pointer-events-none rounded-full" />
 
       {/* Hero Section */}
-      <section className="relative pt-16 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+      <section className="relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        <div className="flex justify-center mb-6">
+          <img src="/logo.png" alt="SATARK AI Emblem" className="w-28 h-28 object-contain drop-shadow-[0_0_25px_rgba(16,185,129,0.4)]" />
+        </div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-6">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Smart India Hackathon 2026 • Problem Statement ID: SIH26043 / PS26043</span>
@@ -28,7 +31,7 @@ export default function LandingPage() {
         </h1>
 
         <p className="mt-6 text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-          <strong className="text-emerald-400">SATARK AI</strong> (System for Automated Tracking, AI-assisted Routing & Knowledge-driven Action) bridges Citizens, Government Authorities, Higher Education Institutions, and Industry CSR Partners across Jharkhand.
+          <strong className="text-emerald-400">SATARK AI</strong> (System for Automated Tracking, AI-assisted Routing & Knowledge-driven Action) bridges Citizens, Government Authorities, Higher Education Institutions, and Industry CSR Partners across India.
         </p>
 
         <div className="mt-4 text-xs font-mono tracking-widest text-cyan-400 font-bold uppercase">

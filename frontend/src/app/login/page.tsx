@@ -70,6 +70,9 @@ export default function UnifiedLoginPage() {
       <div className="max-w-5xl mx-auto w-full relative z-10">
         {/* Header */}
         <div className="text-center mb-10">
+          <div className="flex justify-center mb-4">
+            <img src="/logo.png" alt="SATARK AI Emblem" className="w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]" />
+          </div>
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-4">
             <Sparkles className="w-3.5 h-3.5" />
             <span>SATARK AI Institutional Authentication Gateway</span>

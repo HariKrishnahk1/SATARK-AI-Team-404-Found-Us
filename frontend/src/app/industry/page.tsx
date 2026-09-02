@@ -75,12 +75,15 @@ export default function IndustryPortal() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-800">
-        <div>
-          <div className="inline-flex items-center gap-1 text-amber-400 text-xs font-mono font-bold uppercase mb-1">
-            <HeartHandshake className="w-3.5 h-3.5" /> Industry & CSR Partner Portal
+        <div className="flex items-center gap-4">
+          <img src="/logo.png" alt="SATARK AI Logo" className="w-14 h-14 object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] shrink-0" />
+          <div>
+            <div className="inline-flex items-center gap-1 text-amber-400 text-xs font-mono font-bold uppercase mb-1">
+              <HeartHandshake className="w-3.5 h-3.5" /> Industry & CSR Partner Portal
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white">CSR Funding & Technical Sponsorship</h1>
+            <p className="text-xs text-slate-400 mt-1">Sponsor university prototypes, pledge CSR funding in INR, and provide technical mentorship.</p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white">CSR Funding & Technical Sponsorship</h1>
-          <p className="text-xs text-slate-400 mt-1">Sponsor university prototypes, pledge CSR funding in INR, and provide technical mentorship.</p>
         </div>
         <div className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold">
           Tata Steel CSR Division
