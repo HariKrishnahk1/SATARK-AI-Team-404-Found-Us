@@ -35,10 +35,8 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href={isCitizenMode ? "/citizen" : "/authority"} className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-600 p-0.5 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center font-black text-cyan-400 text-lg">
-              S
-            </div>
+          <div className="relative group-hover:scale-105 transition-transform shrink-0">
+            <img src="/logo.png" alt="SATARK AI Logo" className="w-10 h-10 object-contain drop-shadow-[0_0_12px_rgba(16,185,129,0.3)]" />
           </div>
           <div>
             <div className="flex items-center gap-2">

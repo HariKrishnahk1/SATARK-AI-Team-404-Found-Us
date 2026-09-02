@@ -10,7 +10,12 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'SATARK AI - System for Automated Tracking, AI-assisted Routing & Knowledge-driven Action',
-  description: 'Smart India Hackathon 2026 PS26043 - A digital platform to crowdsource societal challenges across Jharkhand and facilitate collaborative problem solving through universities and industry partnerships.',
+  description: 'Smart India Hackathon 2026 PS26043 - A Pan-India digital platform to crowdsource societal challenges and facilitate collaborative problem solving through universities and industry partnerships.',
+  icons: {
+    icon: [{ url: '/logo.png', type: 'image/png' }],
+    shortcut: ['/logo.png'],
+    apple: [{ url: '/logo.png', type: 'image/png' }],
+  }
 };
 
 export default function RootLayout({

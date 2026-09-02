@@ -14,7 +14,7 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
           <div className="flex items-center gap-2 text-white font-bold text-base mb-2">
-            <Shield className="w-5 h-5 text-emerald-400" />
+            <img src="/logo.png" alt="SATARK AI Logo" className="w-7 h-7 object-contain" />
             <span>SATARK AI</span>
           </div>
           <p className="text-slate-400 text-xs leading-relaxed mb-3">
