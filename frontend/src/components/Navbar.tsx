@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { Role } from '../lib/types';
-import { Shield, MapPin, Building2, Landmark, HeartHandshake, User, ChevronDown } from 'lucide-react';
+import { Shield, MapPin, Building2, Landmark, HeartHandshake, User, ChevronDown, GraduationCap } from 'lucide-react';
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -17,6 +17,7 @@ export const Navbar = () => {
   const authorityNavItems = [
     { href: '/admin', label: 'Govt Command Centre', icon: Shield },
     { href: '/hei', label: 'University Portal', icon: Landmark },
+    { href: '/student', label: 'Student Portal', icon: GraduationCap },
     { href: '/industry', label: 'Industry & CSR Hub', icon: HeartHandshake }
   ];
 
@@ -24,6 +25,7 @@ export const Navbar = () => {
     { role: 'SUPER_ADMIN', label: 'Government Super Admin' },
     { role: 'CITIZEN', label: 'Citizen / Community' },
     { role: 'HEI_COORDINATOR', label: 'University Coordinator (BIT Mesra)' },
+    { role: 'STUDENT_TEAM', label: 'Student Innovator Team (BIT Mesra)' },
     { role: 'INDUSTRY_PARTNER', label: 'Industry Partner (Tata Steel CSR)' },
     { role: 'DEPARTMENT_HEAD', label: 'Department Head (Water Resources)' },
     { role: 'OFFICER', label: 'Field Officer (Roads)' }

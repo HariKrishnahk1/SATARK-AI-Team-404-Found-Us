@@ -55,6 +55,9 @@ export const api = {
     fetchApi(`/projects/${challengeId}/status?new_status=${status}`, { method: 'PATCH' }),
   createMilestone: (data: any) => fetchApi('/projects/milestones', { method: 'POST', body: JSON.stringify(data) }),
   recordImpact: (data: any) => fetchApi('/projects/impact', { method: 'POST', body: JSON.stringify(data) }),
+  submitPrototype: (data: any) => fetchApi('/projects/prototype', { method: 'POST', body: JSON.stringify(data) }),
+  assignFieldOfficer: (data: any) => fetchApi('/projects/assign-officer', { method: 'POST', body: JSON.stringify(data) }),
+  submitFieldReport: (data: any) => fetchApi('/projects/field-report', { method: 'POST', body: JSON.stringify(data) }),
 
   // Analytics & Notifications
   getStats: () => fetchApi('/analytics/stats'),

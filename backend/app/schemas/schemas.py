@@ -213,3 +213,32 @@ class DashboardStatsOut(BaseModel):
     patents_filed: int
     startups_created: int
     estimated_beneficiaries: int
+
+# --- Prototype & Field Trial Schemas ---
+class PrototypeSubmitRequest(BaseModel):
+    challenge_id: str
+    prototype_title: str
+    fabrication_specs: str
+    materials_used: Optional[str] = None
+    fabrication_cost_inr: float = 0.0
+    testing_metrics: Optional[str] = None
+    student_team_lead: Optional[str] = "Aniket Sen (BIT Mesra)"
+
+class OfficerAssignRequest(BaseModel):
+    challenge_id: str
+    officer_name: str
+    officer_email: Optional[str] = None
+    designation: Optional[str] = "Field Inspection Officer"
+    assignment_notes: Optional[str] = None
+
+class FieldReportSubmitRequest(BaseModel):
+    challenge_id: str
+    officer_name: str
+    verification_status: str = "PASSED" # PASSED, FAILED, NEEDS_REVISION
+    inspection_metrics: str
+    field_notes: Optional[str] = None
+    deployment_location: Optional[str] = None
+    estimated_beneficiaries: int = 1000
+    solved_image_proof: Optional[str] = None
+    verification_pdf_proof: Optional[str] = None
+

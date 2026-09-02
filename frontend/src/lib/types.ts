@@ -64,6 +64,7 @@ export interface Challenge {
     | 'PROPOSAL_APPROVED'
     | 'INDUSTRY_SPONSORED'
     | 'PROTOTYPE_DEVELOPMENT'
+    | 'PROTOTYPE_BUILT'
     | 'PILOT_DEPLOYMENT'
     | 'IMPACT_VALIDATED'
     | 'RESOLVED';
@@ -74,6 +75,8 @@ export interface Challenge {
   sla_deadline?: string;
   override_logs?: any[];
   comments?: any[];
+  solved_image_proof?: string;
+  verification_pdf_proof?: string;
 }
 
 export interface University {

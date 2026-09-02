@@ -48,8 +48,8 @@ export const Timeline: React.FC<TimelineProps> = ({ currentStatus }) => {
     <div className="w-full py-4">
       <div className="flex items-center justify-between overflow-x-auto pb-4 scrollbar-thin">
         {STAGES.map((stage, idx) => {
-          const isPassed = idx < currentIndex;
-          const isCurrent = idx === currentIndex;
+          const isPassed = idx <= currentIndex;
+          const isCurrent = idx === currentIndex && currentStatus !== 'RESOLVED';
 
           return (
             <div key={stage.id} className="flex items-center flex-1 min-w-[120px]">

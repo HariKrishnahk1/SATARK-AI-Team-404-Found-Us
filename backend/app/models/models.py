@@ -210,6 +210,8 @@ class InnovationOutcome(Base):
     environmental_impact = Column(Text, nullable=True)
     social_impact_summary = Column(Text, nullable=True)
     cost_efficiency_notes = Column(Text, nullable=True)
+    solved_image_url = Column(Text, nullable=True)
+    verification_pdf_url = Column(Text, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     challenge = relationship("Challenge", back_populates="outcome")
