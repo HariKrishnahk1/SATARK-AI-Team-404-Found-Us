@@ -12,6 +12,7 @@ import { api } from '../../lib/api';
 import { Challenge } from '../../lib/types';
 import { MapPin, Camera, AlertCircle, CheckCircle, Sparkles, Send, RefreshCw, Clock, UploadCloud, X, FileImage, Image as ImageIcon, Navigation, Compass } from 'lucide-react';
 import { Timeline } from '../../components/Timeline';
+import { StartupVideoModal } from '../../components/StartupVideoModal';
 
 const INDIAN_STATES_AND_UT = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -198,6 +199,7 @@ export default function CitizenPortal() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <StartupVideoModal portalName="Citizen Portal" />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-slate-800">
         <div className="flex items-center gap-4">
