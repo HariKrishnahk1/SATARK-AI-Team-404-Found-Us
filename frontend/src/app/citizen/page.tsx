@@ -7,15 +7,21 @@
  * AI classification preview, and 15-stage status tracking.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../../lib/api';
 import { Challenge } from '../../lib/types';
-import { MapPin, Camera, AlertCircle, CheckCircle, Sparkles, Send, RefreshCw, Clock } from 'lucide-react';
+import { MapPin, Camera, AlertCircle, CheckCircle, Sparkles, Send, RefreshCw, Clock, UploadCloud, X, FileImage, Image as ImageIcon, Navigation, Compass } from 'lucide-react';
 import { Timeline } from '../../components/Timeline';
 
-const JHARKHAND_DISTRICTS = [
-  'Ranchi', 'Dhanbad', 'East Singhbhum', 'Bokaro', 'Deoghar', 'Hazaribagh',
-  'Giridih', 'Dumka', 'Sahibganj', 'Ramgarh', 'Palamu', 'West Singhbhum'
+const INDIAN_STATES_AND_UT = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
+  'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
+  'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
+  'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
+  'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+  'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
+  'Delhi (NCT)', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
 ];
 
 export default function CitizenPortal() {
@@ -26,13 +32,66 @@ export default function CitizenPortal() {
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [district, setDistrict] = useState('Ranchi');
-  const [address, setAddress] = useState('Angara Block, Ranchi, Jharkhand');
-  const [lat, setLat] = useState(23.3699);
-  const [lng, setLng] = useState(85.3250);
+  const [state, setState] = useState('Tamil Nadu');
+  const [district, setDistrict] = useState('Chennai');
+  const [address, setAddress] = useState('');
+  const [lat, setLat] = useState(13.0827);
+  const [lng, setLng] = useState(80.2707);
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [imageError, setImageError] = useState('');
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setImageError('Please select a valid image file (PNG, JPG, WEBP, etc.)');
+      return;
+    }
+    setImageError('');
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        setImageUrl(e.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImageUrl('');
+    setImageError('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const loadChallenges = async () => {
     setLoading(true);
@@ -55,23 +114,30 @@ export default function CitizenPortal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !description) return;
+    if (!imageUrl) {
+      setImageError('Image proof is mandatory. Please drag & drop or browse an image file.');
+      return;
+    }
+    if (!title || !description || !address || !district) return;
 
     setSubmitting(true);
     try {
+      const formattedDistrict = state ? `${district}, ${state}` : district;
       const newCh = await api.createChallenge({
         title,
         citizen_description: description,
-        district,
+        district: formattedDistrict,
         address,
         latitude: lat,
         longitude: lng,
-        image_url: imageUrl || 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?w=600&auto=format&fit=crop'
+        image_url: imageUrl
       });
 
       setSuccessMsg(`Challenge '${newCh.title}' successfully submitted! AI Priority Score: ${newCh.priority_score}/100.`);
       setTitle('');
       setDescription('');
+      setAddress('');
+      handleRemoveImage();
       loadChallenges();
     } catch (err: any) {
       alert(`Submission error: ${err.message}`);
@@ -81,16 +147,53 @@ export default function CitizenPortal() {
   };
 
   const useCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setLat(pos.coords.latitude);
-          setLng(pos.coords.longitude);
-          setAddress(`GPS Lat: ${pos.coords.latitude.toFixed(4)}, Lon: ${pos.coords.longitude.toFixed(4)} (${district})`);
-        },
-        () => alert('Could not fetch exact GPS location. Defaulting to district centroid.')
-      );
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
     }
+    setDetectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const latitude = pos.coords.latitude;
+        const longitude = pos.coords.longitude;
+        setLat(latitude);
+        setLng(longitude);
+
+        try {
+          // Reverse geocoding via OpenStreetMap Nominatim API
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          );
+          if (res.ok) {
+            const data = await res.json();
+            const addr = data.address || {};
+            const cityName = addr.city || addr.town || addr.village || addr.suburb || addr.county || addr.state_district || '';
+            const stateName = addr.state || '';
+            const fullAddr = data.display_name || `Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`;
+
+            setAddress(fullAddr);
+            if (cityName) setDistrict(cityName);
+            if (stateName) {
+              const matchedState = INDIAN_STATES_AND_UT.find(
+                (s) => s.toLowerCase() === stateName.toLowerCase() || stateName.toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(stateName.toLowerCase())
+              );
+              if (matchedState) setState(matchedState);
+            }
+          } else {
+            setAddress(`Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`);
+          }
+        } catch (e) {
+          setAddress(`Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`);
+        } finally {
+          setDetectingLocation(false);
+        }
+      },
+      (err) => {
+        setDetectingLocation(false);
+        alert('Could not fetch exact GPS location. Please enter your address manually in the address box.');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   return (
@@ -102,7 +205,7 @@ export default function CitizenPortal() {
             <MapPin className="w-3.5 h-3.5" /> Citizen & Community Portal
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-white">Report & Track Societal Challenges</h1>
-          <p className="text-xs text-slate-400 mt-1">Submit real-world issues across Jharkhand for AI evaluation and university/industry resolution.</p>
+          <p className="text-xs text-slate-400 mt-1">Submit real-world issues across India for AI evaluation and university/industry resolution.</p>
         </div>
         <button
           onClick={loadChallenges}
@@ -135,36 +238,70 @@ export default function CitizenPortal() {
               <input
                 type="text"
                 required
-                placeholder="e.g. Severe Fluoride Contamination in Village Borewells"
+                placeholder="e.g. Severe Water Contamination in Village Borewells"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">District *</label>
-                <select
-                  value={district}
-                  onChange={(e) => setDistrict(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
-                >
-                  {JHARKHAND_DISTRICTS.map((d) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Location Pin</label>
+            {/* Location & Address Section */}
+            <div className="space-y-3 p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-cyan-400" /> Location Details
+                </label>
                 <button
                   type="button"
                   onClick={useCurrentLocation}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-cyan-400 text-xs font-semibold hover:bg-slate-750 flex items-center justify-center gap-1"
+                  disabled={detectingLocation}
+                  className="px-2.5 py-1 rounded-lg bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 text-[11px] font-semibold hover:bg-cyan-900/80 hover:text-white transition-all flex items-center gap-1.5 shadow-sm"
                 >
-                  <MapPin className="w-3.5 h-3.5" /> GPS Location
+                  <Navigation className={`w-3 h-3 ${detectingLocation ? 'animate-spin' : ''}`} />
+                  {detectingLocation ? 'Detecting Location...' : 'Detect My Location (GPS)'}
                 </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-400 mb-1">State / UT *</label>
+                  <select
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
+                  >
+                    {INDIAN_STATES_AND_UT.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-400 mb-1">District / City *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Chennai, Mumbai, Ranchi, Bengaluru"
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-slate-400 mb-1 flex items-center justify-between">
+                  <span>Full Address / Landmark *</span>
+                  <span className="text-[10px] text-cyan-400 font-normal">Editable</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter street name, block, area, landmark, or village address..."
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
+                />
               </div>
             </div>
 
@@ -181,14 +318,88 @@ export default function CitizenPortal() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">Image URL (Optional)</label>
+              <label className="block text-xs font-bold text-slate-300 mb-1 flex items-center justify-between">
+                <span>Upload Challenge Image <span className="text-rose-500">*</span></span>
+                <span className="text-[10px] text-cyan-400 font-normal">Mandatory Photo Proof</span>
+              </label>
+
               <input
-                type="url"
-                placeholder="https://images.unsplash.com/..."
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    handleFileSelect(e.target.files[0]);
+                  }
+                }}
               />
+
+              {!imageUrl ? (
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`w-full p-5 border-2 border-dashed rounded-xl cursor-pointer text-center transition-all flex flex-col items-center justify-center gap-2 ${
+                    isDragging
+                      ? 'border-cyan-400 bg-cyan-950/40 scale-[1.01]'
+                      : imageError
+                      ? 'border-rose-500/80 bg-rose-950/20 hover:bg-slate-950'
+                      : 'border-slate-800 bg-slate-950 hover:border-cyan-500/60 hover:bg-slate-900/60'
+                  }`}
+                >
+                  <div className="p-3 rounded-full bg-slate-900 border border-slate-800 text-cyan-400">
+                    <UploadCloud className="w-6 h-6 animate-bounce" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-200">
+                      Drag & Drop image here, or <span className="text-cyan-400 underline">Browse File</span>
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Supports PNG, JPG, JPEG, WEBP (Mandatory)</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950 p-2">
+                  <div className="relative group rounded-lg overflow-hidden max-h-48 flex items-center justify-center bg-black/40">
+                    <img
+                      src={imageUrl}
+                      alt="Challenge proof preview"
+                      className="w-full h-44 object-cover rounded-lg"
+                    />
+                    <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-white text-xs font-semibold hover:bg-slate-800 flex items-center gap-1.5"
+                      >
+                        <UploadCloud className="w-3.5 h-3.5 text-cyan-400" /> Change Image
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-semibold hover:bg-rose-500/30 flex items-center gap-1.5"
+                      >
+                        <X className="w-3.5 h-3.5" /> Remove
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-2 px-1 flex items-center justify-between text-[11px] text-slate-400">
+                    <span className="truncate max-w-[200px] text-slate-300 font-medium">
+                      {imageFile ? imageFile.name : 'Uploaded Photo'}
+                    </span>
+                    <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" /> Mandatory Image Attached
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {imageError && (
+                <p className="text-[11px] text-rose-400 mt-1.5 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" /> {imageError}
+                </p>
+              )}
             </div>
 
             <button
