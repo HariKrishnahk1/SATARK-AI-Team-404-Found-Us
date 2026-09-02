@@ -12,6 +12,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { Challenge, DashboardStats, University } from '../../lib/types';
 import { LeafletMap } from '../../components/LeafletMap';
+import { StartupVideoModal } from '../../components/StartupVideoModal';
 import {
   Shield, CheckCircle, AlertTriangle, Building2, Landmark, HeartHandshake,
   Cpu, Users, Award, MapPin, RefreshCw, Eye, Edit3, Layers, Filter
@@ -119,6 +120,7 @@ export default function AdminCommandCentre() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <StartupVideoModal portalName="Government Command Centre" />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-800">
         <div className="flex items-center gap-4">
