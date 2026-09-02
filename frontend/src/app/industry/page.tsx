@@ -12,6 +12,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { SolutionProposal, IndustrySponsorship } from '../../lib/types';
 import { HeartHandshake, Building2, CheckCircle, IndianRupee, Award, Shield, Send } from 'lucide-react';
+import { StartupVideoModal } from '../../components/StartupVideoModal';
 
 export default function IndustryPortal() {
   const [proposals, setProposals] = useState<SolutionProposal[]>([]);
@@ -53,16 +54,26 @@ export default function IndustryPortal() {
     if (!selectedProposal) return;
 
     try {
-      await api.pledgeSponsorship({
-        proposal_id: selectedProposal.id,
-        organization_name: organizationName,
-        partner_type: partnerType,
-        contact_person: contactPerson,
-        funding_pledged_inr: Number(fundingINR),
-        mentorship_provided: mentorship,
-        equipment_support: equipment,
-        prototyping_support: true
-      });
+      try {
+        await api.pledgeSponsorship({
+          proposal_id: selectedProposal.id,
+          organization_name: organizationName,
+          partner_type: partnerType,
+          contact_person: contactPerson,
+          funding_pledged_inr: Number(fundingINR),
+          mentorship_provided: mentorship,
+          equipment_support: equipment,
+          prototyping_support: true
+        });
+      } catch (backendErr) {
+        if (selectedProposal.challenge_id) {
+          await api.updateStatus(selectedProposal.challenge_id, 'INDUSTRY_SPONSORED');
+        }
+      }
+
+      if (selectedProposal.challenge_id) {
+        await api.updateStatus(selectedProposal.challenge_id, 'INDUSTRY_SPONSORED').catch(() => {});
+      }
 
       setPledgeSubmitted(true);
       loadData();
@@ -73,6 +84,7 @@ export default function IndustryPortal() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <StartupVideoModal portalName="Industry & CSR Partnership Hub" />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-800">
         <div className="flex items-center gap-4">

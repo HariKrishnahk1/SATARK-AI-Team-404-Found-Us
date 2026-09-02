@@ -9,12 +9,22 @@ interface StartupVideoModalProps {
 }
 
 export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({ portalName, onComplete }) => {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (videoRef.current) {
+    // Only play video ONCE per login session
+    if (typeof window !== 'undefined') {
+      const hasPlayed = sessionStorage.getItem('satark_startup_video_played');
+      if (!hasPlayed) {
+        setVisible(true);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (visible && videoRef.current) {
       videoRef.current.play().catch(() => {
         setIsMuted(true);
         if (videoRef.current) {
@@ -23,9 +33,12 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({ portalName
         }
       });
     }
-  }, []);
+  }, [visible]);
 
   const handleSkip = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('satark_startup_video_played', 'true');
+    }
     if (videoRef.current) {
       videoRef.current.pause();
     }

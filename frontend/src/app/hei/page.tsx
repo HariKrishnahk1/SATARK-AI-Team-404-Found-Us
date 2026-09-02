@@ -11,7 +11,9 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { Challenge, SolutionProposal } from '../../lib/types';
-import { Landmark, Users, Send, CheckCircle, FileText, Plus, Sparkles, Award } from 'lucide-react';
+import Link from 'next/link';
+import { Landmark, Users, Send, CheckCircle, FileText, Plus, Sparkles, Award, Cpu } from 'lucide-react';
+import { StartupVideoModal } from '../../components/StartupVideoModal';
 
 export default function UniversityPortal() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
@@ -75,6 +77,7 @@ export default function UniversityPortal() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <StartupVideoModal portalName="University & HEI Innovation Hub" />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-800">
         <div className="flex items-center gap-4">
@@ -87,8 +90,17 @@ export default function UniversityPortal() {
             <p className="text-xs text-slate-400 mt-1">Form multidisciplinary student-faculty teams, submit solution proposals, build prototypes, and report impact.</p>
           </div>
         </div>
-        <div className="px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-mono font-bold">
-          BIT Mesra • R&D Cell
+        <div className="flex items-center gap-3">
+          <Link
+            href="/student"
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-lg shadow-purple-500/20 flex items-center gap-1.5"
+          >
+            <Cpu className="w-3.5 h-3.5" />
+            Student Prototype Workspace
+          </Link>
+          <div className="px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-mono font-bold">
+            BIT Mesra • R&D Cell
+          </div>
         </div>
       </div>
 

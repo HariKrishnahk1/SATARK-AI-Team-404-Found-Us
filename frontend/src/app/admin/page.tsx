@@ -15,7 +15,7 @@ import { LeafletMap } from '../../components/LeafletMap';
 import { StartupVideoModal } from '../../components/StartupVideoModal';
 import {
   Shield, CheckCircle, AlertTriangle, Building2, Landmark, HeartHandshake,
-  Cpu, Users, Award, MapPin, RefreshCw, Eye, Edit3, Layers, Filter
+  Cpu, Users, Award, MapPin, RefreshCw, Eye, Edit3, Layers, Filter, UserCheck, FileText, CheckCircle2, ClipboardCheck
 } from 'lucide-react';
 
 export default function AdminCommandCentre() {
@@ -34,6 +34,49 @@ export default function AdminCommandCentre() {
   const [validateModalOpen, setValidateModalOpen] = useState(false);
   const [duplicateDrawerOpen, setDuplicateDrawerOpen] = useState(false);
   const [heiModalOpen, setHeiModalOpen] = useState(false);
+
+  // Field Officer Assignment & Verification Report Modals
+  const [officerModalOpen, setOfficerModalOpen] = useState(false);
+  const [fieldReportModalOpen, setFieldReportModalOpen] = useState(false);
+
+  // Officer Assignment Form state
+  const [assignedOfficerName, setAssignedOfficerName] = useState('Er. Vikram Kumar (Junior Engineer, Roads & Water)');
+  const [assignmentNotes, setAssignmentNotes] = useState('Conduct on-site inspection for prototype durability, flow safety, and community impact.');
+
+  // Field Report Form state
+  const [verificationStatus, setVerificationStatus] = useState('PASSED');
+  const [inspectionMetrics, setInspectionMetrics] = useState('Field Trial Inspection Passed: Arsenic filtration efficiency verified at 98.4%, 120 L/hr discharge rate, structural casing sturdy.');
+  const [fieldNotes, setFieldNotes] = useState('Recommended for full deployment across target panchayats.');
+  const [deploymentLocation, setDeploymentLocation] = useState('Ranchi Gram Panchayat Kiosk');
+  const [beneficiaries, setBeneficiaries] = useState(1250);
+  const [solvedImageUrl, setSolvedImageUrl] = useState<string>('');
+  const [inspectionPdfUrl, setInspectionPdfUrl] = useState<string>('');
+  const [pdfName, setPdfName] = useState<string>('');
+
+  const handleSolvedImageSelect = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file for problem solved proof.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) setSolvedImageUrl(e.target.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleInspectionPdfSelect = (file: File) => {
+    if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+      alert('Please select a valid PDF file for the verification report.');
+      return;
+    }
+    setPdfName(file.name);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) setInspectionPdfUrl(e.target.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Validation Form state
   const [overrideSeverity, setOverrideSeverity] = useState('');
@@ -82,6 +125,46 @@ export default function AdminCommandCentre() {
       loadData();
     } catch (err: any) {
       alert(`Validation error: ${err.message}`);
+    }
+  };
+
+  const handleAssignOfficer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedChallenge) return;
+
+    try {
+      await api.assignFieldOfficer({
+        challenge_id: selectedChallenge.id,
+        officer_name: assignedOfficerName,
+        assignment_notes: assignmentNotes
+      });
+      setOfficerModalOpen(false);
+      loadData();
+    } catch (err: any) {
+      alert(`Officer assignment error: ${err.message}`);
+    }
+  };
+
+  const handleSubmitFieldReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedChallenge) return;
+
+    try {
+      await api.submitFieldReport({
+        challenge_id: selectedChallenge.id,
+        officer_name: assignedOfficerName,
+        verification_status: verificationStatus,
+        inspection_metrics: inspectionMetrics,
+        field_notes: fieldNotes,
+        deployment_location: deploymentLocation,
+        estimated_beneficiaries: Number(beneficiaries),
+        solved_image_proof: solvedImageUrl,
+        verification_pdf_proof: inspectionPdfUrl || 'SATARK_Official_Verification_Report.pdf'
+      });
+      setFieldReportModalOpen(false);
+      loadData();
+    } catch (err: any) {
+      alert(`Field report submission error: ${err.message}`);
     }
   };
 
@@ -254,7 +337,7 @@ export default function AdminCommandCentre() {
                   <td className="p-3 font-semibold text-purple-300">
                     {ch.assigned_university_id ? 'BIT Mesra' : 'Unassigned'}
                   </td>
-                  <td className="p-3 text-right space-x-2">
+                  <td className="p-3 text-right space-x-1.5 flex justify-end items-center">
                     <button
                       onClick={() => {
                         setSelectedChallenge(ch);
@@ -262,21 +345,39 @@ export default function AdminCommandCentre() {
                         setOverridePriority(ch.priority);
                         setValidateModalOpen(true);
                       }}
-                      className="px-2.5 py-1 rounded bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-600/40 text-[10px] font-bold"
+                      className="px-2 py-1 rounded bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-600/40 text-[10px] font-bold"
                     >
-                      Validate / Override
-                    </button>
-                    <button
-                      onClick={() => handleOpenDuplicates(ch)}
-                      className="px-2.5 py-1 rounded bg-slate-800 text-slate-300 hover:bg-slate-750 text-[10px] font-bold"
-                    >
-                      Duplicates
+                      Validate
                     </button>
                     <button
                       onClick={() => handleOpenHeiModal(ch)}
-                      className="px-2.5 py-1 rounded bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/40 text-[10px] font-bold"
+                      className="px-2 py-1 rounded bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/40 text-[10px] font-bold"
                     >
                       Route HEI
+                    </button>
+
+                    {/* Field Officer Assignment Box Action */}
+                    <button
+                      onClick={() => {
+                        setSelectedChallenge(ch);
+                        setOfficerModalOpen(true);
+                      }}
+                      className="px-2 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/40 text-[10px] font-bold flex items-center gap-1"
+                    >
+                      <UserCheck className="w-3 h-3" />
+                      Assign Officer
+                    </button>
+
+                    {/* Field Inspection Report Action */}
+                    <button
+                      onClick={() => {
+                        setSelectedChallenge(ch);
+                        setFieldReportModalOpen(true);
+                      }}
+                      className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/40 text-[10px] font-bold flex items-center gap-1"
+                    >
+                      <ClipboardCheck className="w-3 h-3" />
+                      Field Report
                     </button>
                   </td>
                 </tr>
@@ -439,6 +540,196 @@ export default function AdminCommandCentre() {
             >
               Close Drawer
             </button>
+          </div>
+        </div>
+      )}
+      {officerModalOpen && selectedChallenge && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-amber-500/40 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-amber-400" /> Government Field Officer Assignment Box
+            </h3>
+            <p className="text-xs text-slate-400">
+              Assign a dedicated departmental field officer to conduct on-site trial verification for prototype: <span className="text-white font-semibold">'{selectedChallenge.title}'</span>.
+            </p>
+
+            <form onSubmit={handleAssignOfficer} className="space-y-4 pt-2">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300">Designated Field Inspection Officer Name</label>
+                <input
+                  type="text"
+                  required
+                  value={assignedOfficerName}
+                  onChange={(e) => setAssignedOfficerName(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs"
+                  placeholder="e.g. Er. Vikram Kumar (Junior Engineer)"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300">Inspection Directives & Field Trial Notes</label>
+                <textarea
+                  rows={3}
+                  value={assignmentNotes}
+                  onChange={(e) => setAssignmentNotes(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs"
+                  placeholder="Directives for field inspection check..."
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setOfficerModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-lg shadow-amber-500/20"
+                >
+                  Assign Officer for Pilot Trial
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Field Inspection & Verification Report Modal */}
+      {fieldReportModalOpen && selectedChallenge && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-emerald-500/40 rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl">
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <ClipboardCheck className="w-5 h-5 text-emerald-400" /> Field Verification Report Submission Box
+            </h3>
+            <p className="text-xs text-slate-400">
+              Submit field inspection findings for <span className="text-white font-semibold">'{selectedChallenge.title}'</span>. Submitting approval will mark the project <span className="text-emerald-400 font-bold">DEPLOYED & RESOLVED</span> and update the Citizen Portal checkboxes.
+            </p>
+
+            <form onSubmit={handleSubmitFieldReport} className="space-y-4 pt-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300">Reporting Officer Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={assignedOfficerName}
+                    onChange={(e) => setAssignedOfficerName(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300">Field Trial Verification Outcome</label>
+                  <select
+                    value={verificationStatus}
+                    onChange={(e) => setVerificationStatus(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-emerald-300 text-xs font-bold"
+                  >
+                    <option value="PASSED">PASSED / VERIFIED & APPROVED</option>
+                    <option value="NEEDS_REVISION">NEEDS FIELD REVISION</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300">On-Site Field Trial Metrics & Performance</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={inspectionMetrics}
+                  onChange={(e) => setInspectionMetrics(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs"
+                  placeholder="Record trial metrics, flow rate, purity efficiency, safety check outcome..."
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300">Deployment Location</label>
+                  <input
+                    type="text"
+                    required
+                    value={deploymentLocation}
+                    onChange={(e) => setDeploymentLocation(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300">Estimated Community Beneficiaries</label>
+                  <input
+                    type="number"
+                    required
+                    value={beneficiaries}
+                    onChange={(e) => setBeneficiaries(Number(e.target.value))}
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Solved Proof Attachments: Image & PDF */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    📷 Problem Solved Image Proof *
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files && e.target.files[0] && handleSolvedImageSelect(e.target.files[0])}
+                    className="w-full text-[11px] text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30 cursor-pointer"
+                  />
+                  {solvedImageUrl ? (
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <img src={solvedImageUrl} alt="Solved Proof Preview" className="w-12 h-12 object-cover rounded-lg border border-emerald-500/40" />
+                      <span className="text-[10px] text-emerald-300 font-semibold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Photo Proof Attached
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-[10px] text-slate-500 block mt-1">No Photo Proof Attached Yet</span>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+                    📄 Field Verification Report (PDF Proof) *
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    onChange={(e) => e.target.files && e.target.files[0] && handleInspectionPdfSelect(e.target.files[0])}
+                    className="w-full text-[11px] text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30 cursor-pointer"
+                  />
+                  {pdfName ? (
+                    <span className="text-[10px] text-emerald-300 font-mono font-semibold block mt-1 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400" /> PDF Attached: {pdfName}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-slate-500 block mt-1">No PDF Document Attached Yet</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setFieldReportModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 text-white text-xs font-bold shadow-lg shadow-emerald-500/20"
+                >
+                  Submit Inspection Report & Resolve Challenge
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
