@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Challenge } from '../lib/types';
 
 interface MapProps {
@@ -11,13 +11,15 @@ interface MapProps {
 
 export const LeafletMap: React.FC<MapProps> = ({ challenges, selectedChallengeId, onSelectChallenge }) => {
   const [mounted, setMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted || typeof window === 'undefined') return;
+    if (!mounted || typeof window === 'undefined' || !containerRef.current) return;
 
     // Load Leaflet dynamically client side
     const L = require('leaflet');
@@ -31,17 +33,40 @@ export const LeafletMap: React.FC<MapProps> = ({ challenges, selectedChallengeId
       shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
     });
 
-    const mapContainer = document.getElementById('satark-leaflet-map');
-    if (!mapContainer) return;
+    // Clean up any existing Leaflet instance on the container safely
+    if (mapInstanceRef.current) {
+      try {
+        mapInstanceRef.current.off();
+        mapInstanceRef.current.remove();
+      } catch (e) {
+        // Ignore unmount error if pane already detached
+      }
+      mapInstanceRef.current = null;
+    }
+    if ((containerRef.current as any)._leaflet_id) {
+      (containerRef.current as any)._leaflet_id = null;
+    }
 
-    // Center map on Jharkhand (Ranchi approx 23.3441, 85.3096)
-    const map = L.map('satark-leaflet-map').setView([23.3441, 85.3096], 8);
+    // Center map on India (Geographic Center approx 20.5937, 78.9629)
+    const map = L.map(containerRef.current, {
+      zoomAnimation: false,
+      fadeAnimation: false,
+      markerZoomAnimation: false
+    }).setView([20.5937, 78.9629], 5);
+
+    mapInstanceRef.current = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; Government of Jharkhand - SATARK AI'
+      attribution: '&copy; SATARK AI Platform'
     }).addTo(map);
 
-    challenges.forEach(ch => {
+    const bounds: L.LatLngTuple[] = [];
+
+    challenges.forEach((ch) => {
+      if (ch.latitude && ch.longitude) {
+        bounds.push([ch.latitude, ch.longitude]);
+      }
+
       let color = '#0ea5e9'; // Cyan medium
       if (ch.priority === 'URGENT' || ch.severity === 'CRITICAL') color = '#ef4444'; // Red
       else if (ch.priority === 'HIGH') color = '#f97316'; // Orange
@@ -64,7 +89,7 @@ export const LeafletMap: React.FC<MapProps> = ({ challenges, selectedChallengeId
             <span style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">Priority: ${ch.priority_score}/100</span>
             <span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px;">${ch.status}</span>
           </div>
-          <p style="margin: 0; color: #334155; font-size: 11px;">${ch.citizen_description.substring(0, 80)}...</p>
+          <p style="margin: 0; color: #334155; font-size: 11px;">${ch.citizen_description ? ch.citizen_description.substring(0, 80) : ''}...</p>
         </div>
       `;
 
@@ -75,20 +100,39 @@ export const LeafletMap: React.FC<MapProps> = ({ challenges, selectedChallengeId
       }
     });
 
+    if (bounds.length > 0) {
+      try {
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 7, animate: false });
+      } catch (e) {
+        // Fallback bounds
+      }
+    }
+
     return () => {
-      map.remove();
+      if (mapInstanceRef.current) {
+        try {
+          mapInstanceRef.current.off();
+          mapInstanceRef.current.remove();
+        } catch (e) {
+          // Ignore unmount cleanup error
+        }
+        mapInstanceRef.current = null;
+      }
     };
   }, [mounted, challenges]);
 
   if (!mounted) {
     return (
       <div className="w-full h-[400px] bg-slate-900 animate-pulse flex items-center justify-center text-slate-500 text-sm">
-        Loading Jharkhand GIS Map...
+        Loading GIS Map...
       </div>
     );
   }
 
   return (
-    <div id="satark-leaflet-map" className="w-full h-[450px] rounded-2xl shadow-inner border border-slate-800 z-10" />
+    <div
+      ref={containerRef}
+      className="w-full h-[450px] rounded-2xl shadow-inner border border-slate-800 z-10"
+    />
   );
 };

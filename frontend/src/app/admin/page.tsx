@@ -171,7 +171,7 @@ export default function AdminCommandCentre() {
       <div className="bg-slate-900/80 rounded-2xl p-6 border border-slate-800 space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-emerald-400" /> State-Wide GIS Challenge Map (Jharkhand)
+            <MapPin className="w-4 h-4 text-emerald-400" /> Pan-India Interactive GIS Challenge Map
           </h2>
           <span className="text-xs font-mono text-slate-400">{challenges.length} Pin Locations</span>
         </div>
