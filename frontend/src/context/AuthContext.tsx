@@ -13,7 +13,7 @@ interface AuthContextType {
 }
 
 const DEMO_USERS: Record<Role, User> = {
-  SUPER_ADMIN: { id: 'u-admin', name: 'Aakash Sharma', email: 'admin@satark.gov.in', role: 'SUPER_ADMIN', designation: 'State Director', institution_name: 'Dept of Higher & Tech Education, Jharkhand' },
+  SUPER_ADMIN: { id: 'u-admin', name: 'Aakash Sharma', email: 'admin@satark.gov.in', role: 'SUPER_ADMIN', designation: 'Director General', institution_name: 'National Directorate of Higher & Tech Education' },
   CITIZEN: { id: 'u-citizen', name: 'Rohan Mahato', email: 'citizen@satark.gov.in', role: 'CITIZEN', designation: 'Community Representative', institution_name: 'Ranchi Gram Panchayat' },
   DEPARTMENT_HEAD: { id: 'u-depthead', name: 'Er. Ramesh Prasad', email: 'depthead@satark.gov.in', role: 'DEPARTMENT_HEAD', designation: 'Chief Engineer (Water Resources)' },
   OFFICER: { id: 'u-officer', name: 'Vikram Kumar', email: 'officer@satark.gov.in', role: 'OFFICER', designation: 'Junior Engineer (Roads)' },

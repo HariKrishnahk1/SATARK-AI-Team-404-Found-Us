@@ -201,16 +201,16 @@ def seed_database():
         db.add_all(unis)
         db.commit()
 
-        # 4. Seed 5 Realistic Jharkhand Societal Challenges
+        # 4. Seed Pan-India Societal Challenges
         c1 = Challenge(
-            id="JH-2026-0001",
+            id="IND-2026-0001",
             title="Heavy Arsenic & Fluoride Contamination in Village Borewells",
-            citizen_description="Groundwater in Angara block village has severe fluoride contamination. Over 400 villagers, including school children, face joint pain and dental fluorosis.",
+            citizen_description="Groundwater in Angara village has severe fluoride contamination. Over 400 villagers, including school children, face joint pain and dental fluorosis.",
             image_url="https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?w=600&auto=format&fit=crop",
             latitude=23.3699,
             longitude=85.3250,
-            address="Village Angara, Block Angara, Ranchi, Jharkhand 835103",
-            district="Ranchi",
+            address="Village Angara, Block Angara, Ranchi, Jharkhand",
+            district="Ranchi, Jharkhand",
             category="Water Resources",
             sub_category="Groundwater Contamination",
             department_id="dept-water",
@@ -218,71 +218,117 @@ def seed_database():
             priority="URGENT",
             priority_score=94,
             ai_confidence=96.0,
-            ai_reason="Fluoride contamination affects over 400 villagers and children causing permanent skeletal and dental fluorosis.",
+            ai_reason="Fluoride contamination affects over 400 villagers causing skeletal fluorosis.",
             ai_reasoning_points=[
                 "High population vulnerability (school children affected)",
                 "Pertains to core drinking water safety",
                 "Requires immediate multidisciplinary water treatment innovation"
             ],
-            recommended_disciplines=["Environmental Engineering", "Chemical Engineering", "Public Health", "Biotechnology"],
+            recommended_disciplines=["Environmental Engineering", "Chemical Engineering", "Public Health"],
             status="INDUSTRY_SPONSORED",
             assigned_university_id="hei-bit-mesra",
             sla_deadline=datetime.now(timezone.utc) + timedelta(hours=24)
         )
 
         c2 = Challenge(
-            id="JH-2026-0002",
-            title="Dangerous School Zone Pothole and Seasonal Flooding",
-            citizen_description="Large open trench and pothole near St. Xavier School road. Rainwater accumulates up to 2 feet, causing frequent two-wheeler accidents during school drop-off hours.",
+            id="IND-2026-0002",
+            title="Severe Air Quality Index & Urban Smog Emergency",
+            citizen_description="AQI exceeds 450+ in Anand Vihar industrial & transport hub. Heavy PM2.5 and PM10 concentration poses acute respiratory risk to urban residents and outdoor workers.",
             image_url="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop",
-            latitude=23.8103,
-            longitude=86.4304,
-            address="Main Road near School Gate, Bank More, Dhanbad, Jharkhand 826001",
-            district="Dhanbad",
-            category="Urban Infrastructure",
-            sub_category="Road Hazard & Drainage",
+            latitude=28.6500,
+            longitude=77.3150,
+            address="Anand Vihar Transport Hub, New Delhi, Delhi (NCT)",
+            district="New Delhi, Delhi",
+            category="Environmental Quality",
+            sub_category="Air Pollution Control",
             department_id="dept-infra",
-            severity="HIGH",
-            priority="HIGH",
-            priority_score=89,
-            ai_confidence=92.0,
-            ai_reason="High risk near school zone with active traffic accidents during peak rush hours.",
-            recommended_disciplines=["Civil Engineering", "Transportation Engineering", "Computer Vision"],
+            severity="CRITICAL",
+            priority="URGENT",
+            priority_score=96,
+            ai_confidence=97.0,
+            ai_reason="Hazardous AQI 450+ impacts over 1,50,000 citizens in high density urban zone.",
+            recommended_disciplines=["Environmental Engineering", "IoT & Telemetry", "Mechanical Engineering"],
             status="PROPOSAL_SUBMITTED",
             assigned_university_id="hei-iit-ism-dhanbad",
-            sla_deadline=datetime.now(timezone.utc) + timedelta(hours=72)
+            sla_deadline=datetime.now(timezone.utc) + timedelta(hours=12)
         )
 
         c3 = Challenge(
-            id="JH-2026-0003",
-            title="Lack of Cold Storage for Perishable Vegetable Crops",
-            citizen_description="Smallholder vegetable farmers in Patamda block lose up to 40% of tomato and green chili produce daily due to absence of affordable localized cold storage facilities.",
+            id="IND-2026-0003",
+            title="Coastal Saline Intrusion & Fishermen Village Water Shortage",
+            citizen_description="High salinity intrusion into coastal groundwater aquifers near Adyar estuary affects drinking water supply for 2,500 coastal fishing families.",
             image_url="https://images.unsplash.com/photo-1595246140625-573b715d11dc?w=600&auto=format&fit=crop",
-            latitude=22.8046,
-            longitude=86.2029,
-            address="Patamda Farmer Mandi, East Singhbhum, Jharkhand 832105",
-            district="East Singhbhum",
-            category="Agriculture",
-            sub_category="Post-Harvest Preservation",
-            department_id="dept-agri",
+            latitude=13.0067,
+            longitude=80.2570,
+            address="Adyar Estuary Coastal Zone, Chennai, Tamil Nadu",
+            district="Chennai, Tamil Nadu",
+            category="Water Resources",
+            sub_category="Desalination & Coastal Aquifers",
+            department_id="dept-water",
             severity="HIGH",
             priority="HIGH",
-            priority_score=85,
-            ai_confidence=91.0,
-            ai_reason="Severe economic distress to small farmers with 40% post-harvest produce loss.",
-            recommended_disciplines=["Mechanical Engineering", "Agricultural Engineering", "Solar Energy"],
+            priority_score=88,
+            ai_confidence=93.0,
+            ai_reason="Drinking water salinity 3x safe WHO threshold impacting 2,500 families.",
+            recommended_disciplines=["Civil Engineering", "Desalination Tech", "Chemical Engineering"],
             status="HEI_ASSIGNED",
             assigned_university_id="hei-nit-jamshedpur",
-            sla_deadline=datetime.now(timezone.utc) + timedelta(hours=96)
+            sla_deadline=datetime.now(timezone.utc) + timedelta(hours=48)
         )
 
-        db.add_all([c1, c2, c3])
+        c4 = Challenge(
+            id="IND-2026-0004",
+            title="Monsoon Waterlogging & Pothole Hazard on Express Highway",
+            citizen_description="Heavy seasonal waterlogging up to 2.5 feet on Western Express Highway near Dadar causeway leads to 3-hour traffic gridlocks and fatal two-wheeler slips.",
+            image_url="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop",
+            latitude=19.0176,
+            longitude=72.8461,
+            address="Western Express Highway, Dadar, Mumbai, Maharashtra",
+            district="Mumbai, Maharashtra",
+            category="Urban Infrastructure",
+            sub_category="Smart Drainage & Pothole Audit",
+            department_id="dept-infra",
+            severity="HIGH",
+            priority="HIGH",
+            priority_score=86,
+            ai_confidence=91.0,
+            ai_reason="Major arterial road bottleneck affecting over 50,000 commuters daily.",
+            recommended_disciplines=["Civil Engineering", "Transportation Systems", "AI & Computer Vision"],
+            status="VALIDATED",
+            assigned_university_id=None,
+            sla_deadline=datetime.now(timezone.utc) + timedelta(hours=72)
+        )
+
+        c5 = Challenge(
+            id="IND-2026-0005",
+            title="Bellandur Lake Toxic Chemical Foam Overflow",
+            citizen_description="Industrial chemical runoff and untreated sewage causes 4-foot thick toxic foam spillover onto surrounding arterial roads near HAL Airport Road.",
+            image_url="https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?w=600&auto=format&fit=crop",
+            latitude=12.9360,
+            longitude=77.6698,
+            address="HAL Airport Road, Bellandur Lake, Bengaluru, Karnataka",
+            district="Bengaluru, Karnataka",
+            category="Water Resources",
+            sub_category="Effluent Treatment & Bioremediation",
+            department_id="dept-water",
+            severity="CRITICAL",
+            priority="URGENT",
+            priority_score=92,
+            ai_confidence=95.0,
+            ai_reason="Flammable chemical foam overflow creating public safety hazard.",
+            recommended_disciplines=["Biotechnology", "Chemical Engineering", "Environmental Science"],
+            status="PENDING_VALIDATION",
+            assigned_university_id=None,
+            sla_deadline=datetime.now(timezone.utc) + timedelta(hours=24)
+        )
+
+        db.add_all([c1, c2, c3, c4, c5])
         db.commit()
 
         # 5. Seed Solution Proposal for Challenge 1
         prop1 = SolutionProposal(
             id="prop-001",
-            challenge_id="JH-2026-0001",
+            challenge_id="IND-2026-0001",
             university_id="hei-bit-mesra",
             title="Solar-Powered Bio-Sand & Activated Alumina De-Fluoridation Kiosk",
             abstract="A decentralized 1,000 LPH solar-powered water filter unit combining activated alumina absorption and bio-sand filtration with IoT real-time fluoride sensors.",
@@ -316,7 +362,7 @@ def seed_database():
         # 7. Seed Milestones for Challenge 1
         m1 = ProjectMilestone(
             id="m-101",
-            challenge_id="JH-2026-0001",
+            challenge_id="IND-2026-0001",
             title="M1: Water Sample Analysis & Prototype Design",
             description="Testing village borewell water samples and finalizing column flow rates.",
             target_date="2026-09-15",
@@ -327,7 +373,7 @@ def seed_database():
         )
         m2 = ProjectMilestone(
             id="m-102",
-            challenge_id="JH-2026-0001",
+            challenge_id="IND-2026-0001",
             title="M2: Fabrication & IoT Sensor Integration",
             description="Assembling solar filter unit with real-time telemetry node.",
             target_date="2026-10-01",
@@ -338,7 +384,7 @@ def seed_database():
         )
         m3 = ProjectMilestone(
             id="m-103",
-            challenge_id="JH-2026-0001",
+            challenge_id="IND-2026-0001",
             title="M3: Field Pilot & Community Validation",
             description="Deploying unit in Angara village and conducting 30-day water quality trial.",
             target_date="2026-10-30",
@@ -352,7 +398,7 @@ def seed_database():
         # 8. Seed Outcome for Challenge 1
         outcome1 = InnovationOutcome(
             id="out-001",
-            challenge_id="JH-2026-0001",
+            challenge_id="IND-2026-0001",
             patent_filed=True,
             patent_app_no="TEMP/2026/JH/884920",
             startup_incubated=True,
