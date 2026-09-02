@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { Shield, Landmark, HeartHandshake, MapPin, Lock, ArrowRight, CheckCircle2, User, Key, Sparkles } from 'lucide-react';
+import { StartupVideoModal } from '../../components/StartupVideoModal';
 
 export default function UnifiedLoginPage() {
   const router = useRouter();
@@ -64,6 +65,7 @@ export default function UnifiedLoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
+      <StartupVideoModal portalName="Institutional Authority Portal" />
       {/* Background Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-purple-500/10 blur-[130px] rounded-full pointer-events-none" />
 
