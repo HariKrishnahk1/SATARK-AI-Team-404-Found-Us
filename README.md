@@ -115,14 +115,14 @@ npm run dev
 ```
 
 ### 4. Application Endpoints
-- **Unified Next.js Platform**: `http://localhost:3002` (or `http://localhost:3000`)
-  - Citizen Portal: `http://localhost:3002/citizen`
-  - Command Centre: `http://localhost:3002/admin`
-  - HEI Portal: `http://localhost:3002/hei`
-  - Industry Hub: `http://localhost:3002/industry`
+- **Unified SATARK AI Platform (Next.js)**: `http://localhost:3000`
+  - Multi-Portal Auth Gateway: `http://localhost:3000/login`
+  - Citizen Portal: `http://localhost:3000/citizen`
+  - Government Command Centre: `http://localhost:3000/admin`
+  - University & HEI Portal: `http://localhost:3000/hei`
+  - Student Workspace: `http://localhost:3000/student`
+  - Industry CSR Hub: `http://localhost:3000/industry`
 - **FastAPI Interactive API Docs**: `http://localhost:8008/docs`
-- **Standalone Admin Portal**: `http://localhost:5174`
-- **Standalone Citizen Portal**: `http://localhost:8080`
 
 ---
 

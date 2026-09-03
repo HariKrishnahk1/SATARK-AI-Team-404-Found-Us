@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { Role } from '../lib/types';
-import { Shield, MapPin, Building2, Landmark, HeartHandshake, User, ChevronDown, GraduationCap } from 'lucide-react';
+import { Shield, MapPin, Building2, Landmark, HeartHandshake, User, ChevronDown, GraduationCap, LogIn } from 'lucide-react';
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -88,14 +88,22 @@ export const Navbar = () => {
 
         {/* Right Section: Actions */}
         <div className="flex items-center gap-3">
-          {isCitizenMode ? null : (
+          {isCitizenMode ? (
+            <Link
+              href="/authority"
+              className="px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-semibold text-cyan-400 hover:text-white hover:border-cyan-500/50 transition-colors flex items-center gap-1.5"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Authority Platform Site</span>
+            </Link>
+          ) : (
             <div className="flex items-center gap-2">
               <Link
                 href="/citizen"
-                className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-semibold text-slate-300 hover:text-white hover:border-emerald-500/50 transition-colors flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-semibold text-emerald-400 hover:text-white hover:border-emerald-500/50 transition-colors flex items-center gap-1.5"
               >
-                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                Citizen Site
+                <MapPin className="w-3.5 h-3.5" />
+                <span>Citizen Site</span>
               </Link>
 
               <div className="relative">

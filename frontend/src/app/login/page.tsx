@@ -120,8 +120,6 @@ export default function UnifiedLoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
-      <StartupVideoModal portalName="Multi-Portal Authentication Gateway" />
-      
       {/* Background Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-purple-500/10 blur-[130px] rounded-full pointer-events-none" />
 

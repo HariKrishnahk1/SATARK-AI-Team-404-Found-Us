@@ -9,15 +9,22 @@ interface StartupVideoModalProps {
 }
 
 export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({ portalName, onComplete }) => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return !sessionStorage.getItem('satark_startup_video_played');
+    }
+    return true;
+  });
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Only play video ONCE per login session
+    // Sync check on mount
     if (typeof window !== 'undefined') {
       const hasPlayed = sessionStorage.getItem('satark_startup_video_played');
-      if (!hasPlayed) {
+      if (hasPlayed) {
+        setVisible(false);
+      } else {
         setVisible(true);
       }
     }
