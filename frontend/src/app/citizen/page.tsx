@@ -10,7 +10,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../../lib/api';
 import { Challenge } from '../../lib/types';
-import { MapPin, Camera, AlertCircle, CheckCircle, Sparkles, Send, RefreshCw, Clock, UploadCloud, X, FileImage, Image as ImageIcon, Navigation, Compass, FileText, Download, ShieldCheck } from 'lucide-react';
+import { MapPin, Camera, AlertCircle, CheckCircle, Sparkles, Send, RefreshCw, Clock, UploadCloud, X, FileImage, Image as ImageIcon, Navigation, Compass, FileText, Download, ShieldCheck, Mic, MicOff, Globe, Volume2 } from 'lucide-react';
 import { Timeline } from '../../components/Timeline';
 import { StartupVideoModal } from '../../components/StartupVideoModal';
 
@@ -23,6 +23,20 @@ const INDIAN_STATES_AND_UT = [
   'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
   'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
   'Delhi (NCT)', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
+];
+
+const MULTILINGUAL_OPTIONS = [
+  { code: 'en-IN', name: 'English (India)', native: 'English' },
+  { code: 'hi-IN', name: 'Hindi', native: 'हिंदी' },
+  { code: 'bn-IN', name: 'Bengali', native: 'বাংলা' },
+  { code: 'ta-IN', name: 'Tamil', native: 'தமிழ்' },
+  { code: 'te-IN', name: 'Telugu', native: 'తెలుగు' },
+  { code: 'kn-IN', name: 'Kannada', native: 'ಕನ್ನಡ' },
+  { code: 'mr-IN', name: 'Marathi', native: 'मराठी' },
+  { code: 'gu-IN', name: 'Gujarati', native: 'ગુજરાતી' },
+  { code: 'ml-IN', name: 'Malayalam', native: 'മലയാളം' },
+  { code: 'pa-IN', name: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+  { code: 'or-IN', name: 'Odia', native: 'ଓଡ଼ିଆ' }
 ];
 
 export default function CitizenPortal() {
@@ -46,7 +60,88 @@ export default function CitizenPortal() {
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Multilingual & Speech-to-Text Voice Recognition State
+  const [selectedLang, setSelectedLang] = useState('en-IN');
+  const [isListeningTitle, setIsListeningTitle] = useState(false);
+  const [isListeningDesc, setIsListeningDesc] = useState(false);
+  const [speechStatus, setSpeechStatus] = useState('');
+  const recognitionRef = useRef<any>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const startSpeechRecognition = (field: 'title' | 'description') => {
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert('Speech recognition (Voice-to-Text) is not supported by your current browser. You can type directly in any language!');
+      return;
+    }
+
+    const isCurrentListening = field === 'title' ? isListeningTitle : isListeningDesc;
+
+    if (isCurrentListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      setIsListeningTitle(false);
+      setIsListeningDesc(false);
+      setSpeechStatus('');
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = selectedLang;
+
+      const langObj = MULTILINGUAL_OPTIONS.find(l => l.code === selectedLang) || MULTILINGUAL_OPTIONS[0];
+
+      recognition.onstart = () => {
+        if (field === 'title') setIsListeningTitle(true);
+        if (field === 'description') setIsListeningDesc(true);
+        setSpeechStatus(`🎙️ Voice Recognition Active (${langObj.native} - ${langObj.name}). Speak now!`);
+      };
+
+      recognition.onresult = (event: any) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+        if (finalTranscript) {
+          if (field === 'title') {
+            setTitle(prev => prev ? `${prev} ${finalTranscript}` : finalTranscript);
+          } else {
+            setDescription(prev => prev ? `${prev} ${finalTranscript}` : finalTranscript);
+          }
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition notice:', event.error);
+        setIsListeningTitle(false);
+        setIsListeningDesc(false);
+        if (event.error === 'not-allowed') {
+          alert('Microphone access denied. Please enable microphone permissions in your browser.');
+        } else {
+          setSpeechStatus(`Voice Recognition notice: ${event.error}. You can also type directly in any language.`);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListeningTitle(false);
+        setIsListeningDesc(false);
+        setSpeechStatus('');
+      };
+
+      recognition.start();
+    } catch (err: any) {
+      console.error(err);
+      alert('Could not initialize microphone. You can type directly in any language!');
+    }
+  };
 
   const handleFileSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -319,15 +414,68 @@ startxref
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Multilingual Input & Speech Language Selector */}
+            <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+                <Globe className="w-4 h-4 text-cyan-400" />
+                <span>Input & Voice Language:</span>
+              </div>
+              <select
+                value={selectedLang}
+                onChange={(e) => setSelectedLang(e.target.value)}
+                className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-cyan-300 text-xs font-semibold focus:outline-none focus:border-cyan-400 cursor-pointer"
+              >
+                {MULTILINGUAL_OPTIONS.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name} ({lang.native})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Speech Status Banner */}
+            {speechStatus && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2 animate-pulse shadow-lg shadow-rose-500/10">
+                <Mic className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>{speechStatus}</span>
+              </div>
+            )}
+
+            {/* What is the problem?? (formerly Challenge Title) */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">Challenge Title *</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-slate-300">
+                  What is the problem?? <span className="text-rose-500">*</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => startSpeechRecognition('title')}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    isListeningTitle
+                      ? 'bg-rose-500/20 border border-rose-500/60 text-rose-400 animate-pulse shadow-lg shadow-rose-500/20'
+                      : 'bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-900/80 hover:text-white'
+                  }`}
+                >
+                  {isListeningTitle ? (
+                    <>
+                      <MicOff className="w-3.5 h-3.5 text-rose-400 animate-spin" />
+                      <span>Stop Voice Input</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Voice Speech-to-Text</span>
+                    </>
+                  )}
+                </button>
+              </div>
               <input
                 type="text"
                 required
-                placeholder="e.g. Severe Water Contamination in Village Borewells"
+                placeholder="e.g. Severe Water Contamination in Village Borewells / जल प्रदूषण समस्या"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
               />
             </div>
 
@@ -391,15 +539,41 @@ startxref
               </div>
             </div>
 
+            {/* Detailed Description */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">Detailed Description *</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-slate-300">
+                  Detailed Description <span className="text-rose-500">*</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => startSpeechRecognition('description')}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    isListeningDesc
+                      ? 'bg-rose-500/20 border border-rose-500/60 text-rose-400 animate-pulse shadow-lg shadow-rose-500/20'
+                      : 'bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-900/80 hover:text-white'
+                  }`}
+                >
+                  {isListeningDesc ? (
+                    <>
+                      <MicOff className="w-3.5 h-3.5 text-rose-400 animate-spin" />
+                      <span>Stop Voice Input</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Voice Speech-to-Text</span>
+                    </>
+                  )}
+                </button>
+              </div>
               <textarea
                 required
                 rows={4}
-                placeholder="Describe the issue, affected population, safety risks, and location details..."
+                placeholder="Describe the issue in any language or click Voice Speech-to-Text to speak into your microphone..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
               />
             </div>
 
