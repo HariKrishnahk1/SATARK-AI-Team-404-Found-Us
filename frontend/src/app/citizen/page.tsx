@@ -443,40 +443,35 @@ startxref
 
             {/* What is the problem?? (formerly Challenge Title) */}
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-bold text-slate-300">
-                  What is the problem?? <span className="text-rose-500">*</span>
-                </label>
+              <label className="block text-xs font-bold text-slate-300 mb-1">
+                What is the problem?? <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Severe Water Contamination in Village Borewells / जल प्रदूषण समस्या"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
+                />
                 <button
                   type="button"
                   onClick={() => startSpeechRecognition('title')}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  title={isListeningTitle ? "Stop Voice Input" : "Click to Speak (Voice Speech-to-Text)"}
+                  className={`absolute right-2 p-1.5 rounded-lg transition-all cursor-pointer ${
                     isListeningTitle
-                      ? 'bg-rose-500/20 border border-rose-500/60 text-rose-400 animate-pulse shadow-lg shadow-rose-500/20'
-                      : 'bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-900/80 hover:text-white'
+                      ? 'bg-rose-500/20 border border-rose-500/60 text-rose-400 animate-pulse shadow-md shadow-rose-500/30'
+                      : 'bg-slate-900 border border-slate-800 text-cyan-400 hover:text-white hover:bg-cyan-900/60'
                   }`}
                 >
                   {isListeningTitle ? (
-                    <>
-                      <MicOff className="w-3.5 h-3.5 text-rose-400 animate-spin" />
-                      <span>Stop Voice Input</span>
-                    </>
+                    <MicOff className="w-3.5 h-3.5 text-rose-400 animate-spin" />
                   ) : (
-                    <>
-                      <Mic className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Voice Speech-to-Text</span>
-                    </>
+                    <Mic className="w-3.5 h-3.5 text-cyan-400" />
                   )}
                 </button>
               </div>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Severe Water Contamination in Village Borewells / जल प्रदूषण समस्या"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
-              />
             </div>
 
             {/* Location & Address Section */}
@@ -541,40 +536,35 @@ startxref
 
             {/* Detailed Description */}
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-bold text-slate-300">
-                  Detailed Description <span className="text-rose-500">*</span>
-                </label>
+              <label className="block text-xs font-bold text-slate-300 mb-1">
+                Detailed Description <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Describe the issue in any language or click the mic button inside to speak into your microphone..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
+                />
                 <button
                   type="button"
                   onClick={() => startSpeechRecognition('description')}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  title={isListeningDesc ? "Stop Voice Input" : "Click to Speak (Voice Speech-to-Text)"}
+                  className={`absolute right-2 top-2.5 p-1.5 rounded-lg transition-all cursor-pointer ${
                     isListeningDesc
-                      ? 'bg-rose-500/20 border border-rose-500/60 text-rose-400 animate-pulse shadow-lg shadow-rose-500/20'
-                      : 'bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-900/80 hover:text-white'
+                      ? 'bg-rose-500/20 border border-rose-500/60 text-rose-400 animate-pulse shadow-md shadow-rose-500/30'
+                      : 'bg-slate-900 border border-slate-800 text-cyan-400 hover:text-white hover:bg-cyan-900/60'
                   }`}
                 >
                   {isListeningDesc ? (
-                    <>
-                      <MicOff className="w-3.5 h-3.5 text-rose-400 animate-spin" />
-                      <span>Stop Voice Input</span>
-                    </>
+                    <MicOff className="w-3.5 h-3.5 text-rose-400 animate-spin" />
                   ) : (
-                    <>
-                      <Mic className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Voice Speech-to-Text</span>
-                    </>
+                    <Mic className="w-3.5 h-3.5 text-cyan-400" />
                   )}
                 </button>
               </div>
-              <textarea
-                required
-                rows={4}
-                placeholder="Describe the issue in any language or click Voice Speech-to-Text to speak into your microphone..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
-              />
             </div>
 
             <div>
