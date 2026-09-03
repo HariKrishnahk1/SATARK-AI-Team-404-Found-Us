@@ -88,15 +88,7 @@ export const Navbar = () => {
 
         {/* Right Section: Actions */}
         <div className="flex items-center gap-3">
-          {isCitizenMode ? (
-            <Link
-              href="/authority"
-              className="px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-semibold text-cyan-400 hover:text-white hover:border-cyan-500/50 transition-colors flex items-center gap-1.5"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Authority Platform Site</span>
-            </Link>
-          ) : (
+          {isCitizenMode ? null : (
             <div className="flex items-center gap-2">
               <Link
                 href="/citizen"
