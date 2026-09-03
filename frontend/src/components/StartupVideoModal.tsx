@@ -9,22 +9,16 @@ interface StartupVideoModalProps {
 }
 
 export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({ portalName, onComplete }) => {
-  const [visible, setVisible] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return !sessionStorage.getItem('satark_startup_video_played');
-    }
-    return true;
-  });
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Sync check on mount
+    setMounted(true);
     if (typeof window !== 'undefined') {
       const hasPlayed = sessionStorage.getItem('satark_startup_video_played');
-      if (hasPlayed) {
-        setVisible(false);
-      } else {
+      if (!hasPlayed) {
         setVisible(true);
       }
     }
@@ -60,7 +54,7 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({ portalName
     }
   };
 
-  if (!visible) return null;
+  if (!mounted || !visible) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-black w-screen h-screen overflow-hidden flex items-center justify-center">
