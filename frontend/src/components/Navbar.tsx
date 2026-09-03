@@ -55,15 +55,8 @@ export const Navbar = () => {
           </div>
         </Link>
 
-        {/* Center Section: Citizen Mode vs Authority Mode */}
-        {isCitizenMode ? (
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800 text-xs text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="font-semibold text-emerald-400">Public Portal</span>
-            <span>•</span>
-            <span className="text-slate-400">No Institutional Login Required</span>
-          </div>
-        ) : (
+        {/* Center Section: Authority Mode Links */}
+        {isCitizenMode ? null : (
           <div className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
             {authorityNavItems.map(item => {
               const Icon = item.icon;
@@ -88,7 +81,14 @@ export const Navbar = () => {
 
         {/* Right Section: Actions */}
         <div className="flex items-center gap-3">
-          {isCitizenMode ? null : (
+          {isCitizenMode ? (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-emerald-500/30 text-xs text-slate-300 shadow-md shadow-emerald-500/10">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="font-bold text-emerald-400">Public Portal</span>
+              <span className="hidden sm:inline">•</span>
+              <span className="hidden sm:inline text-slate-300 font-medium">No Institutional Login Required</span>
+            </div>
+          ) : (
             <div className="flex items-center gap-2">
               <Link
                 href="/citizen"
