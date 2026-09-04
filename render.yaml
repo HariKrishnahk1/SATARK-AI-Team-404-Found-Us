@@ -1,0 +1,48 @@
+# Render Blueprint Specification for SATARK AI
+# Deploy with 1-click on Render: Dashboard -> New + -> Blueprint -> Select Repo
+
+services:
+  # =======================================================
+  # 1. SATARK AI Backend API (FastAPI + AI Engine)
+  # =======================================================
+  - type: web
+    name: satark-ai-backend
+    runtime: python
+    rootDir: backend
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PROJECT_NAME
+        value: "SATARK AI"
+      - key: API_V1_STR
+        value: "/api/v1"
+      - key: SECRET_KEY
+        generateValue: true
+
+  # =======================================================
+  # 2. SATARK AI Unified Web Platform
+  # Hosts: Citizen Portal, Admin Command Centre,
+  # Authority Hub, HEI, Industry & Student Portals
+  # =======================================================
+  - type: web
+    name: satark-ai-platform
+    runtime: node
+    rootDir: frontend
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm run start -- -p $PORT
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 18.20.0
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: satark-ai-backend
+          property: host
