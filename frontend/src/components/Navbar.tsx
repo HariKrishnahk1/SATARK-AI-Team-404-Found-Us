@@ -87,10 +87,11 @@ export const Navbar = () => {
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('satark:replay-intro'))}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-cyan-500/40 text-xs font-semibold text-cyan-300 hover:bg-slate-800 hover:text-white hover:border-cyan-400 transition-all shadow-sm shadow-cyan-500/10 cursor-pointer group"
-            title="Watch SATARK AI Platform Overview Video"
+            title="Watch SATARK AI Platform Overview Video (4 seconds)"
           >
             <Play className="w-3.5 h-3.5 fill-cyan-400 text-cyan-400 group-hover:scale-110 transition-transform" />
             <span className="hidden xs:inline sm:inline">Overview Video</span>
+            <span className="hidden md:inline-block text-[10px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-1 py-0.2 rounded font-mono font-medium">4s</span>
           </button>
 
           {isCitizenMode ? (
