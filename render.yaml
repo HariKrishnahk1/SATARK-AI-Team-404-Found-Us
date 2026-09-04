@@ -25,12 +25,11 @@ services:
         generateValue: true
 
   # =======================================================
-  # 2. SATARK AI Unified Web Platform
-  # Hosts: Citizen Portal, Admin Command Centre,
-  # Authority Hub, HEI, Industry & Student Portals
+  # 2. SATARK AI Citizen Civic Reporting Portal (Link 1)
+  # Dedicated Link for Citizens to report & track challenges
   # =======================================================
   - type: web
-    name: satark-ai-platform
+    name: satark-citizen-portal
     runtime: node
     rootDir: frontend
     plan: free
@@ -41,6 +40,32 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 18.20.0
+      - key: NEXT_PUBLIC_PORTAL_MODE
+        value: CITIZEN
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: satark-ai-backend
+          property: host
+
+  # =======================================================
+  # 3. SATARK AI Government Admin Command Centre (Link 2)
+  # Dedicated Link for State Govt Admins & Officials
+  # =======================================================
+  - type: web
+    name: satark-admin-portal
+    runtime: node
+    rootDir: frontend
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm run start -- -p $PORT
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 18.20.0
+      - key: NEXT_PUBLIC_PORTAL_MODE
+        value: ADMIN
       - key: NEXT_PUBLIC_API_URL
         fromService:
           type: web

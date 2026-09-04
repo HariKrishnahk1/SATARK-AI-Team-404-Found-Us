@@ -12,10 +12,11 @@ export const Navbar = () => {
   const { user, switchDemoRole, logout } = useAuth();
   const [roleMenuOpen, setRoleMenuOpen] = React.useState(false);
 
-  const isCitizenMode = pathname === '/citizen' || pathname === '/';
+  const isPortalAdmin = process.env.NEXT_PUBLIC_PORTAL_MODE === 'ADMIN';
+  const isCitizenMode = !isPortalAdmin && (pathname === '/citizen' || pathname === '/');
 
   const authorityNavItems = [
-    { href: '/admin', label: 'Govt Command Centre', icon: Shield },
+    { href: isPortalAdmin ? '/' : '/admin', label: 'Govt Command Centre', icon: Shield },
     { href: '/hei', label: 'University Portal', icon: Landmark },
     { href: '/industry', label: 'Industry & CSR Partner Portal', icon: HeartHandshake },
     { href: '/student', label: 'Student Portal', icon: GraduationCap }
@@ -36,7 +37,7 @@ export const Navbar = () => {
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         {/* Brand Logo */}
-        <Link href={isCitizenMode ? "/citizen" : "/authority"} className="flex items-center gap-3 group">
+        <Link href={isCitizenMode ? "/citizen" : (isPortalAdmin ? "/" : "/authority")} className="flex items-center gap-3 group">
           <div className="relative group-hover:scale-105 transition-transform shrink-0">
             <img src="/logo.png" alt="SATARK AI Logo" className="w-10 h-10 object-contain drop-shadow-[0_0_12px_rgba(16,185,129,0.3)]" />
           </div>
@@ -46,7 +47,7 @@ export const Navbar = () => {
                 SATARK AI
               </span>
               <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono font-bold">
-                {isCitizenMode ? 'Citizen Portal' : 'Authority Portal'}
+                {isCitizenMode ? 'Citizen Portal' : (isPortalAdmin ? 'Admin Command Centre' : 'Authority Portal')}
               </span>
             </div>
             <p className="text-[10px] text-slate-400 font-medium">
