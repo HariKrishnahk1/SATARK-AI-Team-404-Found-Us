@@ -30,6 +30,8 @@ export default function RootLayout({
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="shortcut icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        {/* Preload startup video so browser begins streaming immediately */}
+        <link rel="preload" href="/SAI.mp4" as="video" type="video/mp4" />
         {/* Instant pre-hydration script: prevents flash of main page before startup video on all portals */}
         <script
           dangerouslySetInnerHTML={{

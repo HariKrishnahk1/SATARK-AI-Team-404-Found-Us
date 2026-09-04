@@ -77,6 +77,7 @@ const server = http.createServer((req, res) => {
       'Accept-Ranges': 'bytes',
       'Content-Length': chunksize,
       'Content-Type': contentType,
+      'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
       'Access-Control-Allow-Origin': '*'
     });
     file.pipe(res);
@@ -93,6 +94,8 @@ const server = http.createServer((req, res) => {
 
   if (urlPath.startsWith('/_next/static')) {
     headers['Cache-Control'] = 'public, max-age=31536000, immutable';
+  } else if (ext === '.mp4' || ext === '.webm' || ext === '.png' || ext === '.jpg' || ext === '.ico') {
+    headers['Cache-Control'] = 'public, max-age=86400, stale-while-revalidate=604800';
   } else {
     headers['Cache-Control'] = 'public, max-age=0, must-revalidate';
   }

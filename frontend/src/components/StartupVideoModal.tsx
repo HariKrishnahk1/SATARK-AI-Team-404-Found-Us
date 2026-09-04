@@ -147,12 +147,12 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
         }
       };
 
-      if (vid.readyState >= 2) {
-        attemptPlay();
-      } else {
-        vid.addEventListener('canplay', attemptPlay, { once: true });
-        vid.addEventListener('loadeddata', () => setVideoLoaded(true), { once: true });
-      }
+      // Immediately attempt play and register fast-render listeners
+      attemptPlay();
+      vid.addEventListener('playing', () => setVideoLoaded(true), { once: true });
+      vid.addEventListener('timeupdate', () => setVideoLoaded(true), { once: true });
+      vid.addEventListener('canplay', () => setVideoLoaded(true), { once: true });
+      vid.addEventListener('loadeddata', () => setVideoLoaded(true), { once: true });
     }
   }, [visible, isMuted]);
 
@@ -201,6 +201,8 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
         preload="auto"
         onCanPlay={() => setVideoLoaded(true)}
         onLoadedData={() => setVideoLoaded(true)}
+        onPlaying={() => setVideoLoaded(true)}
+        onTimeUpdate={() => setVideoLoaded(true)}
         onEnded={handleSkip}
         onError={() => {
           console.warn('Video stream failed or stalled');
