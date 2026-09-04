@@ -22,6 +22,10 @@ export interface User {
   sla_compliance?: number;
   avg_resolution_time?: string;
   status?: string;
+  mobile?: string;
+  address?: string;
+  avatar_url?: string;
+  profile_photos?: string[];
 }
 
 export interface Department {

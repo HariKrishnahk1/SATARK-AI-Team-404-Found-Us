@@ -4,22 +4,27 @@
  * SATARK AI — Unified Multi-Portal Authentication Gateway
  * Dedicated login & registration portal for all official stakeholders:
  * 1. Government Command Centre (`/admin`)
- * 2. University & HEI Innovation Hub (`/hei` / `/student`)
+ * 2. University & HEI Innovation Hub (`/hei`)
  * 3. Industry & CSR Partnership Hub (`/industry`)
- * 4. Citizen Civic Reporting Portal (`/citizen`)
+ * 4. Student Prototype Workspace (`/student`)
+ * 5. Citizen Civic Reporting Portal (`/citizen`)
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
-import { Shield, Landmark, HeartHandshake, MapPin, Lock, ArrowRight, CheckCircle2, User, Key, Sparkles, UserPlus, Phone, Home, UserCheck, Users } from 'lucide-react';
+import {
+  Shield, Landmark, HeartHandshake, GraduationCap, Users, Lock, ArrowRight,
+  CheckCircle2, User, Key, Sparkles, UserPlus, Phone, Home, UserCheck, Play,
+  AlertCircle, Mail
+} from 'lucide-react';
 
 export default function UnifiedLoginPage() {
   const router = useRouter();
-  const { login, switchDemoRole } = useAuth();
+  const { login, registerCitizen, switchDemoRole } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'GOVT' | 'HEI' | 'INDUSTRY' | 'CITIZEN'>('GOVT');
+  const [activeTab, setActiveTab] = useState<'GOVT' | 'HEI' | 'INDUSTRY' | 'STUDENT' | 'CITIZEN'>('GOVT');
   const [isRegisterMode, setIsRegisterMode] = useState(false);
 
   // Existing User Sign In State
@@ -34,11 +39,42 @@ export default function UnifiedLoginPage() {
   const [regPassword, setRegPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Dual OTP State for Citizen Registration
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [emailOtpInput, setEmailOtpInput] = useState('');
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailTimer, setEmailTimer] = useState(0);
+  const [generatedEmailOtp, setGeneratedEmailOtp] = useState('404123');
+
+  const [mobileOtpSent, setMobileOtpSent] = useState(false);
+  const [mobileOtpInput, setMobileOtpInput] = useState('');
+  const [mobileVerified, setMobileVerified] = useState(false);
+  const [mobileTimer, setMobileTimer] = useState(0);
+  const [generatedMobileOtp, setGeneratedMobileOtp] = useState('808404');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const handleTabChange = (tab: 'GOVT' | 'HEI' | 'INDUSTRY' | 'CITIZEN') => {
+  // Email OTP timer
+  useEffect(() => {
+    if (emailTimer <= 0) return;
+    const timer = setInterval(() => {
+      setEmailTimer((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [emailTimer]);
+
+  // Mobile OTP timer
+  useEffect(() => {
+    if (mobileTimer <= 0) return;
+    const timer = setInterval(() => {
+      setMobileTimer((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [mobileTimer]);
+
+  const handleTabChange = (tab: 'GOVT' | 'HEI' | 'INDUSTRY' | 'STUDENT' | 'CITIZEN') => {
     setActiveTab(tab);
     setError('');
     setSuccessMessage('');
@@ -48,6 +84,8 @@ export default function UnifiedLoginPage() {
       setEmail('hei@bitmesra.ac.in');
     } else if (tab === 'INDUSTRY') {
       setEmail('csr@tatasteel.com');
+    } else if (tab === 'STUDENT') {
+      setEmail('student@bitmesra.ac.in');
     } else if (tab === 'CITIZEN') {
       setEmail('citizen@satark.gov.in');
     }
@@ -57,7 +95,55 @@ export default function UnifiedLoginPage() {
     if (tab === 'GOVT') return '/admin';
     if (tab === 'HEI') return '/hei';
     if (tab === 'INDUSTRY') return '/industry';
+    if (tab === 'STUDENT') return '/student';
     return '/citizen';
+  };
+
+  const handleSendEmailOtp = () => {
+    if (!regEmail || !regEmail.includes('@')) {
+      setError('Please enter a valid Mail ID before requesting OTP.');
+      return;
+    }
+    setError('');
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedEmailOtp(code);
+    setEmailOtpSent(true);
+    setEmailTimer(60);
+    setSuccessMessage(`Email OTP dispatched! Demo code: ${code}`);
+  };
+
+  const handleVerifyEmailOtp = () => {
+    if (emailOtpInput.trim() === generatedEmailOtp || emailOtpInput.trim() === '404123') {
+      setEmailVerified(true);
+      setError('');
+      setSuccessMessage('✓ Email ID verified successfully!');
+    } else {
+      setError(`Invalid Email OTP. Please enter code: ${generatedEmailOtp}`);
+    }
+  };
+
+  const handleSendMobileOtp = () => {
+    const cleanMobile = mobileNumber.replace(/\D/g, '');
+    if (!cleanMobile || cleanMobile.length < 10) {
+      setError('Please enter a valid 10-digit mobile number before requesting OTP.');
+      return;
+    }
+    setError('');
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedMobileOtp(code);
+    setMobileOtpSent(true);
+    setMobileTimer(60);
+    setSuccessMessage(`SMS OTP dispatched! Demo code: ${code}`);
+  };
+
+  const handleVerifyMobileOtp = () => {
+    if (mobileOtpInput.trim() === generatedMobileOtp || mobileOtpInput.trim() === '808404') {
+      setMobileVerified(true);
+      setError('');
+      setSuccessMessage('✓ Mobile number verified successfully!');
+    } else {
+      setError(`Invalid Mobile OTP. Please enter code: ${generatedMobileOtp}`);
+    }
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -89,9 +175,22 @@ export default function UnifiedLoginPage() {
       setError('Password and Confirm Password do not match.');
       return;
     }
-    if (!fullName || !regEmail || !mobileNumber || !fullAddress || !regPassword) {
+
+    if (!fullName || !regEmail || !mobileNumber || !regPassword) {
       setError('Please fill in all mandatory fields.');
       return;
+    }
+
+    // If Citizen role, enforce OTP verification
+    if (activeTab === 'CITIZEN') {
+      if (!emailVerified) {
+        setError('Please verify your Mail ID with the OTP before completing registration.');
+        return;
+      }
+      if (!mobileVerified) {
+        setError('Please verify your Mobile Number with the OTP before completing registration.');
+        return;
+      }
     }
 
     setLoading(true);
@@ -100,10 +199,21 @@ export default function UnifiedLoginPage() {
         sessionStorage.removeItem('satark_startup_video_played');
         sessionStorage.removeItem('satark_portal_video_watched');
       }
+
+      if (activeTab === 'CITIZEN') {
+        await registerCitizen({
+          name: fullName.trim(),
+          email: regEmail.trim(),
+          mobile: mobileNumber.trim(),
+          address: fullAddress.trim() || 'Jharkhand, India',
+          password: regPassword
+        });
+      }
+
       setSuccessMessage(`Account registered for ${fullName}! Accessing ${activeTab} Portal...`);
       setTimeout(() => {
         router.push(getTargetRoute(activeTab));
-      }, 800);
+      }, 700);
     } catch (err: any) {
       setError(err.message || 'Registration failed.');
     } finally {
@@ -120,123 +230,185 @@ export default function UnifiedLoginPage() {
     router.push(redirectPath);
   };
 
+  const handleReplayStartupVideo = () => {
+    window.dispatchEvent(new CustomEvent('satark:replay-intro'));
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between relative overflow-hidden py-10 px-4 sm:px-6 lg:px-8">
       {/* Background Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-purple-500/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[450px] bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-purple-500/10 blur-[140px] rounded-full pointer-events-none" />
 
       <div className="max-w-5xl mx-auto w-full relative z-10">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div className="flex justify-center mb-4">
-            <img src="/logo.png" alt="SATARK AI Emblem" className="w-20 h-20 object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]" />
+        {/* Top Video Announcement Banner */}
+        <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 px-5 rounded-2xl bg-gradient-to-r from-cyan-950/60 via-slate-900 to-emerald-950/60 border border-cyan-500/30 backdrop-blur-md shadow-xl">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shrink-0">
+              <Play className="w-4 h-4 fill-cyan-400" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white flex items-center gap-2">
+                SATARK AI Platform Overview Video
+                <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-1.5 py-0.2 rounded font-mono font-medium">4s Intro</span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                Learn about automated grievance triage, GIS routing, and multi-institutional problem solving.
+              </p>
+            </div>
           </div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-4">
+
+          <button
+            type="button"
+            onClick={handleReplayStartupVideo}
+            className="px-4 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-cyan-500/20 shrink-0 flex items-center gap-1.5 cursor-pointer"
+          >
+            <Play className="w-3.5 h-3.5 fill-slate-950" />
+            <span>Watch Startup Video</span>
+          </button>
+        </div>
+
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-3">
+            <img
+              src="/logo.png"
+              alt="SATARK AI Emblem"
+              className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+            />
+          </div>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-3">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>SATARK AI Multi-Portal Authentication Gateway</span>
+            <span>Unified Multi-Portal Authentication Gateway</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
             SATARK AI <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">Login & Registration Portal</span>
           </h1>
-          <p className="mt-3 text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
-            Access your official portal workspace or register a new user account for Government Command Centre, Universities, CSR Partners, or Citizen Reporting.
+          <p className="mt-2 text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto">
+            Select your official stakeholder role to login or register a verified user account.
           </p>
         </div>
 
-        {/* Institutional Logins Container */}
+        {/* Multi-Portal Container */}
         <div className="rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl overflow-hidden backdrop-blur-xl grid grid-cols-1 md:grid-cols-12">
-          {/* Left Column: 4 Portal Selector Tabs */}
-          <div className="md:col-span-5 p-6 bg-slate-950/60 border-r border-slate-800/80 flex flex-col justify-between">
+          {/* Left Column: 5 Portal Role Selector Tabs */}
+          <div className="md:col-span-5 p-5 sm:p-6 bg-slate-950/70 border-r border-slate-800/80 flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
-                Select Your Portal Role
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
+                Select Your Official Portal
               </h3>
-              
-              <div className="space-y-3">
+
+              <div className="space-y-2.5">
+                {/* 1. Government Command Centre */}
                 <button
                   type="button"
                   onClick={() => handleTabChange('GOVT')}
-                  className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${
+                  className={`w-full text-left p-3 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${
                     activeTab === 'GOVT'
                       ? 'bg-slate-900 border-cyan-500/60 shadow-lg shadow-cyan-500/10'
-                      : 'bg-slate-900/50 border-slate-800 hover:border-slate-700 text-slate-400'
+                      : 'bg-slate-900/40 border-slate-800 hover:border-slate-700 text-slate-400'
                   }`}
                 >
-                  <div className={`p-2 rounded-xl ${activeTab === 'GOVT' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-800 text-slate-400'}`}>
-                    <Shield className="w-5 h-5" />
+                  <div className={`p-2 rounded-xl shrink-0 ${activeTab === 'GOVT' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-slate-800 text-slate-400'}`}>
+                    <Shield className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className={`text-xs font-bold ${activeTab === 'GOVT' ? 'text-white' : 'text-slate-300'}`}>
                       1. Government Command Centre
                     </h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      For State Admins, Department Heads & Field Officers.
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      For State Admins, Department Heads & Officers.
                     </p>
                   </div>
                 </button>
 
+                {/* 2. University & HEI Innovation Hub */}
                 <button
                   type="button"
                   onClick={() => handleTabChange('HEI')}
-                  className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${
+                  className={`w-full text-left p-3 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${
                     activeTab === 'HEI'
                       ? 'bg-slate-900 border-purple-500/60 shadow-lg shadow-purple-500/10'
-                      : 'bg-slate-900/50 border-slate-800 hover:border-slate-700 text-slate-400'
+                      : 'bg-slate-900/40 border-slate-800 hover:border-slate-700 text-slate-400'
                   }`}
                 >
-                  <div className={`p-2 rounded-xl ${activeTab === 'HEI' ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-800 text-slate-400'}`}>
-                    <Landmark className="w-5 h-5" />
+                  <div className={`p-2 rounded-xl shrink-0 ${activeTab === 'HEI' ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-800 text-slate-400'}`}>
+                    <Landmark className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className={`text-xs font-bold ${activeTab === 'HEI' ? 'text-white' : 'text-slate-300'}`}>
                       2. University & HEI Innovation Hub
                     </h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      For HEI Deans, Faculty Mentors & Student Teams.
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      For HEI Deans, Faculty Mentors & Research Leads.
                     </p>
                   </div>
                 </button>
 
+                {/* 3. Industry & CSR Partnership Hub */}
                 <button
                   type="button"
                   onClick={() => handleTabChange('INDUSTRY')}
-                  className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${
+                  className={`w-full text-left p-3 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${
                     activeTab === 'INDUSTRY'
                       ? 'bg-slate-900 border-amber-500/60 shadow-lg shadow-amber-500/10'
-                      : 'bg-slate-900/50 border-slate-800 hover:border-slate-700 text-slate-400'
+                      : 'bg-slate-900/40 border-slate-800 hover:border-slate-700 text-slate-400'
                   }`}
                 >
-                  <div className={`p-2 rounded-xl ${activeTab === 'INDUSTRY' ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'}`}>
-                    <HeartHandshake className="w-5 h-5" />
+                  <div className={`p-2 rounded-xl shrink-0 ${activeTab === 'INDUSTRY' ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'}`}>
+                    <HeartHandshake className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className={`text-xs font-bold ${activeTab === 'INDUSTRY' ? 'text-white' : 'text-slate-300'}`}>
                       3. Industry & CSR Partnership Hub
                     </h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      For CSR Foundations, Industry Mentors & Funders.
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      For CSR Foundations, Mentors & Impact Funders.
                     </p>
                   </div>
                 </button>
 
+                {/* 4. Student Innovator Portal */}
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('STUDENT')}
+                  className={`w-full text-left p-3 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${
+                    activeTab === 'STUDENT'
+                      ? 'bg-slate-900 border-blue-500/60 shadow-lg shadow-blue-500/10'
+                      : 'bg-slate-900/40 border-slate-800 hover:border-slate-700 text-slate-400'
+                  }`}
+                >
+                  <div className={`p-2 rounded-xl shrink-0 ${activeTab === 'STUDENT' ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-800 text-slate-400'}`}>
+                    <GraduationCap className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className={`text-xs font-bold ${activeTab === 'STUDENT' ? 'text-white' : 'text-slate-300'}`}>
+                      4. Student Innovators Workspace
+                    </h4>
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      For Student Teams building prototypes & solutions.
+                    </p>
+                  </div>
+                </button>
+
+                {/* 5. Citizen Civic Reporting Portal */}
                 <button
                   type="button"
                   onClick={() => handleTabChange('CITIZEN')}
-                  className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${
+                  className={`w-full text-left p-3 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${
                     activeTab === 'CITIZEN'
                       ? 'bg-slate-900 border-emerald-500/60 shadow-lg shadow-emerald-500/10'
-                      : 'bg-slate-900/50 border-slate-800 hover:border-slate-700 text-slate-400'
+                      : 'bg-slate-900/40 border-slate-800 hover:border-slate-700 text-slate-400'
                   }`}
                 >
-                  <div className={`p-2 rounded-xl ${activeTab === 'CITIZEN' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
-                    <Users className="w-5 h-5" />
+                  <div className={`p-2 rounded-xl shrink-0 ${activeTab === 'CITIZEN' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+                    <Users className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className={`text-xs font-bold ${activeTab === 'CITIZEN' ? 'text-white' : 'text-slate-300'}`}>
-                      4. Citizen Civic Reporting Portal
+                      5. Citizen Civic Reporting Portal
                     </h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      For Citizens reporting challenges & tracking progress.
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      For verified citizens filing grievances with OTP.
                     </p>
                   </div>
                 </button>
@@ -253,16 +425,18 @@ export default function UnifiedLoginPage() {
           <div className="md:col-span-7 p-6 sm:p-8 flex flex-col justify-between bg-slate-900/60">
             <div>
               {/* Header Title & Existing / New User Toggle */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-4 mb-6 gap-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-4 mb-5 gap-3">
                 <div>
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                     {activeTab === 'GOVT' && <Shield className="w-5 h-5 text-cyan-400" />}
                     {activeTab === 'HEI' && <Landmark className="w-5 h-5 text-purple-400" />}
                     {activeTab === 'INDUSTRY' && <HeartHandshake className="w-5 h-5 text-amber-400" />}
+                    {activeTab === 'STUDENT' && <GraduationCap className="w-5 h-5 text-blue-400" />}
                     {activeTab === 'CITIZEN' && <Users className="w-5 h-5 text-emerald-400" />}
                     {activeTab === 'GOVT' && 'Government Command Centre'}
                     {activeTab === 'HEI' && 'University & HEI Portal'}
                     {activeTab === 'INDUSTRY' && 'Industry & CSR Partner Hub'}
+                    {activeTab === 'STUDENT' && 'Student Innovators Portal'}
                     {activeTab === 'CITIZEN' && 'Citizen Civic Reporting Portal'}
                   </h2>
                   <p className="text-xs text-slate-400 mt-0.5">
@@ -274,7 +448,11 @@ export default function UnifiedLoginPage() {
                 <div className="flex items-center p-1 rounded-xl bg-slate-950 border border-slate-800 shrink-0">
                   <button
                     type="button"
-                    onClick={() => { setIsRegisterMode(false); setError(''); setSuccessMessage(''); }}
+                    onClick={() => {
+                      setIsRegisterMode(false);
+                      setError('');
+                      setSuccessMessage('');
+                    }}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                       !isRegisterMode
                         ? 'bg-cyan-500 text-slate-950 font-bold shadow-md'
@@ -285,7 +463,11 @@ export default function UnifiedLoginPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setIsRegisterMode(true); setError(''); setSuccessMessage(''); }}
+                    onClick={() => {
+                      setIsRegisterMode(true);
+                      setError('');
+                      setSuccessMessage('');
+                    }}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                       isRegisterMode
                         ? 'bg-emerald-500 text-slate-950 font-bold shadow-md'
@@ -298,14 +480,16 @@ export default function UnifiedLoginPage() {
               </div>
 
               {error && (
-                <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold">
-                  {error}
+                <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{error}</span>
                 </div>
               )}
 
               {successMessage && (
-                <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
-                  {successMessage}
+                <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{successMessage}</span>
                 </div>
               )}
 
@@ -319,7 +503,7 @@ export default function UnifiedLoginPage() {
                     <div className="relative">
                       <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input
-                        type="email"
+                        type="text"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -356,58 +540,121 @@ export default function UnifiedLoginPage() {
                         ? 'bg-gradient-to-r from-purple-400 to-pink-500 hover:brightness-110 shadow-purple-500/20'
                         : activeTab === 'INDUSTRY'
                         ? 'bg-gradient-to-r from-amber-400 to-orange-500 hover:brightness-110 shadow-amber-500/20'
+                        : activeTab === 'STUDENT'
+                        ? 'bg-gradient-to-r from-blue-400 to-indigo-500 hover:brightness-110 shadow-blue-500/20'
                         : 'bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-110 shadow-emerald-500/20'
                     }`}
                   >
-                    {loading ? 'Authenticating...' : `Login to ${activeTab === 'GOVT' ? 'Command Centre' : activeTab === 'HEI' ? 'HEI Portal' : activeTab === 'INDUSTRY' ? 'CSR Portal' : 'Citizen Portal'}`}
+                    {loading ? 'Authenticating...' : `Login to ${
+                      activeTab === 'GOVT'
+                        ? 'Command Centre'
+                        : activeTab === 'HEI'
+                        ? 'HEI Portal'
+                        : activeTab === 'INDUSTRY'
+                        ? 'CSR Portal'
+                        : activeTab === 'STUDENT'
+                        ? 'Student Portal'
+                        : 'Citizen Portal'
+                    }`}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
               ) : (
                 /* Mode B: New User Registration Form */
                 <form onSubmit={handleRegisterSubmit} className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Full Name *
-                      </label>
-                      <div className="relative">
-                        <User className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input
-                          type="text"
-                          required
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                          placeholder="e.g. Rajesh Sharma"
-                        />
-                      </div>
+                  {/* Full Name */}
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                      Full Name *
+                    </label>
+                    <div className="relative">
+                      <User className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        required
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                        placeholder="e.g. Rameshwar Besra"
+                      />
                     </div>
+                  </div>
 
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                  {/* Mail ID + Verify with OTP */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-slate-300">
                         Mail ID *
                       </label>
-                      <div className="relative">
-                        <User className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      {activeTab === 'CITIZEN' && emailVerified && (
+                        <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Verified with OTP
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Mail className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           type="email"
                           required
                           value={regEmail}
                           onChange={(e) => setRegEmail(e.target.value)}
                           className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                          placeholder="e.g. rajesh@example.com"
+                          placeholder="e.g. user@satark.gov.in"
                         />
                       </div>
+                      {activeTab === 'CITIZEN' && !emailVerified && (
+                        <button
+                          type="button"
+                          onClick={handleSendEmailOtp}
+                          disabled={emailTimer > 0}
+                          className="px-2.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold shrink-0 cursor-pointer"
+                        >
+                          {emailTimer > 0 ? `Resend (${emailTimer}s)` : (emailOtpSent ? 'Resend' : 'Verify with OTP')}
+                        </button>
+                      )}
                     </div>
+
+                    {/* Email OTP Field for Citizen */}
+                    {activeTab === 'CITIZEN' && emailOtpSent && !emailVerified && (
+                      <div className="mt-2 p-2.5 rounded-xl bg-slate-950 border border-emerald-500/30 flex items-center justify-between gap-2">
+                        <span className="text-[10px] text-emerald-400 font-mono">Demo OTP: {generatedEmailOtp}</span>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            maxLength={6}
+                            value={emailOtpInput}
+                            onChange={(e) => setEmailOtpInput(e.target.value)}
+                            className="w-24 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-center font-mono text-xs text-white"
+                            placeholder="Code"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleVerifyEmailOtp}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-[11px] font-bold cursor-pointer"
+                          >
+                            Verify
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                  {/* Mobile Number + Verify with OTP */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-slate-300">
                         Mobile Number *
                       </label>
-                      <div className="relative">
+                      {activeTab === 'CITIZEN' && mobileVerified && (
+                        <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Verified with OTP
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
                         <Phone className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           type="tel"
@@ -418,26 +665,62 @@ export default function UnifiedLoginPage() {
                           placeholder="+91 9876543210"
                         />
                       </div>
+                      {activeTab === 'CITIZEN' && !mobileVerified && (
+                        <button
+                          type="button"
+                          onClick={handleSendMobileOtp}
+                          disabled={mobileTimer > 0}
+                          className="px-2.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold shrink-0 cursor-pointer"
+                        >
+                          {mobileTimer > 0 ? `Resend (${mobileTimer}s)` : (mobileOtpSent ? 'Resend' : 'Verify with OTP')}
+                        </button>
+                      )}
                     </div>
 
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Full Address *
-                      </label>
-                      <div className="relative">
-                        <Home className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input
-                          type="text"
-                          required
-                          value={fullAddress}
-                          onChange={(e) => setFullAddress(e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                          placeholder="Street, area, city, pin..."
-                        />
+                    {/* Mobile OTP Field for Citizen */}
+                    {activeTab === 'CITIZEN' && mobileOtpSent && !mobileVerified && (
+                      <div className="mt-2 p-2.5 rounded-xl bg-slate-950 border border-emerald-500/30 flex items-center justify-between gap-2">
+                        <span className="text-[10px] text-emerald-400 font-mono">Demo OTP: {generatedMobileOtp}</span>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            maxLength={6}
+                            value={mobileOtpInput}
+                            onChange={(e) => setMobileOtpInput(e.target.value)}
+                            className="w-24 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-center font-mono text-xs text-white"
+                            placeholder="Code"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleVerifyMobileOtp}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-[11px] font-bold cursor-pointer"
+                          >
+                            Verify
+                          </button>
+                        </div>
                       </div>
+                    )}
+                  </div>
+
+                  {/* Full Address */}
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                      Full Address *
+                    </label>
+                    <div className="relative">
+                      <Home className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        required
+                        value={fullAddress}
+                        onChange={(e) => setFullAddress(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                        placeholder="Street, ward/village, district, pin..."
+                      />
                     </div>
                   </div>
 
+                  {/* Password and Confirm Password */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-300 mb-1">
@@ -477,7 +760,7 @@ export default function UnifiedLoginPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-500 to-cyan-500 hover:brightness-110 text-slate-950 transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/20 cursor-pointer"
+                    className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-500 to-cyan-500 hover:brightness-110 text-slate-950 transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/20 cursor-pointer mt-2"
                   >
                     {loading ? 'Registering Account...' : 'Register Account & Access Portal'}
                     <ArrowRight className="w-4 h-4" />
@@ -486,7 +769,7 @@ export default function UnifiedLoginPage() {
               )}
             </div>
 
-            {/* Quick Demo Auto-Login Bar */}
+            {/* Quick Demo One-Click Access Bar */}
             <div className="mt-6 pt-4 border-t border-slate-800/80">
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                 Quick Demo One-Click Access
@@ -521,10 +804,10 @@ export default function UnifiedLoginPage() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleQuickDemoSelect('STUDENT_TEAM', '/student')}
+                      onClick={() => handleQuickDemoSelect('FACULTY_MENTOR', '/hei')}
                       className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 text-[11px] font-medium transition-colors border border-slate-700 cursor-pointer"
                     >
-                      ⚡ Student Team (`student@bitmesra.ac.in`)
+                      ⚡ Faculty Mentor (`faculty@bitmesra.ac.in`)
                     </button>
                   </>
                 )}
@@ -545,6 +828,15 @@ export default function UnifiedLoginPage() {
                       ⚡ Coal India CSR (`csr@coalindia.in`)
                     </button>
                   </>
+                )}
+                {activeTab === 'STUDENT' && (
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemoSelect('STUDENT_TEAM', '/student')}
+                    className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-blue-500/20 text-slate-300 hover:text-blue-300 text-[11px] font-medium transition-colors border border-slate-700 cursor-pointer"
+                  >
+                    ⚡ Student Team (`student@bitmesra.ac.in`)
+                  </button>
                 )}
                 {activeTab === 'CITIZEN' && (
                   <button

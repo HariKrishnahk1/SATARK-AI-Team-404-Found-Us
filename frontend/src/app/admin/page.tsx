@@ -14,7 +14,7 @@ import { Challenge, DashboardStats, University } from '../../lib/types';
 import { LeafletMap } from '../../components/LeafletMap';
 import {
   Shield, CheckCircle, AlertTriangle, Building2, Landmark, HeartHandshake,
-  Cpu, Users, Award, MapPin, RefreshCw, Eye, Edit3, Layers, Filter, UserCheck, FileText, CheckCircle2, ClipboardCheck
+  Cpu, Users, Award, MapPin, RefreshCw, Eye, Edit3, Layers, Filter, UserCheck, FileText, CheckCircle2, ClipboardCheck, Play
 } from 'lucide-react';
 
 const INITIAL_STATS: DashboardStats = {
@@ -288,12 +288,23 @@ export default function AdminCommandCentre() {
           </div>
         </div>
 
-        <button
-          onClick={loadData}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Refresh Command Dashboard
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('satark:replay-intro'))}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/40 text-xs font-semibold text-cyan-300 hover:text-white hover:bg-cyan-900/60 transition-colors shadow-sm cursor-pointer"
+            title="Watch SATARK AI Startup Overview Video"
+          >
+            <Play className="w-3.5 h-3.5 fill-cyan-400" />
+            <span>Startup Video</span>
+          </button>
+          <button
+            onClick={loadData}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Refresh Command Dashboard
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards (13 Specific Indicators) */}

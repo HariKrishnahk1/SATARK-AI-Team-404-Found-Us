@@ -13,6 +13,7 @@ import { Challenge } from '../../lib/types';
 import { MapPin, Camera, AlertCircle, CheckCircle, Sparkles, Send, RefreshCw, Clock, UploadCloud, X, FileImage, Image as ImageIcon, Navigation, Compass, FileText, Download, ShieldCheck, Mic, MicOff, Globe, Volume2 } from 'lucide-react';
 import { Timeline } from '../../components/Timeline';
 import { VoiceAssistantConsole } from '../../components/VoiceAssistantConsole';
+import { useAuth } from '../../context/AuthContext';
 
 const INDIAN_STATES_AND_UT = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -40,6 +41,7 @@ const MULTILINGUAL_OPTIONS = [
 ];
 
 export default function CitizenPortal() {
+  const { user } = useAuth();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -49,7 +51,7 @@ export default function CitizenPortal() {
   const [description, setDescription] = useState('');
   const [state, setState] = useState('Tamil Nadu');
   const [district, setDistrict] = useState('Chennai');
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState(user?.address || '');
   const [lat, setLat] = useState(13.0827);
   const [lng, setLng] = useState(80.2707);
   const [detectingLocation, setDetectingLocation] = useState(false);
