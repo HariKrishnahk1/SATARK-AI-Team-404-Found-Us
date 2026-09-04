@@ -12,7 +12,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { Shield, Landmark, GraduationCap, HeartHandshake, ArrowRight, Sparkles, Lock, UserCheck, CheckCircle2 } from 'lucide-react';
-import { StartupVideoModal } from '../../components/StartupVideoModal';
 
 export default function AuthorityPlatformPage() {
   const portals = [
@@ -41,20 +40,8 @@ export default function AuthorityPlatformPage() {
       badge: 'R&D & HEI Network'
     },
     {
-      id: 'student',
-      name: '3. Student Prototype Workspace',
-      roleLabel: 'Student Innovator Team Lead',
-      href: '/student',
-      icon: GraduationCap,
-      color: 'cyan',
-      bgGlow: 'from-cyan-500/20 to-blue-500/10',
-      border: 'border-cyan-500/40',
-      description: 'Multidisciplinary student team project workspace, milestone progress tracking, budget proposal submission, and prototyping.',
-      badge: 'Student Innovators'
-    },
-    {
       id: 'industry',
-      name: '4. Industry & CSR Partnership Hub',
+      name: '3. Industry & CSR Partner Portal',
       roleLabel: 'Tata Steel / Coal India CSR Partner',
       href: '/industry',
       icon: HeartHandshake,
@@ -63,14 +50,23 @@ export default function AuthorityPlatformPage() {
       border: 'border-amber-500/40',
       description: 'CSR funding allocation, tech mentorship, pilot site field trial support, and community impact measurement.',
       badge: 'CSR & Industry Partner'
+    },
+    {
+      id: 'student',
+      name: '4. Student Prototype & Project Portal',
+      roleLabel: 'Student Innovator Team Lead',
+      href: '/student',
+      icon: GraduationCap,
+      color: 'cyan',
+      bgGlow: 'from-cyan-500/20 to-blue-500/10',
+      border: 'border-cyan-500/40',
+      description: 'Multidisciplinary student team project workspace, milestone progress tracking, budget proposal submission, and prototyping.',
+      badge: 'Student Innovators'
     }
   ];
 
   return (
     <div className="min-h-screen bg-slate-950 text-white relative overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
-      {/* Startup Video Modal for Authority Platform */}
-      <StartupVideoModal portalName="Institutional Authority Command Platform" />
-
       {/* Dynamic Background Glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-gradient-to-r from-cyan-600/15 via-purple-600/15 to-emerald-600/15 blur-[140px] rounded-full pointer-events-none" />
 

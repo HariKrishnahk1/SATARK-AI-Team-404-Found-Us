@@ -12,7 +12,7 @@ import { api } from '../../lib/api';
 import { Challenge } from '../../lib/types';
 import { MapPin, Camera, AlertCircle, CheckCircle, Sparkles, Send, RefreshCw, Clock, UploadCloud, X, FileImage, Image as ImageIcon, Navigation, Compass, FileText, Download, ShieldCheck, Mic, MicOff, Globe, Volume2 } from 'lucide-react';
 import { Timeline } from '../../components/Timeline';
-import { StartupVideoModal } from '../../components/StartupVideoModal';
+import { VoiceAssistantConsole } from '../../components/VoiceAssistantConsole';
 
 const INDIAN_STATES_AND_UT = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -62,84 +62,261 @@ export default function CitizenPortal() {
 
   // Multilingual & Speech-to-Text Voice Recognition State
   const [selectedLang, setSelectedLang] = useState('en-IN');
-  const [isListeningTitle, setIsListeningTitle] = useState(false);
-  const [isListeningDesc, setIsListeningDesc] = useState(false);
-  const [speechStatus, setSpeechStatus] = useState('');
-  const recognitionRef = useRef<any>(null);
+  const [activeVoiceField, setActiveVoiceField] = useState<'title' | 'description' | null>(null);
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const [speechNotice, setSpeechNotice] = useState('');
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [isVoiceDetected, setIsVoiceDetected] = useState(false);
+  const [permissionError, setPermissionError] = useState(false);
 
+  const recognitionRef = useRef<any>(null);
+  const isListeningRef = useRef<boolean>(false);
+  const activeVoiceFieldRef = useRef<'title' | 'description' | null>(null);
+  const initialTextRef = useRef<string>('');
+  const titleRef = useRef<string>('');
+  const descriptionRef = useRef<string>('');
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const startSpeechRecognition = (field: 'title' | 'description') => {
+  // Keep refs synchronized with live state
+  useEffect(() => {
+    titleRef.current = title;
+  }, [title]);
+
+  useEffect(() => {
+    descriptionRef.current = description;
+  }, [description]);
+
+  // Clean up audio context and recognition on unmount
+  useEffect(() => {
+    return () => {
+      isListeningRef.current = false;
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      stopAudioVisualizer();
+    };
+  }, []);
+
+  const startAudioVisualizer = async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        const audioCtx = new AudioCtx();
+        audioContextRef.current = audioCtx;
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64;
+        analyserRef.current = analyser;
+        const source = audioCtx.createMediaStreamSource(stream);
+        source.connect(analyser);
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        const update = () => {
+          if (!isListeningRef.current) return;
+          analyser.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) {
+            sum += dataArray[i];
+          }
+          const avg = sum / dataArray.length;
+          const normalized = Math.min(100, Math.round((avg / 128) * 100));
+          setAudioLevel(normalized);
+          setIsVoiceDetected(normalized > 7);
+          animationFrameRef.current = requestAnimationFrame(update);
+        };
+        update();
+      }
+    } catch (err: any) {
+      console.warn('Microphone audio visualizer notice:', err);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setPermissionError(true);
+      }
+    }
+  };
+
+  const stopAudioVisualizer = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(t => t.stop());
+      mediaStreamRef.current = null;
+    }
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      try { audioContextRef.current.close(); } catch (e) {}
+      audioContextRef.current = null;
+    }
+    setAudioLevel(0);
+    setIsVoiceDetected(false);
+  };
+
+  const startSpeechForField = (field: 'title' | 'description', targetLang?: string) => {
     if (typeof window === 'undefined') return;
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert('Speech recognition (Voice-to-Text) is not supported by your current browser. You can type directly in any language!');
+      alert('Voice Recognition (Speech-to-Text) is supported on Google Chrome, Microsoft Edge, Safari, and Brave. You can also type directly in any language!');
       return;
     }
 
-    const isCurrentListening = field === 'title' ? isListeningTitle : isListeningDesc;
+    const langToUse = targetLang || selectedLang;
 
-    if (isCurrentListening) {
-      if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch (e) {}
-      }
-      setIsListeningTitle(false);
-      setIsListeningDesc(false);
-      setSpeechStatus('');
+    // If currently listening on this exact field and not switching language, toggle stop
+    if (isListeningRef.current && activeVoiceFieldRef.current === field && !targetLang) {
+      stopSpeechRecognition();
       return;
     }
+
+    // Stop any existing instance cleanly
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (e) {}
+    }
+
+    const currentText = field === 'title' ? titleRef.current : descriptionRef.current;
+    initialTextRef.current = currentText;
+    activeVoiceFieldRef.current = field;
+    setActiveVoiceField(field);
+    isListeningRef.current = true;
+    setInterimTranscript('');
+    setPermissionError(false);
+
+    const langObj = MULTILINGUAL_OPTIONS.find(l => l.code === langToUse) || MULTILINGUAL_OPTIONS[0];
+    setSpeechNotice(`Listening in ${langObj.native} (${langObj.name}). Speak now!`);
+
+    startAudioVisualizer();
 
     try {
       const recognition = new SpeechRecognition();
       recognitionRef.current = recognition;
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = selectedLang;
-
-      const langObj = MULTILINGUAL_OPTIONS.find(l => l.code === selectedLang) || MULTILINGUAL_OPTIONS[0];
-
-      recognition.onstart = () => {
-        if (field === 'title') setIsListeningTitle(true);
-        if (field === 'description') setIsListeningDesc(true);
-        setSpeechStatus(`🎙️ Voice Recognition Active (${langObj.native} - ${langObj.name}). Speak now!`);
-      };
+      recognition.lang = langToUse;
+      recognition.maxAlternatives = 1;
 
       recognition.onresult = (event: any) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          finalTranscript += event.results[i][0].transcript;
-        }
-        if (finalTranscript) {
-          if (field === 'title') {
-            setTitle(prev => prev ? `${prev} ${finalTranscript}` : finalTranscript);
+        let sessionFinal = '';
+        let currentInterim = '';
+
+        for (let i = 0; i < event.results.length; ++i) {
+          const item = event.results[i];
+          if (item.isFinal) {
+            sessionFinal += item[0].transcript.trim() + ' ';
           } else {
-            setDescription(prev => prev ? `${prev} ${finalTranscript}` : finalTranscript);
+            currentInterim += item[0].transcript;
           }
+        }
+
+        setInterimTranscript(currentInterim);
+
+        const base = initialTextRef.current ? initialTextRef.current.trim() : '';
+        const finalPart = sessionFinal.trim();
+        const interimPart = currentInterim.trim();
+
+        let combined = base;
+        if (finalPart) {
+          combined += (combined ? ' ' : '') + finalPart;
+        }
+        if (interimPart) {
+          combined += (combined ? ' ' : '') + interimPart;
+        }
+
+        // Capitalize first character if starting a sentence
+        if (combined.length > 0 && (!base || base.endsWith('.') || base.endsWith('!') || base.endsWith('?'))) {
+          combined = combined.charAt(0).toUpperCase() + combined.slice(1);
+        }
+
+        if (activeVoiceFieldRef.current === 'title') {
+          setTitle(combined);
+          titleRef.current = combined;
+        } else if (activeVoiceFieldRef.current === 'description') {
+          setDescription(combined);
+          descriptionRef.current = combined;
         }
       };
 
       recognition.onerror = (event: any) => {
         console.warn('Speech recognition notice:', event.error);
-        setIsListeningTitle(false);
-        setIsListeningDesc(false);
-        if (event.error === 'not-allowed') {
-          alert('Microphone access denied. Please enable microphone permissions in your browser.');
-        } else {
-          setSpeechStatus(`Voice Recognition notice: ${event.error}. You can also type directly in any language.`);
+        if (event.error === 'no-speech') {
+          setSpeechNotice('Waiting for voice input... speak clearly into your microphone.');
+          return;
         }
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          setPermissionError(true);
+          setSpeechNotice('Microphone access was blocked. Please allow microphone permissions in your browser URL bar.');
+          stopSpeechRecognition();
+          return;
+        }
+        if (event.error === 'network') {
+          setSpeechNotice('Connecting to speech recognition network service...');
+          return;
+        }
+        setSpeechNotice(`Speech status: ${event.error}`);
       };
 
       recognition.onend = () => {
-        setIsListeningTitle(false);
-        setIsListeningDesc(false);
-        setSpeechStatus('');
+        if (isListeningRef.current) {
+          // Auto-restart if user has not explicitly stopped
+          const updated = activeVoiceFieldRef.current === 'title' ? titleRef.current : descriptionRef.current;
+          initialTextRef.current = updated;
+          setInterimTranscript('');
+          try {
+            recognition.start();
+          } catch (e) {
+            setTimeout(() => {
+              if (isListeningRef.current && recognitionRef.current) {
+                try { recognitionRef.current.start(); } catch (err) {}
+              }
+            }, 250);
+          }
+        } else {
+          stopAudioVisualizer();
+          setActiveVoiceField(null);
+          setInterimTranscript('');
+        }
       };
 
       recognition.start();
     } catch (err: any) {
-      console.error(err);
-      alert('Could not initialize microphone. You can type directly in any language!');
+      console.error('Failed to start speech recognition:', err);
+      setSpeechNotice('Could not start microphone. You can type directly in any language!');
+      stopSpeechRecognition();
+    }
+  };
+
+  const stopSpeechRecognition = () => {
+    isListeningRef.current = false;
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (e) {}
+    }
+    stopAudioVisualizer();
+    setActiveVoiceField(null);
+    setInterimTranscript('');
+    setSpeechNotice('');
+  };
+
+  const clearVoiceInput = () => {
+    if (activeVoiceFieldRef.current === 'title') {
+      setTitle(initialTextRef.current);
+      titleRef.current = initialTextRef.current;
+    } else if (activeVoiceFieldRef.current === 'description') {
+      setDescription(initialTextRef.current);
+      descriptionRef.current = initialTextRef.current;
+    }
+    setInterimTranscript('');
+    setSpeechNotice('Dictation cleared. Speak again to transcribe...');
+  };
+
+  const switchVoiceLanguage = (newLangCode: string) => {
+    setSelectedLang(newLangCode);
+    if (isListeningRef.current && activeVoiceFieldRef.current) {
+      startSpeechForField(activeVoiceFieldRef.current, newLangCode);
     }
   };
 
@@ -375,7 +552,6 @@ startxref
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <StartupVideoModal portalName="Citizen Portal" />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-slate-800">
         <div className="flex items-center gap-4">
@@ -433,19 +609,48 @@ startxref
               </select>
             </div>
 
-            {/* Speech Status Banner */}
-            {speechStatus && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2 animate-pulse shadow-lg shadow-rose-500/10">
-                <Mic className="w-4 h-4 text-rose-400 shrink-0" />
-                <span>{speechStatus}</span>
+            {/* Permission Notice Banner */}
+            {permissionError && (
+              <div className="p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5 shadow-lg shadow-rose-500/10">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-rose-300">Microphone Permission Blocked</p>
+                  <p className="text-[11px] text-rose-200/90 mt-0.5">
+                    Click the lock (🔒) or site settings icon in your browser address bar next to <code className="bg-rose-950/60 px-1 py-0.5 rounded font-mono">localhost:3000</code>, set <strong>Microphone</strong> to <strong>Allow</strong>, and refresh the page.
+                  </p>
+                </div>
               </div>
             )}
 
+            {/* Real-time Voice Recognition Assistant Console */}
+            <VoiceAssistantConsole
+              isOpen={activeVoiceField !== null}
+              activeField={activeVoiceField}
+              selectedLang={selectedLang}
+              onSelectLanguage={switchVoiceLanguage}
+              interimTranscript={interimTranscript}
+              audioLevel={audioLevel}
+              isVoiceDetected={isVoiceDetected}
+              speechNotice={speechNotice}
+              multilingualOptions={MULTILINGUAL_OPTIONS}
+              onFinish={stopSpeechRecognition}
+              onClear={clearVoiceInput}
+              onCancel={stopSpeechRecognition}
+              onSwitchField={(newField) => startSpeechForField(newField)}
+            />
+
             {/* What is the problem?? (formerly Challenge Title) */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
-                What is the problem?? <span className="text-rose-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-slate-300">
+                  What is the problem?? <span className="text-rose-500">*</span>
+                </label>
+                {activeVoiceField === 'title' && (
+                  <span className="text-[10px] text-rose-400 font-bold animate-pulse flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-rose-500" /> Microphone Active
+                  </span>
+                )}
+              </div>
               <div className="relative flex items-center">
                 <input
                   type="text"
@@ -453,22 +658,32 @@ startxref
                   placeholder="e.g. Severe Water Contamination in Village Borewells / जल प्रदूषण समस्या"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
+                  className={`w-full pl-3 pr-20 py-2.5 rounded-xl bg-slate-950 border text-white text-xs focus:outline-none transition-colors ${
+                    activeVoiceField === 'title'
+                      ? 'border-rose-500/80 shadow-md shadow-rose-500/10'
+                      : 'border-slate-800 focus:border-cyan-500'
+                  }`}
                 />
                 <button
                   type="button"
-                  onClick={() => startSpeechRecognition('title')}
-                  title={isListeningTitle ? "Stop Voice Input" : "Click to Speak (Voice Speech-to-Text)"}
-                  className={`absolute right-2 p-1.5 rounded-lg transition-all cursor-pointer ${
-                    isListeningTitle
-                      ? 'bg-rose-500/20 border border-rose-500/60 text-rose-400 animate-pulse shadow-md shadow-rose-500/30'
-                      : 'bg-slate-900 border border-slate-800 text-cyan-400 hover:text-white hover:bg-cyan-900/60'
+                  onClick={() => startSpeechForField('title')}
+                  title={activeVoiceField === 'title' ? "Stop Voice Recording (Done)" : "Click to Speak Problem Title in any language"}
+                  className={`absolute right-1.5 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold ${
+                    activeVoiceField === 'title'
+                      ? 'bg-gradient-to-r from-rose-500 to-red-600 text-white animate-pulse shadow-md shadow-rose-500/40 border border-rose-400 scale-105'
+                      : 'bg-slate-900 hover:bg-cyan-950/80 border border-slate-700 text-cyan-400 hover:text-cyan-300'
                   }`}
                 >
-                  {isListeningTitle ? (
-                    <MicOff className="w-3.5 h-3.5 text-rose-400 animate-spin" />
+                  {activeVoiceField === 'title' ? (
+                    <>
+                      <MicOff className="w-3.5 h-3.5 text-white" />
+                      <span>Done</span>
+                    </>
                   ) : (
-                    <Mic className="w-3.5 h-3.5 text-cyan-400" />
+                    <>
+                      <Mic className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Speak</span>
+                    </>
                   )}
                 </button>
               </div>
@@ -536,32 +751,49 @@ startxref
 
             {/* Detailed Description */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
-                Detailed Description <span className="text-rose-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-slate-300">
+                  Detailed Description <span className="text-rose-500">*</span>
+                </label>
+                {activeVoiceField === 'description' && (
+                  <span className="text-[10px] text-rose-400 font-bold animate-pulse flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-rose-500" /> Microphone Active
+                  </span>
+                )}
+              </div>
               <div className="relative">
                 <textarea
                   required
                   rows={4}
-                  placeholder="Describe the issue in any language or click the mic button inside to speak into your microphone..."
+                  placeholder="Describe the issue in any language or click 'Speak' to dictate into your microphone..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full pl-3 pr-10 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-500"
+                  className={`w-full pl-3 pr-20 py-2.5 rounded-xl bg-slate-950 border text-white text-xs focus:outline-none transition-colors ${
+                    activeVoiceField === 'description'
+                      ? 'border-rose-500/80 shadow-md shadow-rose-500/10'
+                      : 'border-slate-800 focus:border-cyan-500'
+                  }`}
                 />
                 <button
                   type="button"
-                  onClick={() => startSpeechRecognition('description')}
-                  title={isListeningDesc ? "Stop Voice Input" : "Click to Speak (Voice Speech-to-Text)"}
-                  className={`absolute right-2 top-2.5 p-1.5 rounded-lg transition-all cursor-pointer ${
-                    isListeningDesc
-                      ? 'bg-rose-500/20 border border-rose-500/60 text-rose-400 animate-pulse shadow-md shadow-rose-500/30'
-                      : 'bg-slate-900 border border-slate-800 text-cyan-400 hover:text-white hover:bg-cyan-900/60'
+                  onClick={() => startSpeechForField('description')}
+                  title={activeVoiceField === 'description' ? "Stop Voice Recording (Done)" : "Click to Speak Description into your microphone"}
+                  className={`absolute right-2 top-2.5 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold ${
+                    activeVoiceField === 'description'
+                      ? 'bg-gradient-to-r from-rose-500 to-red-600 text-white animate-pulse shadow-md shadow-rose-500/40 border border-rose-400 scale-105'
+                      : 'bg-slate-900 hover:bg-cyan-950/80 border border-slate-700 text-cyan-400 hover:text-cyan-300'
                   }`}
                 >
-                  {isListeningDesc ? (
-                    <MicOff className="w-3.5 h-3.5 text-rose-400 animate-spin" />
+                  {activeVoiceField === 'description' ? (
+                    <>
+                      <MicOff className="w-3.5 h-3.5 text-white" />
+                      <span>Done</span>
+                    </>
                   ) : (
-                    <Mic className="w-3.5 h-3.5 text-cyan-400" />
+                    <>
+                      <Mic className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Speak</span>
+                    </>
                   )}
                 </button>
               </div>

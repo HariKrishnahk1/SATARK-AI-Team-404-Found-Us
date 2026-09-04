@@ -14,7 +14,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { Shield, Landmark, HeartHandshake, MapPin, Lock, ArrowRight, CheckCircle2, User, Key, Sparkles, UserPlus, Phone, Home, UserCheck, Users } from 'lucide-react';
-import { StartupVideoModal } from '../../components/StartupVideoModal';
 
 export default function UnifiedLoginPage() {
   const router = useRouter();

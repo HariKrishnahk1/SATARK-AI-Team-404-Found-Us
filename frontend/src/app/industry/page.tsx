@@ -9,10 +9,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { api } from '../../lib/api';
 import { SolutionProposal, IndustrySponsorship } from '../../lib/types';
-import { HeartHandshake, Building2, CheckCircle, IndianRupee, Award, Shield, Send } from 'lucide-react';
-import { StartupVideoModal } from '../../components/StartupVideoModal';
+import { HeartHandshake, Building2, CheckCircle, IndianRupee, Award, Shield, Send, GraduationCap } from 'lucide-react';
 
 export default function IndustryPortal() {
   const [proposals, setProposals] = useState<SolutionProposal[]>([]);
@@ -84,7 +84,6 @@ export default function IndustryPortal() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      <StartupVideoModal portalName="Industry & CSR Partnership Hub" />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-800">
         <div className="flex items-center gap-4">
@@ -97,8 +96,17 @@ export default function IndustryPortal() {
             <p className="text-xs text-slate-400 mt-1">Sponsor university prototypes, pledge CSR funding in INR, and provide technical mentorship.</p>
           </div>
         </div>
-        <div className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold">
-          Tata Steel CSR Division
+        <div className="flex items-center gap-3">
+          <Link
+            href="/student"
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white text-xs font-bold transition-all shadow-lg shadow-amber-500/20 flex items-center gap-1.5"
+          >
+            <GraduationCap className="w-3.5 h-3.5" />
+            Student Portal
+          </Link>
+          <div className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold">
+            Tata Steel CSR Division
+          </div>
         </div>
       </div>
 

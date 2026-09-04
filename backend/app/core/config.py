@@ -1,6 +1,7 @@
 import os
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List, Union
+from typing import List, Union, Any
 
 class Settings(BaseSettings):
     """SATARK AI System Architecture Settings & Environment Config."""
@@ -19,13 +20,20 @@ class Settings(BaseSettings):
     USE_AI_FALLBACK_IF_NO_KEY: bool = True
 
     # CORS Allowed Origins
-    ALLOWED_ORIGINS: List[str] = [
+    ALLOWED_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://localhost:3002",
         "http://localhost:5173",
         "http://localhost:5174",
         "*"
     ]
+
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def assemble_cors_origins(cls, v: Any) -> Any:
+        if isinstance(v, str) and not v.strip().startswith("["):
+            return [i.strip() for i in v.split(",") if i.strip()]
+        return v
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

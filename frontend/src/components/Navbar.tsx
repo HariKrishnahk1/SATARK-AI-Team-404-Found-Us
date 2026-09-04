@@ -17,8 +17,8 @@ export const Navbar = () => {
   const authorityNavItems = [
     { href: '/admin', label: 'Govt Command Centre', icon: Shield },
     { href: '/hei', label: 'University Portal', icon: Landmark },
-    { href: '/student', label: 'Student Portal', icon: GraduationCap },
-    { href: '/industry', label: 'Industry & CSR Hub', icon: HeartHandshake }
+    { href: '/industry', label: 'Industry & CSR Partner Portal', icon: HeartHandshake },
+    { href: '/student', label: 'Student Portal', icon: GraduationCap }
   ];
 
   const roles: { role: Role; label: string }[] = [

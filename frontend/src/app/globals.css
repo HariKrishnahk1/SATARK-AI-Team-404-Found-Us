@@ -35,3 +35,17 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* SATARK AI — Seamless Startup Video Pre-Hydration & Display Control */
+html.satark-startup-active body {
+  overflow: hidden !important;
+}
+
+html.satark-startup-active #app-content-root {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#app-content-root {
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -10,7 +10,6 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { Challenge } from '../../lib/types';
 import { GraduationCap, Cpu, CheckCircle2, Clock, Send, Sparkles, Layers, DollarSign, Activity, FileCheck, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
-import { StartupVideoModal } from '../../components/StartupVideoModal';
 
 export default function StudentPortal() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
@@ -84,7 +83,6 @@ export default function StudentPortal() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      <StartupVideoModal portalName="Student Prototype Fabrication Workspace" />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-800">
         <div className="flex items-center gap-4">

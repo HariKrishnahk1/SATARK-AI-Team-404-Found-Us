@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Shield, ExternalLink, Heart } from 'lucide-react';
+import { Shield, ExternalLink, Heart, Play } from 'lucide-react';
 
 export const Footer = () => {
   const pathname = usePathname();
@@ -24,6 +24,19 @@ export const Footer = () => {
           <div className="text-[11px] text-cyan-400 font-mono">
             Smart India Hackathon 2026 • PS26043
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('satark:replay-intro'));
+              }
+            }}
+            className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-slate-800 text-cyan-400 hover:text-white hover:bg-slate-800 hover:border-cyan-500/40 transition-all text-[11px] font-semibold cursor-pointer"
+            title="Watch the SATARK AI overview video again"
+          >
+            <Play className="w-3 h-3 fill-current" />
+            <span>Replay Overview Video</span>
+          </button>
         </div>
 
         <div>
@@ -40,6 +53,7 @@ export const Footer = () => {
               <li><Link href="/admin" className="hover:text-cyan-400 transition-colors">Government Command Centre</Link></li>
               <li><Link href="/hei" className="hover:text-cyan-400 transition-colors">University & HEI Portal</Link></li>
               <li><Link href="/industry" className="hover:text-cyan-400 transition-colors">Industry & CSR Partner Portal</Link></li>
+              <li><Link href="/student" className="hover:text-cyan-400 transition-colors">Student Portal</Link></li>
             </ul>
           )}
         </div>
