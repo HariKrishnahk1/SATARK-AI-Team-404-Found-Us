@@ -114,25 +114,25 @@ export const Navbar = () => {
                 <button
                   type="button"
                   onClick={() => setProfileModalOpen(true)}
-                  className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-slate-900 border border-emerald-500/50 hover:border-emerald-400 text-xs font-semibold text-white transition-all shadow-md shadow-emerald-500/15 cursor-pointer hover:bg-slate-800 shrink-0"
-                  title="Citizen Profile: View/Edit Address, Add Images & Manage Details"
+                  className="flex items-center gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-slate-900 border-2 border-emerald-500/60 hover:border-emerald-400 text-xs font-semibold text-white transition-all shadow-md shadow-emerald-500/20 cursor-pointer hover:bg-slate-800 shrink-0"
+                  title="Touch to open Citizen Profile"
                 >
-                  <div className="w-7 h-7 rounded-full overflow-hidden bg-emerald-500/20 border border-emerald-400 shrink-0 flex items-center justify-center">
-                    <img
-                      src={user?.avatar_url || '/logo.png'}
-                      alt={user?.name || 'Citizen'}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLElement).style.display = 'none';
-                      }}
-                    />
-                    <User className="w-3.5 h-3.5 text-emerald-300" />
+                  <div className="w-7 h-7 rounded-full overflow-hidden bg-emerald-500/20 border border-emerald-400/80 shrink-0 flex items-center justify-center">
+                    {user?.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt={user.name || 'Citizen'}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-3.5 h-3.5 text-emerald-300" />
+                    )}
                   </div>
-                  <div className="text-left leading-tight hidden xs:block sm:block">
-                    <span className="block text-xs font-bold text-white">
+                  <div className="text-left leading-tight pr-0.5">
+                    <span className="block text-[11px] sm:text-xs font-extrabold text-emerald-300 truncate max-w-[80px] sm:max-w-[120px]">
                       {user?.name || 'Citizen'}
                     </span>
-                    <span className="block text-[10px] text-emerald-400 font-medium">Profile Tab</span>
+                    <span className="block text-[9px] text-slate-400 font-medium">Profile Tab</span>
                   </div>
                 </button>
               ) : (

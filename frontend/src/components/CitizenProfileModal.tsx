@@ -144,26 +144,28 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
       {/* Modal Container */}
       <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl shadow-black/80 overflow-hidden text-slate-100 flex flex-col my-auto max-h-[92vh]">
         {/* Fixed Header */}
-        <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="px-5 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                Citizen Civic Profile
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-sm sm:text-base font-bold text-white">
+                  Citizen Civic Profile
+                </h2>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold">
                   Verified
                 </span>
-              </h2>
-              <p className="text-[11px] text-slate-400">
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">
                 Official Citizen Identity • Civic Grievance Portal
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
             title="Close profile"
           >
             <X className="w-5 h-5" />
@@ -171,18 +173,18 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
         </div>
 
         {/* Scrollable Body Content */}
-        <div className="p-5 sm:p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1 min-h-0">
+        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1 min-h-0">
           {/* Section 1: Images & Photo Management */}
           <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                 <Camera className="w-4 h-4 text-emerald-400" />
-                Profile Photo
+                Profile Photo & Badges
               </span>
-              <span className="text-[11px] text-emerald-400 font-semibold">Change / Upload Image</span>
+              <span className="text-[11px] text-emerald-400 font-semibold">Change / Upload</span>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
               {/* Main Avatar display with glow */}
               <div className="relative group shrink-0">
                 <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-emerald-500/60 shadow-xl shadow-emerald-500/20 bg-slate-800 flex items-center justify-center relative">
@@ -217,8 +219,8 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
               </div>
 
               {/* Upload file triggers & preset avatars */}
-              <div className="flex-1 w-full space-y-2.5">
-                <div className="flex items-center gap-2">
+              <div className="flex-1 w-full space-y-3">
+                <div className="flex flex-wrap items-center gap-2">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -230,26 +232,26 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingPhoto}
-                    className="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
                   >
                     <Upload className="w-3.5 h-3.5" />
                     {isUploadingPhoto ? 'Uploading...' : 'Upload New Image'}
                   </button>
-                  <span className="text-[10px] text-slate-400">JPG, PNG, WebP up to 5MB</span>
+                  <span className="text-[10px] text-slate-400 font-medium">JPG, PNG, WebP (max 5MB)</span>
                 </div>
 
                 {/* Preset Avatar Gallery */}
                 <div>
-                  <div className="text-[10px] text-slate-400 font-semibold mb-1">Select Civic Avatar Badge:</div>
-                  <div className="flex items-center gap-2">
+                  <div className="text-[10px] text-slate-400 font-semibold mb-1.5">Select Civic Badge:</div>
+                  <div className="flex items-center gap-2.5">
                     {PRESET_AVATARS.map((av) => (
                       <button
                         key={av.id}
                         type="button"
                         onClick={() => handleSelectPresetAvatar(av.url)}
-                        className={`w-8 h-8 rounded-xl overflow-hidden border transition-all cursor-pointer ${
+                        className={`w-9 h-9 rounded-xl overflow-hidden border transition-all cursor-pointer ${
                           currentAvatar === av.url
-                            ? 'border-emerald-400 ring-2 ring-emerald-400/40 scale-105'
+                            ? 'border-emerald-400 ring-2 ring-emerald-400/50 scale-105'
                             : 'border-slate-700 hover:border-slate-500 opacity-80 hover:opacity-100'
                         }`}
                         title={av.name}
@@ -265,16 +267,16 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
 
           {/* Section 2: Full Address (Editable - Well Aligned & Touch-Friendly) */}
           <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+            <div className="flex items-center justify-between gap-2 mb-2.5">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-200 flex items-center gap-1.5 shrink-0">
                 <MapPin className="w-4 h-4 text-cyan-400" />
-                Full Residential Address (Editable)
+                Residential Address
               </span>
               {!isEditingAddress && (
                 <button
                   type="button"
                   onClick={() => setIsEditingAddress(true)}
-                  className="px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                  className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
                   Edit Address
@@ -400,12 +402,12 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
             {/* Email with OTP verified badge */}
             <div>
               <span className="text-[11px] text-slate-400 font-medium block mb-1">Registered Mail ID</span>
-              <div className="flex items-center justify-between bg-slate-900/90 px-3.5 py-2.5 rounded-xl border border-slate-800">
-                <div className="flex items-center gap-2 text-xs text-white font-mono">
-                  <Mail className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{user?.email || 'citizen@satark.gov.in'}</span>
+              <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-900/90 px-3.5 py-2.5 rounded-xl border border-slate-800">
+                <div className="flex items-center gap-2 text-xs text-white font-mono min-w-0">
+                  <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="truncate">{user?.email || 'citizen@satark.gov.in'}</span>
                 </div>
-                <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1">
+                <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1 shrink-0">
                   <CheckCircle2 className="w-3 h-3" /> Verified with OTP
                 </span>
               </div>
@@ -414,12 +416,12 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
             {/* Mobile with OTP verified badge */}
             <div>
               <span className="text-[11px] text-slate-400 font-medium block mb-1">Registered Mobile Number</span>
-              <div className="flex items-center justify-between bg-slate-900/90 px-3.5 py-2.5 rounded-xl border border-slate-800">
-                <div className="flex items-center gap-2 text-xs text-white font-mono">
-                  <Phone className="w-3.5 h-3.5 text-slate-400" />
-                  <span>{user?.mobile || '+91 98765 43210'}</span>
+              <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-900/90 px-3.5 py-2.5 rounded-xl border border-slate-800">
+                <div className="flex items-center gap-2 text-xs text-white font-mono min-w-0">
+                  <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="truncate">{user?.mobile || '+91 98765 43210'}</span>
                 </div>
-                <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1">
+                <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 text-[10px] font-bold flex items-center gap-1 shrink-0">
                   <CheckCircle2 className="w-3 h-3" /> Verified with OTP
                 </span>
               </div>
