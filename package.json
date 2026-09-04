@@ -1,0 +1,11 @@
+{
+  "name": "satark-ai-portal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SATARK AI - System for Automated Tracking, AI-assisted Routing & Knowledge-driven Action",
+  "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "start": "node frontend/server.js",
+    "dev": "npm --prefix frontend run dev"
+  }
+}

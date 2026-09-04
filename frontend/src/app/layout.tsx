@@ -30,13 +30,19 @@ export default function RootLayout({
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="shortcut icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        {/* Instant pre-hydration script: prevents 1-second flash of main page before startup video */}
+        {/* Instant pre-hydration script: prevents flash of main page before startup video (exempts Admin Portal) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
                   localStorage.removeItem('satark_startup_video_played');
+                  var pathname = window.location.pathname || '';
+                  var isAdminPath = pathname.indexOf('/admin') !== -1;
+                  var isPortalAdmin = '${process.env.NEXT_PUBLIC_PORTAL_MODE || ''}' === 'ADMIN';
+                  if (isAdminPath || isPortalAdmin) {
+                    return;
+                  }
                   var played = sessionStorage.getItem('satark_v2_played');
                   if (!played) {
                     document.documentElement.classList.add('satark-startup-active');

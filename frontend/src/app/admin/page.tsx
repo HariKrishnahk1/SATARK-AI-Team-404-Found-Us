@@ -17,11 +17,84 @@ import {
   Cpu, Users, Award, MapPin, RefreshCw, Eye, Edit3, Layers, Filter, UserCheck, FileText, CheckCircle2, ClipboardCheck
 } from 'lucide-react';
 
+const INITIAL_STATS: DashboardStats = {
+  total_challenges: 34,
+  new_challenges: 8,
+  validated_challenges: 26,
+  high_priority_count: 5,
+  active_hei_projects: 12,
+  industry_partnerships_count: 7,
+  active_projects: 22,
+  completed_projects: 12,
+  total_funding_pledged_inr: 4500000,
+  solutions_deployed: 6,
+  patents_filed: 3,
+  startups_created: 2,
+  estimated_beneficiaries: 245000
+};
+
+const INITIAL_CHALLENGES: Challenge[] = [
+  {
+    id: "CH-JH-2026-001",
+    title: "High Arsenic Contamination in Drinking Water Tubewells",
+    citizen_description: "Over 450 families in Angara block are experiencing skin ailments due to untreated groundwater arsenic levels exceeding 0.05 mg/L.",
+    district: "Ranchi",
+    category: "Water & Sanitation",
+    latitude: 23.3441,
+    longitude: 85.3096,
+    address: "Angara Block, Ranchi, Jharkhand",
+    severity: "CRITICAL",
+    priority: "URGENT",
+    priority_score: 94,
+    ai_confidence: 0.96,
+    status: "PROTOTYPE_DEVELOPMENT",
+    assigned_university_id: "HEI-BIT-MESRA",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "CH-JH-2026-002",
+    title: "Abandoned Coal Mine Pit Acid Drainage & Subsidence",
+    citizen_description: "Heavy rain runoff from Jharia unmanaged opencast benches is leaching acidic slurry into adjacent agricultural canals and school premises.",
+    district: "Dhanbad",
+    category: "Environment & Mining Hazard",
+    latitude: 23.7437,
+    longitude: 86.4132,
+    address: "Bastacolla Sector 4, Jharia, Dhanbad",
+    severity: "CRITICAL",
+    priority: "URGENT",
+    priority_score: 91,
+    ai_confidence: 0.93,
+    status: "GOVERNMENT_VALIDATED",
+    assigned_university_id: "HEI-IIT-ISM",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "CH-JH-2026-003",
+    title: "Tribal Millets Post-Harvest Solar Cold-Chain Deficit",
+    citizen_description: "Smallholder indigenous farmers in Chaibasa lose up to 35% of finger millet harvests due to lack of localized decentralized solar dehydrators.",
+    district: "East Singhbhum",
+    category: "Agriculture & Rural Tech",
+    latitude: 22.8046,
+    longitude: 86.2029,
+    address: "Ghatshila Rural Mandi, East Singhbhum",
+    severity: "HIGH",
+    priority: "HIGH",
+    priority_score: 82,
+    ai_confidence: 0.91,
+    status: "HEI_ASSIGNED",
+    assigned_university_id: "HEI-NIT-JSR",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+];
+
 export default function AdminCommandCentre() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [stats, setStats] = useState<DashboardStats>(INITIAL_STATS);
+  const [challenges, setChallenges] = useState<Challenge[]>(INITIAL_CHALLENGES);
   const [universities, setUniversities] = useState<University[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Filters
   const [districtFilter, setDistrictFilter] = useState('');

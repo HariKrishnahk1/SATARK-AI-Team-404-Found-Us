@@ -35,7 +35,7 @@ services:
     plan: free
     region: oregon
     buildCommand: npm install && npm run build
-    startCommand: npm run start -- -p $PORT
+    startCommand: node server.js
     healthCheckPath: /
     envVars:
       - key: NODE_VERSION
@@ -59,7 +59,7 @@ services:
     plan: free
     region: oregon
     buildCommand: npm install && npm run build
-    startCommand: npm run start -- -p $PORT
+    startCommand: node server.js
     healthCheckPath: /
     envVars:
       - key: NODE_VERSION

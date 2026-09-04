@@ -39,8 +39,18 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    const newSocket = io('http://localhost:8008', {
-      transports: ['websocket', 'polling']
+    let socketUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8008').trim();
+    if (!socketUrl.startsWith('http://') && !socketUrl.startsWith('https://')) {
+      socketUrl = `https://${socketUrl}`;
+    }
+    // Remove /api/v1 suffix and trailing slash because socket.io attaches to root domain
+    socketUrl = socketUrl.replace(/\/api\/v1\/?$/, '').replace(/\/+$/, '');
+
+    const newSocket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 5,
+      timeout: 10000,
+      autoConnect: true
     });
 
     newSocket.on('connect', () => {

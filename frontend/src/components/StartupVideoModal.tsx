@@ -57,6 +57,15 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       // Clear legacy storage lock if present
       localStorage.removeItem('satark_startup_video_played');
 
+      // Do not run startup video on Admin Portal or Admin routes
+      const isPortalAdmin = process.env.NEXT_PUBLIC_PORTAL_MODE === 'ADMIN';
+      const isAdminRoute = typeof window !== 'undefined' && window.location.pathname.includes('/admin');
+      if (isPortalAdmin || isAdminRoute) {
+        document.documentElement.classList.remove('satark-startup-active');
+        setVisible(false);
+        return;
+      }
+
       const hasPlayed = sessionStorage.getItem(STORAGE_KEY);
       if (!hasPlayed) {
         setVisible(true);
@@ -67,10 +76,11 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       document.documentElement.classList.remove('satark-startup-active');
     }
 
-    // Safety timeout: ensure page is never stuck if video is slow or hangs
+    // Safety timeout: ensure page is never stuck if video is slow or network stalls
     const safetyTimer = setTimeout(() => {
       document.documentElement.classList.remove('satark-startup-active');
-    }, 60000);
+      setVideoLoaded(true);
+    }, 3500);
 
     // Support replaying intro on-demand via custom event
     const handleReplay = () => {
@@ -157,8 +167,9 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
         autoPlay
         muted={isMuted}
         playsInline
-        preload="auto"
+        preload="metadata"
         onPlay={handlePlay}
+        onCanPlay={() => setVideoLoaded(true)}
         onLoadedData={() => setVideoLoaded(true)}
         onEnded={handleSkip}
         className="w-full h-full object-contain bg-black"
