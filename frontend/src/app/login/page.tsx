@@ -1,80 +1,48 @@
 'use client';
 
 /**
- * SATARK AI — Unified Multi-Portal Authentication Gateway
- * Dedicated login & registration portal for all official stakeholders:
+ * SATARK AI — Institutional Authority Platform Authentication Gateway
+ * Dedicated login & registration portal for the 4 Official Stakeholders:
  * 1. Government Command Centre (`/admin`)
  * 2. University & HEI Innovation Hub (`/hei`)
  * 3. Industry & CSR Partnership Hub (`/industry`)
- * 4. Student Prototype Workspace (`/student`)
- * 5. Citizen Civic Reporting Portal (`/citizen`)
+ * 4. Student Innovators Workspace (`/student`)
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Shield, Landmark, HeartHandshake, GraduationCap, Users, Lock, ArrowRight,
+  Shield, Landmark, HeartHandshake, GraduationCap, ArrowRight,
   CheckCircle2, User, Key, Sparkles, UserPlus, Phone, Home, UserCheck, Play,
-  AlertCircle, Mail
+  AlertCircle, Mail, MapPin
 } from 'lucide-react';
 
 export default function UnifiedLoginPage() {
   const router = useRouter();
-  const { login, registerCitizen, switchDemoRole } = useAuth();
+  const { login, switchDemoRole } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'GOVT' | 'HEI' | 'INDUSTRY' | 'STUDENT' | 'CITIZEN'>('GOVT');
+  const [activeTab, setActiveTab] = useState<'GOVT' | 'HEI' | 'INDUSTRY' | 'STUDENT'>('GOVT');
   const [isRegisterMode, setIsRegisterMode] = useState(false);
 
   // Existing User Sign In State
   const [email, setEmail] = useState('admin@satark.gov.in');
   const [password, setPassword] = useState('password123');
 
-  // New User Registration State
+  // New Official User Registration State
   const [fullName, setFullName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
-  const [fullAddress, setFullAddress] = useState('');
+  const [departmentOrInstitute, setDepartmentOrInstitute] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  // Dual OTP State for Citizen Registration
-  const [emailOtpSent, setEmailOtpSent] = useState(false);
-  const [emailOtpInput, setEmailOtpInput] = useState('');
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [emailTimer, setEmailTimer] = useState(0);
-  const [generatedEmailOtp, setGeneratedEmailOtp] = useState('404123');
-
-  const [mobileOtpSent, setMobileOtpSent] = useState(false);
-  const [mobileOtpInput, setMobileOtpInput] = useState('');
-  const [mobileVerified, setMobileVerified] = useState(false);
-  const [mobileTimer, setMobileTimer] = useState(0);
-  const [generatedMobileOtp, setGeneratedMobileOtp] = useState('808404');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Email OTP timer
-  useEffect(() => {
-    if (emailTimer <= 0) return;
-    const timer = setInterval(() => {
-      setEmailTimer((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [emailTimer]);
-
-  // Mobile OTP timer
-  useEffect(() => {
-    if (mobileTimer <= 0) return;
-    const timer = setInterval(() => {
-      setMobileTimer((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [mobileTimer]);
-
-  const handleTabChange = (tab: 'GOVT' | 'HEI' | 'INDUSTRY' | 'STUDENT' | 'CITIZEN') => {
+  const handleTabChange = (tab: 'GOVT' | 'HEI' | 'INDUSTRY' | 'STUDENT') => {
     setActiveTab(tab);
     setError('');
     setSuccessMessage('');
@@ -86,8 +54,6 @@ export default function UnifiedLoginPage() {
       setEmail('csr@tatasteel.com');
     } else if (tab === 'STUDENT') {
       setEmail('student@bitmesra.ac.in');
-    } else if (tab === 'CITIZEN') {
-      setEmail('citizen@satark.gov.in');
     }
   };
 
@@ -95,55 +61,7 @@ export default function UnifiedLoginPage() {
     if (tab === 'GOVT') return '/admin';
     if (tab === 'HEI') return '/hei';
     if (tab === 'INDUSTRY') return '/industry';
-    if (tab === 'STUDENT') return '/student';
-    return '/citizen';
-  };
-
-  const handleSendEmailOtp = () => {
-    if (!regEmail || !regEmail.includes('@')) {
-      setError('Please enter a valid Mail ID before requesting OTP.');
-      return;
-    }
-    setError('');
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedEmailOtp(code);
-    setEmailOtpSent(true);
-    setEmailTimer(60);
-    setSuccessMessage(`Email OTP dispatched! Demo code: ${code}`);
-  };
-
-  const handleVerifyEmailOtp = () => {
-    if (emailOtpInput.trim() === generatedEmailOtp || emailOtpInput.trim() === '404123') {
-      setEmailVerified(true);
-      setError('');
-      setSuccessMessage('✓ Email ID verified successfully!');
-    } else {
-      setError(`Invalid Email OTP. Please enter code: ${generatedEmailOtp}`);
-    }
-  };
-
-  const handleSendMobileOtp = () => {
-    const cleanMobile = mobileNumber.replace(/\D/g, '');
-    if (!cleanMobile || cleanMobile.length < 10) {
-      setError('Please enter a valid 10-digit mobile number before requesting OTP.');
-      return;
-    }
-    setError('');
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedMobileOtp(code);
-    setMobileOtpSent(true);
-    setMobileTimer(60);
-    setSuccessMessage(`SMS OTP dispatched! Demo code: ${code}`);
-  };
-
-  const handleVerifyMobileOtp = () => {
-    if (mobileOtpInput.trim() === generatedMobileOtp || mobileOtpInput.trim() === '808404') {
-      setMobileVerified(true);
-      setError('');
-      setSuccessMessage('✓ Mobile number verified successfully!');
-    } else {
-      setError(`Invalid Mobile OTP. Please enter code: ${generatedMobileOtp}`);
-    }
+    return '/student';
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -160,7 +78,7 @@ export default function UnifiedLoginPage() {
       await login(email, password);
       router.push(getTargetRoute(activeTab));
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your email or password.');
+      setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -181,18 +99,6 @@ export default function UnifiedLoginPage() {
       return;
     }
 
-    // If Citizen role, enforce OTP verification
-    if (activeTab === 'CITIZEN') {
-      if (!emailVerified) {
-        setError('Please verify your Mail ID with the OTP before completing registration.');
-        return;
-      }
-      if (!mobileVerified) {
-        setError('Please verify your Mobile Number with the OTP before completing registration.');
-        return;
-      }
-    }
-
     setLoading(true);
     try {
       if (typeof window !== 'undefined') {
@@ -200,17 +106,7 @@ export default function UnifiedLoginPage() {
         sessionStorage.removeItem('satark_portal_video_watched');
       }
 
-      if (activeTab === 'CITIZEN') {
-        await registerCitizen({
-          name: fullName.trim(),
-          email: regEmail.trim(),
-          mobile: mobileNumber.trim(),
-          address: fullAddress.trim() || 'Jharkhand, India',
-          password: regPassword
-        });
-      }
-
-      setSuccessMessage(`Account registered for ${fullName}! Accessing ${activeTab} Portal...`);
+      setSuccessMessage(`Official registration submitted for ${fullName}! Accessing ${activeTab} Portal...`);
       setTimeout(() => {
         router.push(getTargetRoute(activeTab));
       }, 700);
@@ -237,11 +133,11 @@ export default function UnifiedLoginPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between relative overflow-hidden py-10 px-4 sm:px-6 lg:px-8">
       {/* Background Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[450px] bg-gradient-to-r from-emerald-500/15 via-cyan-500/15 to-purple-500/10 blur-[140px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[450px] bg-gradient-to-r from-cyan-500/15 via-blue-500/15 to-purple-500/10 blur-[140px] rounded-full pointer-events-none" />
 
       <div className="max-w-5xl mx-auto w-full relative z-10">
         {/* Top Video Announcement Banner */}
-        <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 px-5 rounded-2xl bg-gradient-to-r from-cyan-950/60 via-slate-900 to-emerald-950/60 border border-cyan-500/30 backdrop-blur-md shadow-xl">
+        <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 px-5 rounded-2xl bg-gradient-to-r from-cyan-950/60 via-slate-900 to-blue-950/60 border border-cyan-500/30 backdrop-blur-md shadow-xl">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shrink-0">
               <Play className="w-4 h-4 fill-cyan-400" />
@@ -252,7 +148,7 @@ export default function UnifiedLoginPage() {
                 <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-1.5 py-0.2 rounded font-mono font-medium">4s Intro</span>
               </div>
               <p className="text-[11px] text-slate-300">
-                Learn about automated grievance triage, GIS routing, and multi-institutional problem solving.
+                Automated grievance triage, GIS routing, and multi-institutional problem solving.
               </p>
             </div>
           </div>
@@ -273,24 +169,24 @@ export default function UnifiedLoginPage() {
             <img
               src="/logo.png"
               alt="SATARK AI Emblem"
-              className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+              className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(6,182,212,0.4)]"
             />
           </div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold mb-3">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Unified Multi-Portal Authentication Gateway</span>
+            <span>Official Stakeholder Authentication Gateway</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-            SATARK AI <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">Login & Registration Portal</span>
+            SATARK AI <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Authority Portals Gateway</span>
           </h1>
           <p className="mt-2 text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto">
-            Select your official stakeholder role to login or register a verified user account.
+            Access Government Command Centre, University R&D Hub, Industry CSR Portal, or Student Innovators Workspace.
           </p>
         </div>
 
-        {/* Multi-Portal Container */}
+        {/* 4-Portals Container */}
         <div className="rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl overflow-hidden backdrop-blur-xl grid grid-cols-1 md:grid-cols-12">
-          {/* Left Column: 5 Portal Role Selector Tabs */}
+          {/* Left Column: 4 Portal Role Selector Tabs */}
           <div className="md:col-span-5 p-5 sm:p-6 bg-slate-950/70 border-r border-slate-800/80 flex flex-col justify-between">
             <div>
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
@@ -316,7 +212,7 @@ export default function UnifiedLoginPage() {
                       1. Government Command Centre
                     </h4>
                     <p className="text-[10px] text-slate-400 mt-0.5">
-                      For State Admins, Department Heads & Officers.
+                      State Admins, Department Heads & Field Officers.
                     </p>
                   </div>
                 </button>
@@ -339,7 +235,7 @@ export default function UnifiedLoginPage() {
                       2. University & HEI Innovation Hub
                     </h4>
                     <p className="text-[10px] text-slate-400 mt-0.5">
-                      For HEI Deans, Faculty Mentors & Research Leads.
+                      HEI Deans, Faculty Mentors & Research Leads.
                     </p>
                   </div>
                 </button>
@@ -362,12 +258,12 @@ export default function UnifiedLoginPage() {
                       3. Industry & CSR Partnership Hub
                     </h4>
                     <p className="text-[10px] text-slate-400 mt-0.5">
-                      For CSR Foundations, Mentors & Impact Funders.
+                      CSR Foundations, Mentors & Impact Funders.
                     </p>
                   </div>
                 </button>
 
-                {/* 4. Student Innovator Portal */}
+                {/* 4. Student Innovators Portal */}
                 <button
                   type="button"
                   onClick={() => handleTabChange('STUDENT')}
@@ -385,30 +281,7 @@ export default function UnifiedLoginPage() {
                       4. Student Innovators Workspace
                     </h4>
                     <p className="text-[10px] text-slate-400 mt-0.5">
-                      For Student Teams building prototypes & solutions.
-                    </p>
-                  </div>
-                </button>
-
-                {/* 5. Citizen Civic Reporting Portal */}
-                <button
-                  type="button"
-                  onClick={() => handleTabChange('CITIZEN')}
-                  className={`w-full text-left p-3 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer ${
-                    activeTab === 'CITIZEN'
-                      ? 'bg-slate-900 border-emerald-500/60 shadow-lg shadow-emerald-500/10'
-                      : 'bg-slate-900/40 border-slate-800 hover:border-slate-700 text-slate-400'
-                  }`}
-                >
-                  <div className={`p-2 rounded-xl shrink-0 ${activeTab === 'CITIZEN' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
-                    <Users className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className={`text-xs font-bold ${activeTab === 'CITIZEN' ? 'text-white' : 'text-slate-300'}`}>
-                      5. Citizen Civic Reporting Portal
-                    </h4>
-                    <p className="text-[10px] text-slate-400 mt-0.5">
-                      For verified citizens filing grievances with OTP.
+                      Student Teams building prototypes & solutions.
                     </p>
                   </div>
                 </button>
@@ -432,15 +305,13 @@ export default function UnifiedLoginPage() {
                     {activeTab === 'HEI' && <Landmark className="w-5 h-5 text-purple-400" />}
                     {activeTab === 'INDUSTRY' && <HeartHandshake className="w-5 h-5 text-amber-400" />}
                     {activeTab === 'STUDENT' && <GraduationCap className="w-5 h-5 text-blue-400" />}
-                    {activeTab === 'CITIZEN' && <Users className="w-5 h-5 text-emerald-400" />}
                     {activeTab === 'GOVT' && 'Government Command Centre'}
                     {activeTab === 'HEI' && 'University & HEI Portal'}
                     {activeTab === 'INDUSTRY' && 'Industry & CSR Partner Hub'}
                     {activeTab === 'STUDENT' && 'Student Innovators Portal'}
-                    {activeTab === 'CITIZEN' && 'Citizen Civic Reporting Portal'}
                   </h2>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    {isRegisterMode ? 'New User Account Registration' : 'Existing User Portal Sign In'}
+                    {isRegisterMode ? 'Official Account Registration' : 'Existing Official Sign In'}
                   </p>
                 </div>
 
@@ -474,7 +345,7 @@ export default function UnifiedLoginPage() {
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    <UserPlus className="w-3.5 h-3.5 inline mr-1" /> New User
+                    <UserPlus className="w-3.5 h-3.5 inline mr-1" /> Register
                   </button>
                 </div>
               </div>
@@ -498,7 +369,7 @@ export default function UnifiedLoginPage() {
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      Username / Email ID *
+                      Official Username / Email ID *
                     </label>
                     <div className="relative">
                       <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -508,7 +379,7 @@ export default function UnifiedLoginPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-                        placeholder="Username or official email id..."
+                        placeholder="Official email id..."
                       />
                     </div>
                   </div>
@@ -540,9 +411,7 @@ export default function UnifiedLoginPage() {
                         ? 'bg-gradient-to-r from-purple-400 to-pink-500 hover:brightness-110 shadow-purple-500/20'
                         : activeTab === 'INDUSTRY'
                         ? 'bg-gradient-to-r from-amber-400 to-orange-500 hover:brightness-110 shadow-amber-500/20'
-                        : activeTab === 'STUDENT'
-                        ? 'bg-gradient-to-r from-blue-400 to-indigo-500 hover:brightness-110 shadow-blue-500/20'
-                        : 'bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-110 shadow-emerald-500/20'
+                        : 'bg-gradient-to-r from-blue-400 to-indigo-500 hover:brightness-110 shadow-blue-500/20'
                     }`}
                   >
                     {loading ? 'Authenticating...' : `Login to ${
@@ -552,9 +421,7 @@ export default function UnifiedLoginPage() {
                         ? 'HEI Portal'
                         : activeTab === 'INDUSTRY'
                         ? 'CSR Portal'
-                        : activeTab === 'STUDENT'
-                        ? 'Student Portal'
-                        : 'Citizen Portal'
+                        : 'Student Portal'
                     }`}
                     <ArrowRight className="w-4 h-4" />
                   </button>
@@ -574,148 +441,61 @@ export default function UnifiedLoginPage() {
                         required
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                        placeholder="e.g. Rameshwar Besra"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                        placeholder="e.g. Dr. Rajesh Sharma"
                       />
                     </div>
                   </div>
 
-                  {/* Mail ID + Verify with OTP */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] font-semibold text-slate-300">
-                        Mail ID *
-                      </label>
-                      {activeTab === 'CITIZEN' && emailVerified && (
-                        <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> Verified with OTP
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <Mail className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input
-                          type="email"
-                          required
-                          value={regEmail}
-                          onChange={(e) => setRegEmail(e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                          placeholder="e.g. user@satark.gov.in"
-                        />
-                      </div>
-                      {activeTab === 'CITIZEN' && !emailVerified && (
-                        <button
-                          type="button"
-                          onClick={handleSendEmailOtp}
-                          disabled={emailTimer > 0}
-                          className="px-2.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold shrink-0 cursor-pointer"
-                        >
-                          {emailTimer > 0 ? `Resend (${emailTimer}s)` : (emailOtpSent ? 'Resend' : 'Verify with OTP')}
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Email OTP Field for Citizen */}
-                    {activeTab === 'CITIZEN' && emailOtpSent && !emailVerified && (
-                      <div className="mt-2 p-2.5 rounded-xl bg-slate-950 border border-emerald-500/30 flex items-center justify-between gap-2">
-                        <span className="text-[10px] text-emerald-400 font-mono">Demo OTP: {generatedEmailOtp}</span>
-                        <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            maxLength={6}
-                            value={emailOtpInput}
-                            onChange={(e) => setEmailOtpInput(e.target.value)}
-                            className="w-24 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-center font-mono text-xs text-white"
-                            placeholder="Code"
-                          />
-                          <button
-                            type="button"
-                            onClick={handleVerifyEmailOtp}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-[11px] font-bold cursor-pointer"
-                          >
-                            Verify
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Mobile Number + Verify with OTP */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] font-semibold text-slate-300">
-                        Mobile Number *
-                      </label>
-                      {activeTab === 'CITIZEN' && mobileVerified && (
-                        <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> Verified with OTP
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <Phone className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input
-                          type="tel"
-                          required
-                          value={mobileNumber}
-                          onChange={(e) => setMobileNumber(e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                          placeholder="+91 9876543210"
-                        />
-                      </div>
-                      {activeTab === 'CITIZEN' && !mobileVerified && (
-                        <button
-                          type="button"
-                          onClick={handleSendMobileOtp}
-                          disabled={mobileTimer > 0}
-                          className="px-2.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold shrink-0 cursor-pointer"
-                        >
-                          {mobileTimer > 0 ? `Resend (${mobileTimer}s)` : (mobileOtpSent ? 'Resend' : 'Verify with OTP')}
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Mobile OTP Field for Citizen */}
-                    {activeTab === 'CITIZEN' && mobileOtpSent && !mobileVerified && (
-                      <div className="mt-2 p-2.5 rounded-xl bg-slate-950 border border-emerald-500/30 flex items-center justify-between gap-2">
-                        <span className="text-[10px] text-emerald-400 font-mono">Demo OTP: {generatedMobileOtp}</span>
-                        <div className="flex items-center gap-1.5">
-                          <input
-                            type="text"
-                            maxLength={6}
-                            value={mobileOtpInput}
-                            onChange={(e) => setMobileOtpInput(e.target.value)}
-                            className="w-24 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-center font-mono text-xs text-white"
-                            placeholder="Code"
-                          />
-                          <button
-                            type="button"
-                            onClick={handleVerifyMobileOtp}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-[11px] font-bold cursor-pointer"
-                          >
-                            Verify
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Full Address */}
+                  {/* Mail ID */}
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                      Full Address *
+                      Official Mail ID *
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="email"
+                        required
+                        value={regEmail}
+                        onChange={(e) => setRegEmail(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                        placeholder="e.g. name@satark.gov.in / name@institution.ac.in"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Mobile Number */}
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                      Mobile Number *
+                    </label>
+                    <div className="relative">
+                      <Phone className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="tel"
+                        required
+                        value={mobileNumber}
+                        onChange={(e) => setMobileNumber(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                        placeholder="+91 9876543210"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Institution / Department */}
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                      Department / Institution / Company Name
                     </label>
                     <div className="relative">
                       <Home className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                       <input
                         type="text"
-                        required
-                        value={fullAddress}
-                        onChange={(e) => setFullAddress(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                        placeholder="Street, ward/village, district, pin..."
+                        value={departmentOrInstitute}
+                        onChange={(e) => setDepartmentOrInstitute(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                        placeholder="e.g. Water Resources Dept / BIT Mesra / Tata Steel Foundation"
                       />
                     </div>
                   </div>
@@ -733,7 +513,7 @@ export default function UnifiedLoginPage() {
                           required
                           value={regPassword}
                           onChange={(e) => setRegPassword(e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                           placeholder="••••••••"
                         />
                       </div>
@@ -750,7 +530,7 @@ export default function UnifiedLoginPage() {
                           required
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                           placeholder="••••••••"
                         />
                       </div>
@@ -760,9 +540,9 @@ export default function UnifiedLoginPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-500 to-cyan-500 hover:brightness-110 text-slate-950 transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/20 cursor-pointer mt-2"
+                    className="w-full py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-cyan-400 to-blue-500 hover:brightness-110 text-slate-950 transition-all flex items-center justify-center gap-2 shadow-xl shadow-cyan-500/20 cursor-pointer mt-2"
                   >
-                    {loading ? 'Registering Account...' : 'Register Account & Access Portal'}
+                    {loading ? 'Submitting Registration...' : 'Register Official Account & Access Portal'}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
@@ -836,15 +616,6 @@ export default function UnifiedLoginPage() {
                     className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-blue-500/20 text-slate-300 hover:text-blue-300 text-[11px] font-medium transition-colors border border-slate-700 cursor-pointer"
                   >
                     ⚡ Student Team (`student@bitmesra.ac.in`)
-                  </button>
-                )}
-                {activeTab === 'CITIZEN' && (
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemoSelect('CITIZEN', '/citizen')}
-                    className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 text-[11px] font-medium transition-colors border border-slate-700 cursor-pointer"
-                  >
-                    ⚡ Citizen User (`citizen@satark.gov.in`)
                   </button>
                 )}
               </div>

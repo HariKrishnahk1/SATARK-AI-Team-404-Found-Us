@@ -140,16 +140,6 @@ export const Navbar = () => {
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Sign In / Up</span>
               </button>
-
-              {/* Admin Multi-Portal Gateway Link */}
-              <Link
-                href="/login"
-                className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/50 text-slate-300 hover:text-cyan-300 text-xs font-medium transition-colors"
-                title="Institutional Authority & Command Centre Portals"
-              >
-                <Shield className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Admin Login</span>
-              </Link>
             </div>
           ) : (
             <div className="flex items-center gap-2">

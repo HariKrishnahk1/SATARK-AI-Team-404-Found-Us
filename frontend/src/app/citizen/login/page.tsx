@@ -195,21 +195,13 @@ export default function CitizenLoginPage() {
 
       <div className="max-w-xl mx-auto w-full relative z-10">
         {/* Navigation back bar */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-start mb-8">
           <Link
             href="/citizen"
             className="flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-emerald-400 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Public Civic Portal
-          </Link>
-
-          <Link
-            href="/login"
-            className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1.5"
-          >
-            <span>Authority & Admin Login</span>
-            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
