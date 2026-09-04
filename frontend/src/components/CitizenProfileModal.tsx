@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -29,6 +30,7 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
   const router = useRouter();
   const { user, updateProfile, logout } = useAuth();
 
+  const [mounted, setMounted] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [addressInput, setAddressInput] = useState(
     user?.address || 'Flat 402, Shanti Vihar, Harmu Housing Colony, Ranchi, Jharkhand - 834002'
@@ -42,6 +44,21 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const addressTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll while modal is active so portal behind does not scroll or interfere
+  useEffect(() => {
+    if (isOpen && mounted) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [isOpen, mounted]);
 
   useEffect(() => {
     if (user) {
@@ -63,7 +80,7 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
     }
   }, [isEditingAddress]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -131,18 +148,24 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
 
   const currentAvatar = user?.avatar_url || '/logo.png';
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto"
+      onClick={onClose}
+    >
       {/* Toast alert */}
       {toastMessage && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[60] px-4 py-2.5 rounded-2xl bg-emerald-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-emerald-400/50 animate-bounce">
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[100000] px-4 py-2.5 rounded-2xl bg-emerald-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-emerald-400/50 animate-bounce">
           <CheckCircle2 className="w-4 h-4" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl shadow-black/80 overflow-hidden text-slate-100 flex flex-col my-auto max-h-[92vh]">
+      <div
+        className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl shadow-black/80 overflow-hidden text-slate-100 flex flex-col my-auto max-h-[92vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Fixed Header */}
         <div className="px-5 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
@@ -465,6 +488,7 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

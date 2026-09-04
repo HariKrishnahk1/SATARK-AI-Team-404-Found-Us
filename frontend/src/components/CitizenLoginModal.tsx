@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -24,7 +25,22 @@ export const CitizenLoginModal: React.FC<CitizenLoginModalProps> = ({
   const router = useRouter();
   const { login, registerCitizen, switchDemoRole } = useAuth();
 
+  const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState<'login' | 'signup'>(defaultMode);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen && mounted) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [isOpen, mounted]);
 
   // Sign In State
   const [loginUsername, setLoginUsername] = useState('citizen@satark.gov.in');
@@ -210,9 +226,17 @@ export const CitizenLoginModal: React.FC<CitizenLoginModalProps> = ({
     router.push('/citizen');
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-md">
-      <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700/90 shadow-2xl shadow-emerald-950/50 overflow-hidden text-slate-100 max-h-[92vh] flex flex-col">
+  if (!isOpen || !mounted) return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-md"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700/90 shadow-2xl shadow-emerald-950/50 overflow-hidden text-slate-100 max-h-[92vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="p-6 pb-4 bg-gradient-to-r from-emerald-950/70 via-slate-900 to-cyan-950/40 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -611,6 +635,7 @@ export const CitizenLoginModal: React.FC<CitizenLoginModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
