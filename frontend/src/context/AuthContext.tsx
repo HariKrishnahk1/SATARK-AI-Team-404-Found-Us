@@ -7,6 +7,7 @@ import { api } from '../lib/api';
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  isLoadingAuth: boolean;
   login: (email: string, password: string) => Promise<void>;
   registerCitizen: (data: { name: string; email: string; mobile: string; address?: string; password?: string; avatar_url?: string }) => Promise<void>;
   updateProfile: (data: Partial<User>) => void;
@@ -27,8 +28,9 @@ const DEMO_USERS: Record<Role, User> = {
 };
 
 const AuthContext = createContext<AuthContextType>({
-  user: DEMO_USERS.SUPER_ADMIN,
-  token: 'demo-token',
+  user: null,
+  token: null,
+  isLoadingAuth: true,
   login: async () => {},
   registerCitizen: async () => {},
   updateProfile: () => {},
@@ -37,21 +39,26 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(DEMO_USERS.SUPER_ADMIN);
-  const [token, setToken] = useState<string | null>('demo-token');
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('satark_user');
-    const savedToken = localStorage.getItem('satark_jwt_token');
-    if (savedUser && savedToken) {
-      try {
+    try {
+      const savedUser = localStorage.getItem('satark_user');
+      const savedToken = localStorage.getItem('satark_jwt_token');
+      if (savedUser && savedToken) {
         setUser(JSON.parse(savedUser));
         setToken(savedToken);
-      } catch (e) {
-        setUser(DEMO_USERS.SUPER_ADMIN);
+      } else {
+        setUser(null);
+        setToken(null);
       }
-    } else {
-      setUser(DEMO_USERS.SUPER_ADMIN);
+    } catch (e) {
+      setUser(null);
+      setToken(null);
+    } finally {
+      setIsLoadingAuth(false);
     }
   }, []);
 
@@ -132,7 +139,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, registerCitizen, updateProfile, switchDemoRole, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoadingAuth, login, registerCitizen, updateProfile, switchDemoRole, logout }}>
       {children}
     </AuthContext.Provider>
   );

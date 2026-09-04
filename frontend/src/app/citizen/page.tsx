@@ -11,6 +11,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../../lib/api';
 import { Challenge } from '../../lib/types';
 import { MapPin, Camera, AlertCircle, CheckCircle, Sparkles, Send, RefreshCw, Clock, UploadCloud, X, FileImage, Image as ImageIcon, Navigation, Compass, FileText, Download, ShieldCheck, Mic, MicOff, Globe, Volume2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Timeline } from '../../components/Timeline';
 import { VoiceAssistantConsole } from '../../components/VoiceAssistantConsole';
 import { useAuth } from '../../context/AuthContext';
@@ -41,7 +42,15 @@ const MULTILINGUAL_OPTIONS = [
 ];
 
 export default function CitizenPortal() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, isLoadingAuth } = useAuth();
+
+  useEffect(() => {
+    if (!isLoadingAuth && (!user || user.role !== 'CITIZEN')) {
+      router.push('/citizen/login');
+    }
+  }, [user, isLoadingAuth, router]);
+
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -551,6 +560,16 @@ startxref
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
+
+  if (isLoadingAuth || (!user || user.role !== 'CITIZEN')) {
+    return (
+      <div className="min-h-[70vh] bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-10 h-10 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin mb-4" />
+        <h3 className="text-sm font-bold text-white mb-1">Authenticating Citizen Access...</h3>
+        <p className="text-xs text-slate-400">Loading citizen credentials. Redirecting to Citizen Login...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

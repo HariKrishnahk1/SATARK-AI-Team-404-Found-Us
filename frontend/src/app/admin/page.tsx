@@ -9,6 +9,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Challenge, DashboardStats, University } from '../../lib/types';
 import { LeafletMap } from '../../components/LeafletMap';
@@ -91,6 +93,15 @@ const INITIAL_CHALLENGES: Challenge[] = [
 ];
 
 export default function AdminCommandCentre() {
+  const router = useRouter();
+  const { user, isLoadingAuth } = useAuth();
+
+  useEffect(() => {
+    if (!isLoadingAuth && (!user || user.role === 'CITIZEN')) {
+      router.push('/login');
+    }
+  }, [user, isLoadingAuth, router]);
+
   const [stats, setStats] = useState<DashboardStats>(INITIAL_STATS);
   const [challenges, setChallenges] = useState<Challenge[]>(INITIAL_CHALLENGES);
   const [universities, setUniversities] = useState<University[]>([]);
@@ -272,6 +283,16 @@ export default function AdminCommandCentre() {
       console.error(e);
     }
   };
+
+  if (isLoadingAuth || (!user || user.role === 'CITIZEN')) {
+    return (
+      <div className="min-h-[70vh] bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-10 h-10 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin mb-4" />
+        <h3 className="text-sm font-bold text-white mb-1">Authenticating Government Access...</h3>
+        <p className="text-xs text-slate-400">Loading official credentials. Redirecting to Authority Login...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">

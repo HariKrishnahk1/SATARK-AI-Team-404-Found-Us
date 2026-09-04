@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { useAuth } from '../context/AuthContext';
 import { Volume2, VolumeX, SkipForward, Sparkles, Play, Pause, X } from 'lucide-react';
 
 interface StartupVideoModalProps {
@@ -14,6 +16,10 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
   portalName,
   onComplete
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { user } = useAuth();
+
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -32,7 +38,7 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
   // Dynamically resolve portal name
   const isPortalAdmin =
     process.env.NEXT_PUBLIC_PORTAL_MODE === 'ADMIN' ||
-    (typeof window !== 'undefined' && window.location.pathname.includes('/admin'));
+    (typeof window !== 'undefined' && (window.location.pathname.includes('/admin') || window.location.pathname.includes('/login')));
   const currentPortalName =
     portalName ||
     (isPortalAdmin
@@ -59,8 +65,17 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       setVisible(false);
       setIsFadingOut(false);
       if (onComplete) onComplete();
+
+      // If user is not logged in, direct them to their respective login page
+      if (!user) {
+        if (isPortalAdmin) {
+          router.push('/login');
+        } else {
+          router.push('/citizen/login');
+        }
+      }
     }, 250);
-  }, [onComplete]);
+  }, [onComplete, user, isPortalAdmin, router]);
 
   const togglePlayPause = useCallback(() => {
     if (videoRef.current) {
