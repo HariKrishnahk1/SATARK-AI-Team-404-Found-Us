@@ -10,7 +10,7 @@ interface StartupVideoModalProps {
   onComplete?: () => void;
 }
 
-const STORAGE_KEY = 'satark_portal_video_watched';
+const STORAGE_KEY = 'satark_startup_video_permanent_watched';
 
 export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
   portalName,
@@ -47,6 +47,7 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
 
   const handleSkip = useCallback(() => {
     try {
+      localStorage.setItem(STORAGE_KEY, 'true');
       sessionStorage.setItem(STORAGE_KEY, 'true');
     } catch (e) {}
 
@@ -102,25 +103,29 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
     setMounted(true);
 
     try {
-      // Clear legacy storage locks to unblock testing
-      localStorage.removeItem('satark_startup_video_played');
-      localStorage.removeItem('satark_v2_played');
-      sessionStorage.removeItem('satark_v2_played');
-
-      // Check URL search params for on-demand forced replay (e.g. ?intro=1)
+      // Check URL search params for on-demand forced replay (e.g. ?intro=1 or ?replay=1)
       const searchParams = new URLSearchParams(window.location.search);
       const forceIntro = searchParams.get('intro') === '1' || searchParams.get('replay') === '1';
 
-      const hasPlayed = !forceIntro && sessionStorage.getItem(STORAGE_KEY);
+      const hasPlayed =
+        !forceIntro &&
+        (localStorage.getItem(STORAGE_KEY) === 'true' || sessionStorage.getItem(STORAGE_KEY) === 'true');
+
       if (!hasPlayed) {
         setVisible(true);
         document.documentElement.classList.add('satark-startup-active');
+        // Once startup video is shown, permanently save so reload or login NEVER triggers it again!
+        try {
+          localStorage.setItem(STORAGE_KEY, 'true');
+          sessionStorage.setItem(STORAGE_KEY, 'true');
+        } catch (e) {}
       } else {
+        setVisible(false);
         document.documentElement.classList.remove('satark-startup-active');
       }
     } catch (e) {
-      setVisible(true);
-      document.documentElement.classList.add('satark-startup-active');
+      setVisible(false);
+      document.documentElement.classList.remove('satark-startup-active');
     }
 
     // Safety timeout: ensure page is never stuck if video is slow or network stalls

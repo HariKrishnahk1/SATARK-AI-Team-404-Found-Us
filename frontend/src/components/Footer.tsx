@@ -7,7 +7,14 @@ import { Shield, ExternalLink, Heart, Play } from 'lucide-react';
 
 export const Footer = () => {
   const pathname = usePathname();
-  const isCitizenMode = pathname === '/citizen' || pathname === '/';
+  const isCitizenMode =
+    pathname?.startsWith('/citizen') ||
+    pathname === '/' ||
+    (!pathname?.includes('/admin') &&
+      !pathname?.includes('/hei') &&
+      !pathname?.includes('/industry') &&
+      !pathname?.includes('/student') &&
+      pathname !== '/login');
 
   return (
     <footer className="bg-slate-950 border-t border-slate-900 text-slate-400 text-xs py-8 px-4">

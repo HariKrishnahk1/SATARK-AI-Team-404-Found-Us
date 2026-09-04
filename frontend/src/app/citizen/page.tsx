@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { Timeline } from '../../components/Timeline';
 import { VoiceAssistantConsole } from '../../components/VoiceAssistantConsole';
 import { useAuth } from '../../context/AuthContext';
+import CitizenLoginPage from './login/page';
 
 const INDIAN_STATES_AND_UT = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -561,14 +562,18 @@ startxref
     );
   };
 
-  if (isLoadingAuth || (!user || user.role !== 'CITIZEN')) {
+  if (isLoadingAuth) {
     return (
       <div className="min-h-[70vh] bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
         <div className="w-10 h-10 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin mb-4" />
         <h3 className="text-sm font-bold text-white mb-1">Authenticating Citizen Access...</h3>
-        <p className="text-xs text-slate-400">Loading citizen credentials. Redirecting to Citizen Login...</p>
+        <p className="text-xs text-slate-400">Loading citizen credentials...</p>
       </div>
     );
+  }
+
+  if (!user || user.role !== 'CITIZEN') {
+    return <CitizenLoginPage />;
   }
 
   return (

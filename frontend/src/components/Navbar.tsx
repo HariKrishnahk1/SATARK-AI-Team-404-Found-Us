@@ -18,7 +18,15 @@ export const Navbar = () => {
   const [loginModalDefaultMode, setLoginModalDefaultMode] = React.useState<'login' | 'signup'>('login');
 
   const isPortalAdmin = process.env.NEXT_PUBLIC_PORTAL_MODE === 'ADMIN';
-  const isCitizenMode = !isPortalAdmin && (pathname === '/citizen' || pathname === '/');
+  const isCitizenMode =
+    !isPortalAdmin &&
+    (pathname?.startsWith('/citizen') ||
+      pathname === '/' ||
+      (!pathname?.startsWith('/admin') &&
+        !pathname?.startsWith('/hei') &&
+        !pathname?.startsWith('/industry') &&
+        !pathname?.startsWith('/student') &&
+        pathname !== '/login'));
 
   const authorityNavItems = [
     { href: isPortalAdmin ? '/' : '/admin', label: 'Govt Command Centre', icon: Shield },
@@ -106,32 +114,32 @@ export const Navbar = () => {
                 <button
                   type="button"
                   onClick={() => setProfileModalOpen(true)}
-                  className="flex items-center gap-2 p-1 pl-1.5 pr-3 rounded-full bg-slate-900/90 border border-emerald-500/50 hover:border-emerald-400 text-xs font-semibold text-white transition-all shadow-md shadow-emerald-500/15 cursor-pointer group hover:bg-slate-800"
+                  className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-slate-900 border border-emerald-500/50 hover:border-emerald-400 text-xs font-semibold text-white transition-all shadow-md shadow-emerald-500/15 cursor-pointer hover:bg-slate-800 shrink-0"
                   title="Citizen Profile: View/Edit Address, Add Images & Manage Details"
                 >
                   <div className="w-7 h-7 rounded-full overflow-hidden bg-emerald-500/20 border border-emerald-400 shrink-0 flex items-center justify-center">
                     <img
                       src={user?.avatar_url || '/logo.png'}
                       alt={user?.name || 'Citizen'}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = 'none';
                       }}
                     />
                     <User className="w-3.5 h-3.5 text-emerald-300" />
                   </div>
-                  <div className="text-left">
-                    <span className="block text-[11px] font-bold text-emerald-300 leading-tight">
-                      {user?.name?.split(' ')[0] || 'Citizen'}
+                  <div className="text-left leading-tight hidden xs:block sm:block">
+                    <span className="block text-xs font-bold text-white">
+                      {user?.name || 'Citizen'}
                     </span>
-                    <span className="block text-[9px] text-slate-400 leading-none">Profile Tab</span>
+                    <span className="block text-[10px] text-emerald-400 font-medium">Profile Tab</span>
                   </div>
                 </button>
               ) : (
                 /* Shown only if citizen is unauthenticated */
                 <Link
                   href="/citizen/login"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:brightness-110 text-slate-950 text-xs font-black transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
                   title="Citizen Login & Registration"
                 >
                   <LogIn className="w-3.5 h-3.5" />

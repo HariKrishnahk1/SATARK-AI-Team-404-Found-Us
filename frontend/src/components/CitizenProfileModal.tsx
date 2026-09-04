@@ -50,13 +50,16 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
     }
   }, [user]);
 
-  // When edit address is opened, auto focus the textarea and scroll into view
+  // When edit address is opened, auto focus the textarea and scroll into view smoothly
   useEffect(() => {
     if (isEditingAddress && addressTextareaRef.current) {
       addressTextareaRef.current.focus();
-      try {
-        addressTextareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } catch (e) {}
+      const timer = setTimeout(() => {
+        try {
+          addressTextareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch (e) {}
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [isEditingAddress]);
 
@@ -129,7 +132,7 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
   const currentAvatar = user?.avatar_url || '/logo.png';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
       {/* Toast alert */}
       {toastMessage && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[60] px-4 py-2.5 rounded-2xl bg-emerald-600 text-white text-xs font-bold shadow-2xl flex items-center gap-2 border border-emerald-400/50 animate-bounce">
@@ -139,7 +142,7 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
       )}
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl shadow-black/80 overflow-hidden text-slate-100 flex flex-col max-h-[88vh]">
+      <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl shadow-black/80 overflow-hidden text-slate-100 flex flex-col my-auto max-h-[92vh]">
         {/* Fixed Header */}
         <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -271,25 +274,28 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsEditingAddress(true)}
-                  className="px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                  className="px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
                 >
-                  <Edit3 className="w-3 h-3" />
+                  <Edit3 className="w-3.5 h-3.5" />
                   Edit Address
                 </button>
               )}
             </div>
 
             {isEditingAddress ? (
-              <div className="space-y-3 mt-3">
-                <label className="block text-[11px] font-semibold text-cyan-300">
-                  Enter your complete street, ward, village, district, state & PIN code:
-                </label>
+              <div className="space-y-3 mt-2 p-3.5 rounded-2xl bg-cyan-950/30 border-2 border-cyan-400 shadow-xl shadow-cyan-950/60">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-cyan-300">
+                    Enter street, ward, village, district, state & PIN code:
+                  </label>
+                  <span className="text-[10px] text-cyan-400 font-mono">Touch-friendly</span>
+                </div>
                 <textarea
                   ref={addressTextareaRef}
                   rows={3}
                   value={addressInput}
                   onChange={(e) => setAddressInput(e.target.value)}
-                  className="w-full bg-slate-950 border-2 border-cyan-400 rounded-2xl p-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 resize-none font-medium leading-relaxed shadow-inner"
+                  className="w-full bg-slate-950 border-2 border-cyan-400 focus:border-cyan-300 rounded-xl p-3.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 resize-none font-medium leading-relaxed shadow-inner"
                   placeholder="Street name, house no., ward, village, district, state, PIN..."
                 />
 
@@ -301,16 +307,16 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
                       setAddressInput(user?.address || '');
                       setIsEditingAddress(false);
                     }}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-colors cursor-pointer min-h-[40px]"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={handleSaveAddress}
-                    className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-cyan-500/20 transition-all cursor-pointer"
+                    className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-lg shadow-cyan-500/30 transition-all cursor-pointer min-h-[40px]"
                   >
-                    <Save className="w-3.5 h-3.5" />
+                    <Save className="w-4 h-4" />
                     Save Address
                   </button>
                 </div>
@@ -319,11 +325,11 @@ export const CitizenProfileModal: React.FC<CitizenProfileModalProps> = ({
               <div className="space-y-2 mt-1">
                 <div
                   onClick={() => setIsEditingAddress(true)}
-                  className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 text-xs sm:text-sm text-slate-100 leading-relaxed font-medium cursor-pointer transition-all flex items-start justify-between gap-3 group"
+                  className="p-3.5 rounded-2xl bg-slate-900 border-2 border-slate-800 hover:border-cyan-500/60 text-xs sm:text-sm text-slate-100 leading-relaxed font-medium cursor-pointer transition-all flex items-start justify-between gap-3 group"
                   title="Touch or click to edit full address"
                 >
-                  <span className="flex-1">{user?.address || 'No address specified yet. Tap here to add your full residential address.'}</span>
-                  <Edit3 className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 shrink-0 transition-colors mt-0.5" />
+                  <span className="flex-1 font-semibold">{user?.address || 'No address specified yet. Tap here to add your full residential address.'}</span>
+                  <Edit3 className="w-4 h-4 text-slate-400 group-hover:text-cyan-400 shrink-0 transition-colors mt-0.5" />
                 </div>
                 <p className="text-[10px] text-slate-400">
                   Verified residential address is automatically attached to reported challenges for rapid routing.

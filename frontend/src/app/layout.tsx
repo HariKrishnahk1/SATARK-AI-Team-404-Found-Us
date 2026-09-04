@@ -30,18 +30,18 @@ export default function RootLayout({
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="shortcut icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        {/* Instant pre-hydration script: prevents flash of main page before startup video on all portals */}
+        {/* Instant pre-hydration script: ensures startup video only shows ONCE on initial visit */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  localStorage.removeItem('satark_startup_video_played');
-                  localStorage.removeItem('satark_v2_played');
-                  sessionStorage.removeItem('satark_v2_played');
                   var search = window.location.search || '';
                   var forceIntro = search.indexOf('intro=1') !== -1 || search.indexOf('replay=1') !== -1;
-                  var played = !forceIntro && sessionStorage.getItem('satark_portal_video_watched');
+                  var played = !forceIntro && (
+                    localStorage.getItem('satark_startup_video_permanent_watched') === 'true' ||
+                    sessionStorage.getItem('satark_startup_video_permanent_watched') === 'true'
+                  );
                   if (!played) {
                     document.documentElement.classList.add('satark-startup-active');
                   }

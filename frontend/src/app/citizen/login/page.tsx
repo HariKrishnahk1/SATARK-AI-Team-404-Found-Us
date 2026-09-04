@@ -278,7 +278,7 @@ export default function CitizenLoginPage() {
           {mode === 'login' ? (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-200 mb-1.5">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-200 mb-1.5">
                   Citizen Username or Registered Email ID *
                 </label>
                 <div className="relative">
@@ -288,14 +288,14 @@ export default function CitizenLoginPage() {
                     required
                     value={loginUsername}
                     onChange={(e) => setLoginUsername(e.target.value)}
-                    className="w-full bg-slate-950 border-2 border-slate-800 focus:border-emerald-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none transition-colors"
+                    className="w-full bg-slate-950 border-2 border-slate-700 focus:border-emerald-400 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-400 focus:outline-none transition-colors"
                     placeholder="e.g. citizen@satark.gov.in"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-200 mb-1.5">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-200 mb-1.5">
                   Password *
                 </label>
                 <div className="relative">
@@ -305,7 +305,7 @@ export default function CitizenLoginPage() {
                     required
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    className="w-full bg-slate-950 border-2 border-slate-800 focus:border-emerald-500 rounded-xl pl-10 pr-10 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none transition-colors"
+                    className="w-full bg-slate-950 border-2 border-slate-700 focus:border-emerald-400 rounded-xl pl-10 pr-10 py-3 text-sm text-white placeholder-slate-400 focus:outline-none transition-colors"
                     placeholder="••••••••"
                   />
                   <button

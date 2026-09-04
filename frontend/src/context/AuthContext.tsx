@@ -45,14 +45,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     try {
-      const savedUser = localStorage.getItem('satark_user');
-      const savedToken = localStorage.getItem('satark_jwt_token');
-      if (savedUser && savedToken) {
-        setUser(JSON.parse(savedUser));
-        setToken(savedToken);
-      } else {
+      // Invalidate legacy auto-seeded sessions so login is strictly requested
+      const authVersion = localStorage.getItem('satark_auth_ver');
+      if (authVersion !== 'v5') {
+        localStorage.removeItem('satark_user');
+        localStorage.removeItem('satark_jwt_token');
+        localStorage.setItem('satark_auth_ver', 'v5');
         setUser(null);
         setToken(null);
+      } else {
+        const savedUser = localStorage.getItem('satark_user');
+        const savedToken = localStorage.getItem('satark_jwt_token');
+        if (savedUser && savedToken) {
+          setUser(JSON.parse(savedUser));
+          setToken(savedToken);
+        } else {
+          setUser(null);
+          setToken(null);
+        }
       }
     } catch (e) {
       setUser(null);
@@ -69,6 +79,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setToken(data.access_token);
       localStorage.setItem('satark_user', JSON.stringify(data.user));
       localStorage.setItem('satark_jwt_token', data.access_token);
+      localStorage.setItem('satark_auth_ver', 'v5');
     } catch (e) {
       const matchedRole = (Object.keys(DEMO_USERS) as Role[]).find(r => DEMO_USERS[r].email === email) || 'SUPER_ADMIN';
       const demoU = DEMO_USERS[matchedRole];
@@ -76,6 +87,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setToken('demo-token');
       localStorage.setItem('satark_user', JSON.stringify(demoU));
       localStorage.setItem('satark_jwt_token', 'demo-token');
+      localStorage.setItem('satark_auth_ver', 'v5');
     }
   };
 
@@ -85,6 +97,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const updated = { ...prev, ...data };
       try {
         localStorage.setItem('satark_user', JSON.stringify(updated));
+        localStorage.setItem('satark_auth_ver', 'v5');
       } catch (e) {}
       return updated;
     });
@@ -120,6 +133,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       localStorage.setItem('satark_user', JSON.stringify(newUser));
       localStorage.setItem('satark_jwt_token', 'citizen-token-' + Date.now());
+      localStorage.setItem('satark_auth_ver', 'v5');
     } catch (e) {}
   };
 
@@ -129,6 +143,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setToken('demo-token');
     localStorage.setItem('satark_user', JSON.stringify(demoU));
     localStorage.setItem('satark_jwt_token', 'demo-token');
+    localStorage.setItem('satark_auth_ver', 'v5');
   };
 
   const logout = () => {
