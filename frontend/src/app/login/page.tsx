@@ -69,6 +69,7 @@ export default function UnifiedLoginPage() {
     try {
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('satark_startup_video_played');
+        sessionStorage.removeItem('satark_portal_video_watched');
       }
       await login(email, password);
       router.push(getTargetRoute(activeTab));
@@ -97,6 +98,7 @@ export default function UnifiedLoginPage() {
     try {
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('satark_startup_video_played');
+        sessionStorage.removeItem('satark_portal_video_watched');
       }
       setSuccessMessage(`Account registered for ${fullName}! Accessing ${activeTab} Portal...`);
       setTimeout(() => {
@@ -112,6 +114,7 @@ export default function UnifiedLoginPage() {
   const handleQuickDemoSelect = (roleKey: any, redirectPath: string) => {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('satark_startup_video_played');
+      sessionStorage.removeItem('satark_portal_video_watched');
     }
     switchDemoRole(roleKey);
     router.push(redirectPath);

@@ -30,20 +30,18 @@ export default function RootLayout({
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="shortcut icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        {/* Instant pre-hydration script: prevents flash of main page before startup video (exempts Admin Portal) */}
+        {/* Instant pre-hydration script: prevents flash of main page before startup video on all portals */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
                   localStorage.removeItem('satark_startup_video_played');
-                  var pathname = window.location.pathname || '';
-                  var isAdminPath = pathname.indexOf('/admin') !== -1;
-                  var isPortalAdmin = '${process.env.NEXT_PUBLIC_PORTAL_MODE || ''}' === 'ADMIN';
-                  if (isAdminPath || isPortalAdmin) {
-                    return;
-                  }
-                  var played = sessionStorage.getItem('satark_v2_played');
+                  localStorage.removeItem('satark_v2_played');
+                  sessionStorage.removeItem('satark_v2_played');
+                  var search = window.location.search || '';
+                  var forceIntro = search.indexOf('intro=1') !== -1 || search.indexOf('replay=1') !== -1;
+                  var played = !forceIntro && sessionStorage.getItem('satark_portal_video_watched');
                   if (!played) {
                     document.documentElement.classList.add('satark-startup-active');
                   }
@@ -59,8 +57,8 @@ export default function RootLayout({
       >
         <AuthProvider>
           <SocketProvider>
-            {/* Global Singleton Startup Video Modal */}
-            <StartupVideoModal portalName="SATARK AI Unified Platform" />
+            {/* Global Singleton Startup Video Modal (Citizen & Admin Command Centre) */}
+            <StartupVideoModal />
             <div id="app-content-root" className="min-h-screen flex flex-col flex-grow">
               <Navbar />
               <main className="flex-grow">{children}</main>

@@ -8,10 +8,10 @@ interface StartupVideoModalProps {
   onComplete?: () => void;
 }
 
-const STORAGE_KEY = 'satark_v2_played';
+const STORAGE_KEY = 'satark_portal_video_watched';
 
 export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
-  portalName = 'SATARK AI Unified Platform',
+  portalName,
   onComplete
 }) => {
   const [mounted, setMounted] = useState(false);
@@ -20,6 +20,16 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
   const [isMuted, setIsMuted] = useState(true);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Dynamically resolve portal name
+  const isPortalAdmin =
+    process.env.NEXT_PUBLIC_PORTAL_MODE === 'ADMIN' ||
+    (typeof window !== 'undefined' && window.location.pathname.includes('/admin'));
+  const currentPortalName =
+    portalName ||
+    (isPortalAdmin
+      ? 'SATARK AI — Government Admin Command Centre'
+      : 'SATARK AI — Citizen Civic Reporting Platform');
 
   const handleSkip = useCallback(() => {
     try {
@@ -44,52 +54,53 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
     }, 250);
   }, [onComplete]);
 
-  const handlePlay = useCallback(() => {
-    try {
-      sessionStorage.setItem(STORAGE_KEY, 'true');
-    } catch (e) {}
-  }, []);
-
   useEffect(() => {
     setMounted(true);
 
     try {
-      // Clear legacy storage lock if present
+      // Clear legacy storage locks to unblock testing
       localStorage.removeItem('satark_startup_video_played');
+      localStorage.removeItem('satark_v2_played');
+      sessionStorage.removeItem('satark_v2_played');
 
-      // Do not run startup video on Admin Portal or Admin routes
-      const isPortalAdmin = process.env.NEXT_PUBLIC_PORTAL_MODE === 'ADMIN';
-      const isAdminRoute = typeof window !== 'undefined' && window.location.pathname.includes('/admin');
-      if (isPortalAdmin || isAdminRoute) {
-        document.documentElement.classList.remove('satark-startup-active');
-        setVisible(false);
-        return;
-      }
+      // Check URL search params for on-demand forced replay (e.g. ?intro=1)
+      const searchParams = new URLSearchParams(window.location.search);
+      const forceIntro = searchParams.get('intro') === '1' || searchParams.get('replay') === '1';
 
-      const hasPlayed = sessionStorage.getItem(STORAGE_KEY);
+      const hasPlayed = !forceIntro && sessionStorage.getItem(STORAGE_KEY);
       if (!hasPlayed) {
         setVisible(true);
+        document.documentElement.classList.add('satark-startup-active');
       } else {
         document.documentElement.classList.remove('satark-startup-active');
       }
     } catch (e) {
-      document.documentElement.classList.remove('satark-startup-active');
+      setVisible(true);
+      document.documentElement.classList.add('satark-startup-active');
     }
 
     // Safety timeout: ensure page is never stuck if video is slow or network stalls
     const safetyTimer = setTimeout(() => {
       document.documentElement.classList.remove('satark-startup-active');
       setVideoLoaded(true);
-    }, 3500);
+    }, 12000);
 
     // Support replaying intro on-demand via custom event
     const handleReplay = () => {
       setIsFadingOut(false);
       setVisible(true);
+      setVideoLoaded(false);
       document.documentElement.classList.add('satark-startup-active');
       if (videoRef.current) {
         videoRef.current.currentTime = 0;
-        videoRef.current.play().catch(() => {});
+        videoRef.current.defaultMuted = true;
+        videoRef.current.muted = isMuted;
+        videoRef.current.play().catch(() => {
+          if (videoRef.current) {
+            videoRef.current.muted = true;
+            videoRef.current.play().catch(() => {});
+          }
+        });
       }
     };
 
@@ -109,20 +120,41 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       window.removeEventListener('keydown', handleKeyDown);
       document.documentElement.classList.remove('satark-startup-active');
     };
-  }, [handleSkip]);
+  }, [handleSkip, isMuted]);
 
   useEffect(() => {
     if (visible && videoRef.current) {
-      videoRef.current.play().catch(() => {
-        // Fallback to muted autoplay
-        setIsMuted(true);
-        if (videoRef.current) {
-          videoRef.current.muted = true;
-          videoRef.current.play().catch(() => {});
+      const vid = videoRef.current;
+      vid.defaultMuted = true;
+      vid.muted = isMuted;
+
+      const attemptPlay = () => {
+        const playPromise = vid.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setVideoLoaded(true);
+            })
+            .catch(() => {
+              // Initial unmuted autoplay blocked; enforce muted and retry
+              vid.muted = true;
+              setIsMuted(true);
+              vid
+                .play()
+                .then(() => setVideoLoaded(true))
+                .catch((err) => console.warn('Muted autoplay fallback blocked:', err));
+            });
         }
-      });
+      };
+
+      if (vid.readyState >= 2) {
+        attemptPlay();
+      } else {
+        vid.addEventListener('canplay', attemptPlay, { once: true });
+        vid.addEventListener('loadeddata', () => setVideoLoaded(true), { once: true });
+      }
     }
-  }, [visible]);
+  }, [visible, isMuted]);
 
   const toggleMute = () => {
     if (videoRef.current) {
@@ -163,15 +195,17 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       {/* Fullscreen Video */}
       <video
         ref={videoRef}
-        src="/SAI.mp4"
         autoPlay
         muted={isMuted}
         playsInline
-        preload="metadata"
-        onPlay={handlePlay}
+        preload="auto"
         onCanPlay={() => setVideoLoaded(true)}
         onLoadedData={() => setVideoLoaded(true)}
         onEnded={handleSkip}
+        onError={() => {
+          console.warn('Video stream failed or stalled');
+          setVideoLoaded(true);
+        }}
         className="w-full h-full object-contain bg-black"
       >
         <source src="/SAI.mp4" type="video/mp4" />
@@ -219,7 +253,7 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       {/* Bottom Overlay Info Banner */}
       <div className="absolute bottom-6 left-6 right-6 z-[10000] pointer-events-none flex justify-between items-center text-xs text-slate-400">
         <span className="font-mono text-cyan-400 bg-slate-950/85 px-3.5 py-1.5 rounded-xl border border-slate-800 backdrop-blur-md shadow-lg">
-          {portalName}
+          {currentPortalName}
         </span>
         <span className="text-[11px] text-slate-300 bg-slate-950/85 px-3.5 py-1.5 rounded-xl border border-slate-800 backdrop-blur-md shadow-lg">
           Press Esc or click Skip Video anytime

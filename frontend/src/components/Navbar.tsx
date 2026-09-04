@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { Role } from '../lib/types';
-import { Shield, MapPin, Building2, Landmark, HeartHandshake, User, ChevronDown, GraduationCap, LogIn } from 'lucide-react';
+import { Shield, MapPin, Building2, Landmark, HeartHandshake, User, ChevronDown, GraduationCap, LogIn, Play } from 'lucide-react';
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -81,13 +81,24 @@ export const Navbar = () => {
         )}
 
         {/* Right Section: Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          {/* On-Demand Startup Video Replay Button */}
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('satark:replay-intro'))}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-cyan-500/40 text-xs font-semibold text-cyan-300 hover:bg-slate-800 hover:text-white hover:border-cyan-400 transition-all shadow-sm shadow-cyan-500/10 cursor-pointer group"
+            title="Watch SATARK AI Platform Overview Video"
+          >
+            <Play className="w-3.5 h-3.5 fill-cyan-400 text-cyan-400 group-hover:scale-110 transition-transform" />
+            <span className="hidden xs:inline sm:inline">Overview Video</span>
+          </button>
+
           {isCitizenMode ? (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-emerald-500/30 text-xs text-slate-300 shadow-md shadow-emerald-500/10">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               <span className="font-bold text-emerald-400">Public Portal</span>
               <span className="hidden sm:inline">•</span>
-              <span className="hidden sm:inline text-slate-300 font-medium">No Institutional Login Required</span>
+              <span className="hidden sm:inline text-slate-300 font-medium">No Login Required</span>
             </div>
           ) : (
             <div className="flex items-center gap-2">

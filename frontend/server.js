@@ -36,8 +36,11 @@ const server = http.createServer((req, res) => {
       filePath = indexPath;
     }
   } else if (!fs.existsSync(filePath)) {
-    // Try appending .html (e.g. /citizen -> /citizen.html or /citizen/index.html)
-    if (fs.existsSync(filePath + '.html')) {
+    // Check in public directory first for static media / assets (e.g. SAI.mp4)
+    const publicPath = path.join(__dirname, 'public', urlPath);
+    if (fs.existsSync(publicPath) && fs.statSync(publicPath).isFile()) {
+      filePath = publicPath;
+    } else if (fs.existsSync(filePath + '.html')) {
       filePath = filePath + '.html';
     } else if (fs.existsSync(path.join(filePath, 'index.html'))) {
       filePath = path.join(filePath, 'index.html');
