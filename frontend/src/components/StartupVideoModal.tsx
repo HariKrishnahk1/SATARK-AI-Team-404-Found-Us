@@ -21,6 +21,10 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
   const [videoLoaded, setVideoLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const isMutedRef = useRef(isMuted);
+  isMutedRef.current = isMuted;
+  const hasStartedRef = useRef(false);
+
   // Dynamically resolve portal name
   const isPortalAdmin =
     process.env.NEXT_PUBLIC_PORTAL_MODE === 'ADMIN' ||
@@ -92,14 +96,13 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       setVideoLoaded(false);
       document.documentElement.classList.add('satark-startup-active');
       if (videoRef.current) {
-        videoRef.current.currentTime = 0;
-        videoRef.current.defaultMuted = true;
-        videoRef.current.muted = isMuted;
-        videoRef.current.play().catch(() => {
-          if (videoRef.current) {
-            videoRef.current.muted = true;
-            videoRef.current.play().catch(() => {});
-          }
+        const vid = videoRef.current;
+        vid.currentTime = 0;
+        vid.defaultMuted = true;
+        vid.muted = isMutedRef.current;
+        vid.play().catch(() => {
+          vid.muted = true;
+          vid.play().catch(() => {});
         });
       }
     };
@@ -120,45 +123,37 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       window.removeEventListener('keydown', handleKeyDown);
       document.documentElement.classList.remove('satark-startup-active');
     };
-  }, [handleSkip, isMuted]);
+  }, [handleSkip]);
 
+  // Idempotent initial play trigger - runs once when modal becomes visible
   useEffect(() => {
-    if (visible && videoRef.current) {
+    if (visible && videoRef.current && !hasStartedRef.current) {
+      hasStartedRef.current = true;
       const vid = videoRef.current;
       vid.defaultMuted = true;
-      vid.muted = isMuted;
+      vid.muted = true;
 
-      const attemptPlay = () => {
-        const playPromise = vid.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setVideoLoaded(true);
-            })
-            .catch(() => {
-              // Initial unmuted autoplay blocked; enforce muted and retry
-              vid.muted = true;
-              setIsMuted(true);
-              vid
-                .play()
-                .then(() => setVideoLoaded(true))
-                .catch((err) => console.warn('Muted autoplay fallback blocked:', err));
-            });
-        }
-      };
-
-      // Immediately attempt play and register fast-render listeners
-      attemptPlay();
-      vid.addEventListener('playing', () => setVideoLoaded(true), { once: true });
-      vid.addEventListener('timeupdate', () => setVideoLoaded(true), { once: true });
-      vid.addEventListener('canplay', () => setVideoLoaded(true), { once: true });
-      vid.addEventListener('loadeddata', () => setVideoLoaded(true), { once: true });
+      const playPromise = vid.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setVideoLoaded(true);
+          })
+          .catch(() => {
+            // Autoplay fallback with guaranteed mute
+            vid.muted = true;
+            vid
+              .play()
+              .then(() => setVideoLoaded(true))
+              .catch(() => setVideoLoaded(true));
+          });
+      }
     }
-  }, [visible, isMuted]);
+  }, [visible]);
 
   const toggleMute = () => {
     if (videoRef.current) {
-      const nextMuted = !isMuted;
+      const nextMuted = !videoRef.current.muted;
       videoRef.current.muted = nextMuted;
       setIsMuted(nextMuted);
     }
@@ -195,6 +190,7 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       {/* Fullscreen Video */}
       <video
         ref={videoRef}
+        src="/SAI.mp4"
         autoPlay
         muted={isMuted}
         playsInline
@@ -209,9 +205,7 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
           setVideoLoaded(true);
         }}
         className="w-full h-full object-contain bg-black"
-      >
-        <source src="/SAI.mp4" type="video/mp4" />
-      </video>
+      />
 
       {/* Top Left Corner: Mute / Unmute Button */}
       <div className="absolute top-6 left-6 z-[10000] flex items-center gap-3">
