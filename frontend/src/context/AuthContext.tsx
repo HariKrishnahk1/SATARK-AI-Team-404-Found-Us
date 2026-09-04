@@ -45,24 +45,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     try {
-      // Invalidate legacy auto-seeded sessions so login is strictly requested
-      const authVersion = localStorage.getItem('satark_auth_ver');
-      if (authVersion !== 'v5') {
-        localStorage.removeItem('satark_user');
-        localStorage.removeItem('satark_jwt_token');
-        localStorage.setItem('satark_auth_ver', 'v5');
-        setUser(null);
-        setToken(null);
-      } else {
-        const savedUser = localStorage.getItem('satark_user');
-        const savedToken = localStorage.getItem('satark_jwt_token');
-        if (savedUser && savedToken) {
-          setUser(JSON.parse(savedUser));
+      const isPortalAdmin =
+        process.env.NEXT_PUBLIC_PORTAL_MODE === 'ADMIN' ||
+        (typeof window !== 'undefined' &&
+          (window.location.pathname.startsWith('/admin') ||
+            window.location.pathname.startsWith('/hei') ||
+            window.location.pathname.startsWith('/industry') ||
+            window.location.pathname.startsWith('/student') ||
+            window.location.pathname === '/login' ||
+            window.location.pathname === '/login/'));
+
+      const userStorageKey = isPortalAdmin ? 'satark_admin_user_v7' : 'satark_citizen_user_v7';
+      const tokenStorageKey = isPortalAdmin ? 'satark_admin_token_v7' : 'satark_citizen_token_v7';
+
+      const savedUser = localStorage.getItem(userStorageKey);
+      const savedToken = localStorage.getItem(tokenStorageKey);
+      if (savedUser && savedToken) {
+        const parsed = JSON.parse(savedUser);
+        if (isPortalAdmin && parsed.role !== 'CITIZEN') {
+          setUser(parsed);
+          setToken(savedToken);
+        } else if (!isPortalAdmin && parsed.role === 'CITIZEN') {
+          setUser(parsed);
           setToken(savedToken);
         } else {
           setUser(null);
           setToken(null);
         }
+      } else {
+        setUser(null);
+        setToken(null);
       }
     } catch (e) {
       setUser(null);
@@ -77,17 +89,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const data = await api.login(email, password);
       setUser(data.user);
       setToken(data.access_token);
+      const isCitizen = data.user.role === 'CITIZEN';
+      const userKey = isCitizen ? 'satark_citizen_user_v7' : 'satark_admin_user_v7';
+      const tokenKey = isCitizen ? 'satark_citizen_token_v7' : 'satark_admin_token_v7';
+      localStorage.setItem(userKey, JSON.stringify(data.user));
+      localStorage.setItem(tokenKey, data.access_token);
       localStorage.setItem('satark_user', JSON.stringify(data.user));
       localStorage.setItem('satark_jwt_token', data.access_token);
-      localStorage.setItem('satark_auth_ver', 'v5');
     } catch (e) {
       const matchedRole = (Object.keys(DEMO_USERS) as Role[]).find(r => DEMO_USERS[r].email === email) || 'SUPER_ADMIN';
       const demoU = DEMO_USERS[matchedRole];
       setUser(demoU);
       setToken('demo-token');
+      const isCitizen = demoU.role === 'CITIZEN';
+      const userKey = isCitizen ? 'satark_citizen_user_v7' : 'satark_admin_user_v7';
+      const tokenKey = isCitizen ? 'satark_citizen_token_v7' : 'satark_admin_token_v7';
+      localStorage.setItem(userKey, JSON.stringify(demoU));
+      localStorage.setItem(tokenKey, 'demo-token');
       localStorage.setItem('satark_user', JSON.stringify(demoU));
       localStorage.setItem('satark_jwt_token', 'demo-token');
-      localStorage.setItem('satark_auth_ver', 'v5');
     }
   };
 
@@ -96,8 +116,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!prev) return prev;
       const updated = { ...prev, ...data };
       try {
+        const isCitizen = updated.role === 'CITIZEN';
+        const userKey = isCitizen ? 'satark_citizen_user_v7' : 'satark_admin_user_v7';
+        localStorage.setItem(userKey, JSON.stringify(updated));
         localStorage.setItem('satark_user', JSON.stringify(updated));
-        localStorage.setItem('satark_auth_ver', 'v5');
       } catch (e) {}
       return updated;
     });
@@ -129,11 +151,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Offline / demo fallback
     }
     setUser(newUser);
-    setToken('citizen-token-' + Date.now());
+    const citToken = 'citizen-token-' + Date.now();
+    setToken(citToken);
     try {
+      localStorage.setItem('satark_citizen_user_v7', JSON.stringify(newUser));
+      localStorage.setItem('satark_citizen_token_v7', citToken);
       localStorage.setItem('satark_user', JSON.stringify(newUser));
-      localStorage.setItem('satark_jwt_token', 'citizen-token-' + Date.now());
-      localStorage.setItem('satark_auth_ver', 'v5');
+      localStorage.setItem('satark_jwt_token', citToken);
     } catch (e) {}
   };
 
@@ -141,16 +165,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const demoU = DEMO_USERS[role];
     setUser(demoU);
     setToken('demo-token');
+    const isCitizen = demoU.role === 'CITIZEN';
+    const userKey = isCitizen ? 'satark_citizen_user_v7' : 'satark_admin_user_v7';
+    const tokenKey = isCitizen ? 'satark_citizen_token_v7' : 'satark_admin_token_v7';
+    localStorage.setItem(userKey, JSON.stringify(demoU));
+    localStorage.setItem(tokenKey, 'demo-token');
     localStorage.setItem('satark_user', JSON.stringify(demoU));
     localStorage.setItem('satark_jwt_token', 'demo-token');
-    localStorage.setItem('satark_auth_ver', 'v5');
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('satark_user');
-    localStorage.removeItem('satark_jwt_token');
+    try {
+      localStorage.removeItem('satark_user');
+      localStorage.removeItem('satark_citizen_user_v7');
+      localStorage.removeItem('satark_admin_user_v7');
+      localStorage.removeItem('satark_jwt_token');
+    } catch (e) {}
   };
 
   return (

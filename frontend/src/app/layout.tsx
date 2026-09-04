@@ -30,17 +30,20 @@ export default function RootLayout({
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="shortcut icon" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        {/* Instant pre-hydration script: ensures startup video only shows ONCE on initial visit */}
+        {/* Instant pre-hydration script: ensures startup video only shows ONCE per portal on initial visit */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
+                  var path = window.location.pathname || '';
+                  var isAdmin = path.indexOf('/admin') === 0 || path.indexOf('/login') === 0 || path.indexOf('/hei') === 0 || path.indexOf('/industry') === 0 || path.indexOf('/student') === 0;
+                  var key = isAdmin ? 'satark_admin_startup_video_watched_once' : 'satark_civic_startup_video_watched_once';
                   var search = window.location.search || '';
                   var forceIntro = search.indexOf('intro=1') !== -1 || search.indexOf('replay=1') !== -1;
                   var played = !forceIntro && (
-                    localStorage.getItem('satark_startup_video_permanent_watched') === 'true' ||
-                    sessionStorage.getItem('satark_startup_video_permanent_watched') === 'true'
+                    localStorage.getItem(key) === 'true' ||
+                    sessionStorage.getItem(key) === 'true'
                   );
                   if (!played) {
                     document.documentElement.classList.add('satark-startup-active');

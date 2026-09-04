@@ -10,8 +10,6 @@ interface StartupVideoModalProps {
   onComplete?: () => void;
 }
 
-const STORAGE_KEY = 'satark_startup_video_permanent_watched';
-
 export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
   portalName,
   onComplete
@@ -35,10 +33,21 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
   isMutedRef.current = isMuted;
   const hasStartedRef = useRef(false);
 
-  // Dynamically resolve portal name
+  // Dynamically resolve portal name & type accurately
   const isPortalAdmin =
     process.env.NEXT_PUBLIC_PORTAL_MODE === 'ADMIN' ||
-    (typeof window !== 'undefined' && (window.location.pathname.includes('/admin') || window.location.pathname.includes('/login')));
+    (typeof window !== 'undefined' &&
+      (window.location.pathname.startsWith('/admin') ||
+        window.location.pathname.startsWith('/hei') ||
+        window.location.pathname.startsWith('/industry') ||
+        window.location.pathname.startsWith('/student') ||
+        window.location.pathname === '/login' ||
+        window.location.pathname === '/login/'));
+
+  const portalStorageKey = isPortalAdmin
+    ? 'satark_admin_startup_video_watched_once'
+    : 'satark_civic_startup_video_watched_once';
+
   const currentPortalName =
     portalName ||
     (isPortalAdmin
@@ -47,8 +56,8 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
 
   const handleSkip = useCallback(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, 'true');
-      sessionStorage.setItem(STORAGE_KEY, 'true');
+      localStorage.setItem(portalStorageKey, 'true');
+      sessionStorage.setItem(portalStorageKey, 'true');
     } catch (e) {}
 
     if (typeof document !== 'undefined') {
@@ -76,7 +85,7 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
         }
       }
     }, 250);
-  }, [onComplete, user, isPortalAdmin, router]);
+  }, [onComplete, user, isPortalAdmin, router, portalStorageKey]);
 
   const togglePlayPause = useCallback(() => {
     if (videoRef.current) {
@@ -109,15 +118,15 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
 
       const hasPlayed =
         !forceIntro &&
-        (localStorage.getItem(STORAGE_KEY) === 'true' || sessionStorage.getItem(STORAGE_KEY) === 'true');
+        (localStorage.getItem(portalStorageKey) === 'true' || sessionStorage.getItem(portalStorageKey) === 'true');
 
       if (!hasPlayed) {
         setVisible(true);
         document.documentElement.classList.add('satark-startup-active');
-        // Once startup video is shown, permanently save so reload or login NEVER triggers it again!
+        // Once startup video is shown, permanently save so reload or login NEVER triggers it again on this portal!
         try {
-          localStorage.setItem(STORAGE_KEY, 'true');
-          sessionStorage.setItem(STORAGE_KEY, 'true');
+          localStorage.setItem(portalStorageKey, 'true');
+          sessionStorage.setItem(portalStorageKey, 'true');
         } catch (e) {}
       } else {
         setVisible(false);
