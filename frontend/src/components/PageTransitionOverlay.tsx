@@ -156,7 +156,7 @@ const PageTransitionOverlayContent: React.FC = () => {
 
           <p className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-cyan-400 animate-pulse" />
-            <span>SIH 2026 PS26043 • AI Routing Engine</span>
+            <span>Satark AI</span>
           </p>
         </div>
       </div>
