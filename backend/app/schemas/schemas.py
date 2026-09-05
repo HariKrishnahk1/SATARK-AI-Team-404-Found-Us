@@ -12,6 +12,15 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
+class OTPSendRequest(BaseModel):
+    target: str # Email or 10-digit mobile number
+    type: str = "email" # "email" or "mobile"
+    purpose: Optional[str] = "verification" # "signup", "login", "verification"
+
+class OTPVerifyRequest(BaseModel):
+    target: str # Email or 10-digit mobile number
+    code: str
+
 class UserRegister(BaseModel):
     name: str
     email: EmailStr

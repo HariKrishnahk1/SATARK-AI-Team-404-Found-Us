@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
 from app.core.sockets import socket_app
-from app.api import auth, challenges, universities, proposals, industry, projects, analytics, notifications
+from app.api import auth, challenges, universities, proposals, industry, projects, analytics, notifications, otp
 
 # Initialize Database tables
 Base.metadata.create_all(bind=engine)
@@ -27,6 +27,7 @@ app.add_middleware(
 
 # Include Routers
 app.include_router(auth.router, prefix=settings.API_V1_STR)
+app.include_router(otp.router, prefix=settings.API_V1_STR)
 app.include_router(challenges.router, prefix=settings.API_V1_STR)
 app.include_router(universities.router, prefix=settings.API_V1_STR)
 app.include_router(proposals.router, prefix=settings.API_V1_STR)

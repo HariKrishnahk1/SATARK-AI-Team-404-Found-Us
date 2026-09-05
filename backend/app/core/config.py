@@ -19,6 +19,17 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-4o"
     USE_AI_FALLBACK_IF_NO_KEY: bool = True
 
+    # Gmail / SMTP Email Settings
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "satark.ai.sih2026@gmail.com")
+
+    # Mobile SMS Settings
+    SMS_API_KEY: str = os.getenv("SMS_API_KEY", "")
+    SMS_SENDER_ID: str = os.getenv("SMS_SENDER_ID", "SATARK")
+
     # CORS Allowed Origins
     ALLOWED_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",

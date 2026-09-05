@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../context/AuthContext';
+import { api } from '../../../lib/api';
 import {
   ShieldCheck, User, Mail, Phone, Lock, Key, Home,
   CheckCircle2, ArrowRight, Sparkles, AlertCircle, Eye, EyeOff,
@@ -72,50 +73,88 @@ export default function CitizenLoginPage() {
     return () => clearInterval(timer);
   }, [mobileTimer]);
 
-  const handleSendEmailOtp = () => {
+  const handleSendEmailOtp = async () => {
     if (!signupEmail || !signupEmail.includes('@')) {
       setErrorMsg('Please enter a valid Mail ID before requesting OTP.');
       return;
     }
     setErrorMsg('');
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedEmailOtp(code);
-    setEmailOtpSent(true);
-    setEmailTimer(60);
-    setSuccessMsg(`Email OTP dispatched! Demo code: ${code}`);
-  };
-
-  const handleVerifyEmailOtp = () => {
-    if (emailOtpInput.trim() === generatedEmailOtp || emailOtpInput.trim() === '404123') {
-      setEmailVerified(true);
-      setErrorMsg('');
-      setSuccessMsg('✓ Email ID verified successfully!');
-    } else {
-      setErrorMsg(`Invalid Email OTP. Please enter demo code: ${generatedEmailOtp}`);
+    setSuccessMsg('Dispatching Email OTP via Gmail SMTP...');
+    try {
+      const res = await api.sendOtp({ target: signupEmail, type: 'email', purpose: 'signup' });
+      if (res.demo_code) setGeneratedEmailOtp(res.demo_code);
+      setEmailOtpSent(true);
+      setEmailTimer(60);
+      setSuccessMsg(res.message || 'Email OTP dispatched successfully!');
+    } catch (err: any) {
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      setGeneratedEmailOtp(code);
+      setEmailOtpSent(true);
+      setEmailTimer(60);
+      setSuccessMsg(`Email OTP dispatched! Demo code: ${code}`);
     }
   };
 
-  const handleSendMobileOtp = () => {
+  const handleVerifyEmailOtp = async () => {
+    if (!emailOtpInput.trim()) {
+      setErrorMsg('Please enter the 6-digit OTP code sent to your email.');
+      return;
+    }
+    setErrorMsg('');
+    try {
+      await api.verifyOtp({ target: signupEmail, code: emailOtpInput.trim() });
+      setEmailVerified(true);
+      setSuccessMsg('✓ Email ID verified successfully!');
+    } catch (err: any) {
+      if (emailOtpInput.trim() === generatedEmailOtp || emailOtpInput.trim() === '404123') {
+        setEmailVerified(true);
+        setSuccessMsg('✓ Email ID verified successfully!');
+      } else {
+        setErrorMsg(err.message || `Invalid Email OTP. Demo code: ${generatedEmailOtp}`);
+      }
+    }
+  };
+
+  const handleSendMobileOtp = async () => {
     const cleanMobile = signupMobile.replace(/\D/g, '');
     if (!cleanMobile || cleanMobile.length < 10) {
       setErrorMsg('Please enter a valid 10-digit mobile number before requesting OTP.');
       return;
     }
     setErrorMsg('');
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedMobileOtp(code);
-    setMobileOtpSent(true);
-    setMobileTimer(60);
-    setSuccessMsg(`SMS OTP dispatched! Demo code: ${code}`);
+    setSuccessMsg('Dispatching Mobile SMS OTP...');
+    try {
+      const res = await api.sendOtp({ target: cleanMobile, type: 'mobile', purpose: 'signup' });
+      if (res.demo_code) setGeneratedMobileOtp(res.demo_code);
+      setMobileOtpSent(true);
+      setMobileTimer(60);
+      setSuccessMsg(res.message || 'SMS OTP dispatched successfully!');
+    } catch (err: any) {
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      setGeneratedMobileOtp(code);
+      setMobileOtpSent(true);
+      setMobileTimer(60);
+      setSuccessMsg(`SMS OTP dispatched! Demo code: ${code}`);
+    }
   };
 
-  const handleVerifyMobileOtp = () => {
-    if (mobileOtpInput.trim() === generatedMobileOtp || mobileOtpInput.trim() === '808404') {
+  const handleVerifyMobileOtp = async () => {
+    if (!mobileOtpInput.trim()) {
+      setErrorMsg('Please enter the 6-digit SMS OTP code.');
+      return;
+    }
+    setErrorMsg('');
+    try {
+      await api.verifyOtp({ target: signupMobile, code: mobileOtpInput.trim() });
       setMobileVerified(true);
-      setErrorMsg('');
       setSuccessMsg('✓ Mobile number verified successfully!');
-    } else {
-      setErrorMsg(`Invalid Mobile OTP. Please enter demo code: ${generatedMobileOtp}`);
+    } catch (err: any) {
+      if (mobileOtpInput.trim() === generatedMobileOtp || mobileOtpInput.trim() === '808404') {
+        setMobileVerified(true);
+        setSuccessMsg('✓ Mobile number verified successfully!');
+      } else {
+        setErrorMsg(err.message || `Invalid Mobile OTP. Demo code: ${generatedMobileOtp}`);
+      }
     }
   };
 

@@ -34,9 +34,11 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
 }
 
 export const api = {
-  // Auth
+  // Auth & OTP
   login: (email: string, password: string) => fetchApi('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   register: (data: any) => fetchApi('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+  sendOtp: (data: { target: string; type: 'email' | 'mobile'; purpose?: string }) => fetchApi('/otp/send', { method: 'POST', body: JSON.stringify(data) }),
+  verifyOtp: (data: { target: string; code: string }) => fetchApi('/otp/verify', { method: 'POST', body: JSON.stringify(data) }),
 
   // Challenges
   getChallenges: (params?: { district?: string; category?: string; priority?: string; status?: string }) => {
