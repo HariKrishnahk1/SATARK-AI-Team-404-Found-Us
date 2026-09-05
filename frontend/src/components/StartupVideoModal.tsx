@@ -164,8 +164,32 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       }
     };
 
-    // User-friendly keyboard shortcuts: Esc (Skip), Space (Play/Pause), M (Mute/Unmute)
+    window.addEventListener('satark:replay-intro', handleReplay);
+
+    return () => {
+      clearTimeout(safetyTimer);
+      window.removeEventListener('satark:replay-intro', handleReplay);
+      document.documentElement.classList.remove('satark-startup-active');
+    };
+  }, []);
+
+  // User-friendly keyboard shortcuts: Esc (Skip), Space (Play/Pause), M (Mute/Unmute)
+  // ONLY active when the startup video modal is currently visible AND user is not typing in an input/textarea
+  useEffect(() => {
+    if (!visible) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
       if (e.key === 'Escape') {
         e.preventDefault();
         handleSkip();
@@ -178,16 +202,11 @@ export const StartupVideoModal: React.FC<StartupVideoModalProps> = ({
       }
     };
 
-    window.addEventListener('satark:replay-intro', handleReplay);
     window.addEventListener('keydown', handleKeyDown);
-
     return () => {
-      clearTimeout(safetyTimer);
-      window.removeEventListener('satark:replay-intro', handleReplay);
       window.removeEventListener('keydown', handleKeyDown);
-      document.documentElement.classList.remove('satark-startup-active');
     };
-  }, [handleSkip, togglePlayPause, toggleMute]);
+  }, [visible, handleSkip, togglePlayPause, toggleMute]);
 
   // Idempotent initial play trigger - runs once when modal becomes visible
   useEffect(() => {
