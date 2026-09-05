@@ -1,15 +1,63 @@
 'use client';
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
+
+const isLoginPath = (p: string | null) => {
+  if (!p) return false;
+  const path = p.split('?')[0].split('#')[0];
+  return (
+    path === '/login' ||
+    path === '/login/' ||
+    path === '/citizen/login' ||
+    path === '/citizen/login/' ||
+    path === '/'
+  );
+};
+
+const getPortalGroup = (p: string | null) => {
+  if (!p) return null;
+  const path = p.split('?')[0].split('#')[0];
+  if (path.startsWith('/admin')) return 'admin';
+  if (path.startsWith('/hei')) return 'hei';
+  if (path.startsWith('/industry')) return 'industry';
+  if (path.startsWith('/student')) return 'student';
+  if (path.startsWith('/citizen')) return 'citizen';
+  if (path.startsWith('/authority')) return 'authority';
+  return null;
+};
+
+const shouldTriggerTransition = (prevPath: string | null, nextPath: string | null) => {
+  if (!prevPath || !nextPath || prevPath === nextPath) return false;
+
+  // Don't trigger if startup video is active on screen
+  if (typeof document !== 'undefined' && document.documentElement.classList.contains('satark-startup-active')) {
+    return false;
+  }
+
+  const prevGroup = getPortalGroup(prevPath);
+  const nextGroup = getPortalGroup(nextPath);
+
+  // 1. Navigating from Login page to ANY Portal
+  if (isLoginPath(prevPath) && nextGroup !== null) {
+    return true;
+  }
+
+  // 2. Switching between different Portals (e.g. Citizen -> Admin, Admin -> HEI, etc.)
+  if (prevGroup !== null && nextGroup !== null && prevGroup !== nextGroup) {
+    return true;
+  }
+
+  return false;
+};
 
 const PageTransitionOverlayContent: React.FC = () => {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [isNavigating, setIsNavigating] = useState(false);
   const [activePortalLabel, setActivePortalLabel] = useState('SATARK AI PORTAL');
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const prevPathRef = useRef<string | null>(null);
 
   // Helper to determine theme-appropriate portal status text
   const getPortalLabel = (path: string | null) => {
@@ -24,30 +72,33 @@ const PageTransitionOverlayContent: React.FC = () => {
     return 'SATARK AI • KNOWLEDGE ENGINE SYNCHRONIZING';
   };
 
-  // Trigger transition animation on pathname / searchParams change
+  // Trigger transition animation ONLY when navigating from Login -> Portal OR between Portals
   useEffect(() => {
-    setActivePortalLabel(getPortalLabel(pathname));
-    setIsNavigating(true);
+    const prevPath = prevPathRef.current;
+    prevPathRef.current = pathname;
 
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      setIsNavigating(false);
-    }, 450);
+    if (prevPath && shouldTriggerTransition(prevPath, pathname)) {
+      setActivePortalLabel(getPortalLabel(pathname));
+      setIsNavigating(true);
 
-    return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [pathname, searchParams]);
+      timeoutRef.current = setTimeout(() => {
+        setIsNavigating(false);
+      }, 450);
+    }
+  }, [pathname]);
 
-  // Intercept internal link clicks for instant visual feedback on page transition
+  // Intercept internal link clicks for instant visual feedback ONLY if navigating from Login -> Portal or between Portals
   useEffect(() => {
     const handleLinkClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement)?.closest('a');
       if (target && target.href) {
         try {
           const url = new URL(target.href, window.location.origin);
-          if (url.origin === window.location.origin && url.pathname !== window.location.pathname) {
-            setActivePortalLabel(getPortalLabel(url.pathname));
+          const currentPath = window.location.pathname;
+          const targetPath = url.pathname;
+          if (url.origin === window.location.origin && shouldTriggerTransition(currentPath, targetPath)) {
+            setActivePortalLabel(getPortalLabel(targetPath));
             setIsNavigating(true);
           }
         } catch (err) {}
