@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
 
-export const PageTransitionOverlay: React.FC = () => {
+const PageTransitionOverlayContent: React.FC = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isNavigating, setIsNavigating] = useState(false);
@@ -110,6 +110,14 @@ export const PageTransitionOverlay: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+export const PageTransitionOverlay: React.FC = () => {
+  return (
+    <Suspense fallback={null}>
+      <PageTransitionOverlayContent />
+    </Suspense>
   );
 };
 

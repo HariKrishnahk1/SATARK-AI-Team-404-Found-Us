@@ -1,3 +1,4 @@
+import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -64,7 +65,9 @@ export default function RootLayout({
             {/* Global Singleton Startup Video Modal (Citizen & Admin Command Centre) */}
             <StartupVideoModal />
             {/* Theme-aligned Page Navigation Radar Overlay */}
-            <PageTransitionOverlay />
+            <Suspense fallback={null}>
+              <PageTransitionOverlay />
+            </Suspense>
             <div id="app-content-root" className="min-h-screen flex flex-col flex-grow">
               <Navbar />
               <PageTransitionWrapper>
