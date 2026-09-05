@@ -6,6 +6,7 @@ import { SocketProvider } from '../context/SocketContext';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { StartupVideoModal } from '../components/StartupVideoModal';
+import { PageTransitionOverlay, PageTransitionWrapper } from '../components/PageTransitionOverlay';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -62,9 +63,13 @@ export default function RootLayout({
           <SocketProvider>
             {/* Global Singleton Startup Video Modal (Citizen & Admin Command Centre) */}
             <StartupVideoModal />
+            {/* Theme-aligned Page Navigation Radar Overlay */}
+            <PageTransitionOverlay />
             <div id="app-content-root" className="min-h-screen flex flex-col flex-grow">
               <Navbar />
-              <main className="flex-grow">{children}</main>
+              <PageTransitionWrapper>
+                <main className="flex-grow">{children}</main>
+              </PageTransitionWrapper>
               <Footer />
             </div>
           </SocketProvider>
