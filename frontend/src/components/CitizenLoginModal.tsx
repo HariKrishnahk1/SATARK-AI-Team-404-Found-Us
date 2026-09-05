@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
 import {
   X, User, Mail, Phone, Lock, Key, ShieldCheck, CheckCircle2,
-  ArrowRight, Sparkles, AlertCircle, RefreshCw, Eye, EyeOff, Home
+  ArrowRight, Sparkles, AlertCircle, RefreshCw, Eye, EyeOff, Home, Clock
 } from 'lucide-react';
 
 interface CitizenLoginModalProps {
@@ -487,7 +487,9 @@ export const CitizenLoginModal: React.FC<CitizenLoginModalProps> = ({
                   <div className="mt-2 p-2.5 rounded-xl bg-slate-950 border border-emerald-500/30 space-y-2 animate-fade-in">
                     <div className="flex items-center justify-between text-[11px] text-slate-400">
                       <span>Enter 6-digit verification code:</span>
-                      <span className="text-emerald-400 font-mono font-bold">Demo OTP: {generatedEmailOtp}</span>
+                      <span className="text-emerald-400 font-mono font-bold flex items-center gap-1">
+                        <Clock className="w-3 h-3 animate-spin text-emerald-400" /> Check Inbox
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <input
@@ -556,7 +558,9 @@ export const CitizenLoginModal: React.FC<CitizenLoginModalProps> = ({
                   <div className="mt-2 p-2.5 rounded-xl bg-slate-950 border border-emerald-500/30 space-y-2 animate-fade-in">
                     <div className="flex items-center justify-between text-[11px] text-slate-400">
                       <span>Enter 6-digit SMS verification code:</span>
-                      <span className="text-emerald-400 font-mono font-bold">Demo OTP: {generatedMobileOtp}</span>
+                      <span className="text-emerald-400 font-mono font-bold flex items-center gap-1">
+                        <Clock className="w-3 h-3 animate-spin text-emerald-400" /> Check SMS
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <input

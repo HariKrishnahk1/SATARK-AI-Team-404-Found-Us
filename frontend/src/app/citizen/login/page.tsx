@@ -447,8 +447,8 @@ export default function CitizenLoginPage() {
                   <div className="mt-2.5 p-3.5 rounded-2xl bg-slate-950 border-2 border-emerald-500/40 space-y-2.5">
                     <div className="flex items-center justify-between text-xs text-slate-300">
                       <span>Enter 6-digit email OTP:</span>
-                      <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/40">
-                        Demo OTP: {generatedEmailOtp}
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/40 flex items-center gap-1">
+                        <Clock className="w-3 h-3 animate-spin text-emerald-400" /> Check Inbox / Spam
                       </span>
                     </div>
                     <div className="flex items-center gap-2.5">
@@ -518,8 +518,8 @@ export default function CitizenLoginPage() {
                   <div className="mt-2.5 p-3.5 rounded-2xl bg-slate-950 border-2 border-emerald-500/40 space-y-2.5">
                     <div className="flex items-center justify-between text-xs text-slate-300">
                       <span>Enter 6-digit SMS OTP:</span>
-                      <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/40">
-                        Demo OTP: {generatedMobileOtp}
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-mono font-bold text-xs border border-emerald-500/40 flex items-center gap-1">
+                        <Clock className="w-3 h-3 animate-spin text-emerald-400" /> Check SMS Messages
                       </span>
                     </div>
                     <div className="flex items-center gap-2.5">
@@ -527,7 +527,7 @@ export default function CitizenLoginPage() {
                         type="text"
                         maxLength={6}
                         value={mobileOtpInput}
-                        onChange={(e) => setEmailOtpInput(e.target.value)}
+                        onChange={(e) => setMobileOtpInput(e.target.value)}
                         className="w-36 bg-slate-900 border-2 border-slate-700 focus:border-emerald-400 rounded-xl px-3 py-2 text-center font-mono text-base tracking-widest text-white focus:outline-none"
                         placeholder="••••••"
                       />
