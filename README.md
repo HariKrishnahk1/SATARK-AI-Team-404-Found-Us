@@ -114,18 +114,6 @@ npm install
 npm run dev
 ```
 
-### 4. Application Endpoints
-- **Unified SATARK AI Platform (Next.js)**: `http://localhost:3000`
-  - Multi-Portal Auth Gateway: `http://localhost:3000/login`
-  - Citizen Portal: `http://localhost:3000/citizen`
-  - Government Command Centre: `http://localhost:3000/admin`
-  - University & HEI Portal: `http://localhost:3000/hei`
-  - Student Workspace: `http://localhost:3000/student`
-  - Industry CSR Hub: `http://localhost:3000/industry`
-- **FastAPI Interactive API Docs**: `http://localhost:8008/docs`
-
----
-
 ## 🔑 Demo Login Credentials
 
 | Role | Email | Password | Access / Scope |
