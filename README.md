@@ -27,7 +27,7 @@
 
 </div>
 
-### 👤 Citizen Portal
+---
 
 ## 🌐 Live Demonstrations
 
@@ -38,7 +38,7 @@ Experience the live deployed portals of SATARK AI on Render:
 | 👤 **Citizen Portal** | Community challenge submission (voice/text), GPS geotagging, SMS/Email OTP login, and transparent tracking. | [![Open Citizen Portal](https://img.shields.io/badge/Open_Citizen_Portal-0284C7?style=for-the-badge&logo=render&logoColor=white)](https://satark-ai-citizen.onrender.com/) |
 | 🛡️ **Government / Admin Portal** | State command centre, 13 live KPI metrics, Leaflet GIS heatmap, AI override audit trail, and department routing. | [![Open Admin Portal](https://img.shields.io/badge/Open_Admin_Portal-DC2626?style=for-the-badge&logo=render&logoColor=white)](https://satark-ai-admin.onrender.com/) |
 
-📌 About SATARK AI
+---
 
 ## 🎯 Smart India Hackathon 2026 Overview
 
