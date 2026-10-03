@@ -91,11 +91,11 @@ def send_gmail_otp(to_email: str, code: str) -> Dict[str, Any]:
     """
     Send OTP via Gmail SMTP or log to server console as fallback.
     """
-    smtp_user = settings.SMTP_USER
-    smtp_pass = settings.SMTP_PASSWORD
-    smtp_host = settings.SMTP_HOST
-    smtp_port = settings.SMTP_PORT
-    from_email = settings.SMTP_FROM_EMAIL or smtp_user
+    smtp_user = (settings.SMTP_USER or "").strip()
+    smtp_pass = (settings.SMTP_PASSWORD or "").strip()
+    smtp_host = (settings.SMTP_HOST or "").strip() or "smtp.gmail.com"
+    smtp_port = settings.SMTP_PORT or 587
+    from_email = (settings.SMTP_FROM_EMAIL or "").strip() or smtp_user or "satark.ai.sih2026@gmail.com"
 
     html_content = f"""
     <!DOCTYPE html>
@@ -153,23 +153,30 @@ def send_gmail_otp(to_email: str, code: str) -> Dict[str, Any]:
             msg.attach(MIMEText(text_body, "plain"))
             msg.attach(MIMEText(html_content, "html"))
 
-            with smtplib.SMTP(smtp_host, smtp_port, timeout=12) as server:
-                server.ehlo()
-                server.starttls()
-                server.ehlo()
-                server.login(smtp_user, smtp_pass)
-                server.sendmail(from_email, [to_email], msg.as_string())
+            if smtp_port == 465:
+                with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=12) as server:
+                    server.login(smtp_user, smtp_pass)
+                    server.sendmail(from_email, [to_email], msg.as_string())
+            else:
+                with smtplib.SMTP(smtp_host, smtp_port, timeout=12) as server:
+                    server.ehlo()
+                    server.starttls()
+                    server.ehlo()
+                    server.login(smtp_user, smtp_pass)
+                    server.sendmail(from_email, [to_email], msg.as_string())
 
             logger.info(f"Successfully sent Gmail OTP to {to_email}")
             return {
                 "sent": True,
                 "method": "gmail_smtp",
-                "message": f"✓ Security OTP sent immediately to {to_email}! Please check your Gmail Inbox & Spam folder."
+                "message": f"✓ Security OTP sent to {to_email}! Please check your Gmail Inbox & Spam folder.",
+                "demo_code": code
             }
         except Exception as e:
             logger.error(f"SMTP send failed ({e}).")
+            print(f"⚠️ [SATARK AI SMTP ERROR]: {e}")
 
-    # Real OTP dispatch logged for backend tracking
+    # Fallback mode logging
     print(f"\n=======================================================")
     print(f"🔒 [SATARK AI REAL OTP DISPATCH] TO GMAIL: {to_email}")
     print(f"   Real OTP Code: {code}")
@@ -178,8 +185,9 @@ def send_gmail_otp(to_email: str, code: str) -> Dict[str, Any]:
 
     return {
         "sent": True,
-        "method": "smtp_live",
-        "message": f"✓ Security OTP dispatched immediately to {to_email}! Please check your Gmail Inbox & Spam folder."
+        "method": "demo_fallback",
+        "message": f"✓ Security OTP code: {code} (Dispatched for {to_email}). [To receive emails in inbox, set SMTP_USER & SMTP_PASSWORD in backend/.env]",
+        "demo_code": code
     }
 
 def send_mobile_otp(phone_number: str, code: str) -> Dict[str, Any]:
@@ -190,7 +198,7 @@ def send_mobile_otp(phone_number: str, code: str) -> Dict[str, Any]:
     if len(clean_phone) > 10:
         clean_phone = clean_phone[-10:]
 
-    sms_api_key = settings.SMS_API_KEY
+    sms_api_key = (settings.SMS_API_KEY or "").strip()
 
     if sms_api_key:
         try:
@@ -204,12 +212,13 @@ def send_mobile_otp(phone_number: str, code: str) -> Dict[str, Any]:
                     return {
                         "sent": True,
                         "method": "fast2sms_api",
-                        "message": f"✓ Mobile SMS OTP dispatched immediately to +91-{clean_phone}! Please check your phone."
+                        "message": f"✓ Mobile SMS OTP dispatched immediately to +91-{clean_phone}! Please check your phone.",
+                        "demo_code": code
                     }
         except Exception as e:
             logger.error(f"SMS Gateway dispatch failed: {e}")
 
-    # Real SMS dispatch logged for backend tracking
+    # Fallback SMS dispatch
     print(f"\n=======================================================")
     print(f"📱 [SATARK AI REAL OTP DISPATCH] TO MOBILE: +91-{clean_phone}")
     print(f"   Real SMS Code: {code}")
@@ -218,6 +227,7 @@ def send_mobile_otp(phone_number: str, code: str) -> Dict[str, Any]:
 
     return {
         "sent": True,
-        "method": "sms_live",
-        "message": f"✓ Mobile SMS OTP dispatched immediately to +91-{clean_phone}! Please check your phone."
+        "method": "sms_fallback",
+        "message": f"✓ Mobile SMS OTP code: {code} (Dispatched to +91-{clean_phone}). [Fast2SMS API key not set in backend/.env]",
+        "demo_code": code
     }

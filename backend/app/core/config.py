@@ -1,7 +1,11 @@
 import os
+from pathlib import Path
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List, Union, Any
+
+_backend_dir = Path(__file__).resolve().parent.parent.parent
+_env_file = _backend_dir / ".env"
 
 class Settings(BaseSettings):
     """SATARK AI System Architecture Settings & Environment Config."""
@@ -46,6 +50,7 @@ class Settings(BaseSettings):
             return [i.strip() for i in v.split(",") if i.strip()]
         return v
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(env_file=[str(_env_file), ".env"], env_file_encoding="utf-8", extra="ignore")
 
 settings = Settings()
+
